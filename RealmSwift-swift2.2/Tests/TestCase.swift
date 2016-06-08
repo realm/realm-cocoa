@@ -45,6 +45,7 @@ class TestCase: XCTestCase {
         // re-enabled and we need it enabled for performance tests
         RLMDisableSyncToDisk()
 #endif
+
         do {
             // Clean up any potentially lingering Realm files from previous runs
             try NSFileManager.defaultManager().removeItemAtPath(RLMRealmPathForFile(""))
@@ -60,14 +61,7 @@ class TestCase: XCTestCase {
 
     override func invokeTest() {
         testDir = RLMRealmPathForFile(realmFilePrefix())
-
-        do {
-            try NSFileManager.defaultManager().removeItemAtPath(testDir)
-        } catch {
-            // The directory shouldn't actually already exist, so not an error
-        }
-        try! NSFileManager.defaultManager().createDirectoryAtPath(testDir, withIntermediateDirectories: true,
-            attributes: nil)
+        cleanUpTestDir()
 
         let config = Realm.Configuration(fileURL: defaultRealmURL())
         Realm.Configuration.defaultConfiguration = config
@@ -81,12 +75,7 @@ class TestCase: XCTestCase {
         }
 
         resetRealmState()
-
-        do {
-            try NSFileManager.defaultManager().removeItemAtPath(testDir)
-        } catch {
-            XCTFail("Unable to delete realm files")
-        }
+        cleanUpTestDir()
 
         // Verify that there are no remaining realm files after the test
         let parentDir = (testDir as NSString).stringByDeletingLastPathComponent
@@ -94,6 +83,20 @@ class TestCase: XCTestCase {
             XCTAssertNotEqual(url.pathExtension, "realm", "Lingering realm file at \(parentDir)/\(url)")
             assert(url.pathExtension != "realm")
         }
+    }
+
+    func cleanUpTestDir() {
+        do {
+            try NSFileManager.defaultManager().removeItemAtPath(testDir)
+        } catch let error as NSError {
+            // It's okay for the directory to already not exist
+            XCTAssertTrue(error.domain == NSCocoaErrorDomain && error.code == 4)
+        } catch {
+            fatalError("Unexpected error: \(error)")
+        }
+        try! NSFileManager.defaultManager().createDirectoryAtPath(testDir,
+                                                                  withIntermediateDirectories: true,
+                                                                  attributes: nil)
     }
 
     func resetRealmState() {
