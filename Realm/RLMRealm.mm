@@ -46,6 +46,10 @@
 #include <realm/util/scope_exit.hpp>
 #include <realm/version.hpp>
 
+#if REALM_IOS
+#import <UIKit/UIKit.h>
+#endif
+
 using namespace realm;
 using util::File;
 
@@ -120,12 +124,19 @@ NSData *RLMRealmValidatedEncryptionKey(NSData *key) {
 @implementation RLMRealm {
     NSHashTable<RLMFastEnumerator *> *_collectionEnumerators;
     bool _sendingNotifications;
+
+    // Needs to be atomic because the timeout callback is called on the main
+    // thread and not the RLMRealm's thread, so we could try to end the task
+    // from multiple threads at once
+    std::atomic<NSUInteger> _backgroundTaskIdentifier;
+    bool _addedBackgroundNotification;
 }
 
 + (BOOL)isCoreDebug {
     return realm::Version::has_feature(realm::feature_Debug);
 }
 
+id g_sharedApplication;
 + (void)initialize {
     static bool initialized;
     if (initialized) {
@@ -133,9 +144,77 @@ NSData *RLMRealmValidatedEncryptionKey(NSData *key) {
     }
     initialized = true;
 
+#if REALM_IOS
+    // Using NSClassFromString rather than directly referencing UIApplication
+    // avoids the need to link UIKit.framework, and we can't actually write
+    // `[UIApplication sharedApplication]` due to compiling as extension-safe
+    g_sharedApplication = [NSClassFromString(@"UIApplication") sharedApplication];
+
+    // Background tasks aren't supported if we're running inside an extension
+    if (![g_sharedApplication respondsToSelector:@selector(beginBackgroundTaskWithExpirationHandler:)]) {
+        g_sharedApplication = nil;
+    }
+#endif
+
     RLMCheckForUpdates();
     RLMSendAnalytics();
 }
+
+#if REALM_IOS
+// On iOS we want to wrap our write transactions in background tasks so that the
+// OS doesn't suspend the app while we hold the write lock, as that will block
+// any other apps in the same app group from using the Realm. Doing this
+// unconditionally is extremely slow, so instead we only do it if we're already
+// in the background, and just register for the background state transition
+// notification otherwise
+- (void)beginBackgroundTask {
+    if (!g_sharedApplication) {
+        return;
+    }
+
+    if ([g_sharedApplication applicationState] == UIApplicationStateBackground) {
+        [self applicationDidEnterBackground:nil];
+        return;
+    }
+
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(applicationDidEnterBackground:)
+                                               name:@"UIApplicationDidEnterBackground"
+                                             object:nil];
+    _addedBackgroundNotification = true;
+}
+
+- (void)applicationDidEnterBackground:(NSNotification *)notification {
+    if (notification && !self.inWriteTransaction) {
+        // No need for a task if we got the notification when not actually in
+        // a write transaction
+        return;
+    }
+
+    // The block needs to not retain `self` or we'll leak any Realms which the
+    // user fails to commit/cancel
+    __weak RLMRealm *weakSelf = self;
+    _backgroundTaskIdentifier = [g_sharedApplication beginBackgroundTaskWithExpirationHandler:^{
+        // If we time out just end the task and let the OS suspend us rather
+        // than terminating
+        if (auto self = weakSelf) {
+            [self endBackgroundTask];
+        }
+    }];
+}
+
+- (void)endBackgroundTask {
+    if (auto identifier = _backgroundTaskIdentifier.exchange(0)) {
+        [g_sharedApplication endBackgroundTask:identifier];
+    }
+}
+#else
+- (void)beginBackgroundTask {
+}
+
+- (void)endBackgroundTask {
+}
+#endif // REALM_IOS
 
 - (instancetype)initPrivate {
     self = [super init];
@@ -450,10 +529,12 @@ REALM_NOINLINE void RLMRealmTranslateException(NSError **error) {
 }
 
 - (void)beginWriteTransaction {
+    [self beginBackgroundTask];
     try {
         _realm->begin_transaction();
     }
     catch (std::exception &ex) {
+        [self endBackgroundTask];
         @throw RLMException(ex);
     }
 }
@@ -465,15 +546,18 @@ REALM_NOINLINE void RLMRealmTranslateException(NSError **error) {
 - (BOOL)commitWriteTransaction:(NSError **)outError {
     try {
         _realm->commit_transaction();
+        [self endBackgroundTask];
         return YES;
     }
     catch (...) {
+        [self endBackgroundTask];
         RLMRealmTranslateException(outError);
         return NO;
     }
 }
 
-- (BOOL)commitWriteTransactionWithoutNotifying:(NSArray<RLMNotificationToken *> *)tokens error:(NSError **)error {
+- (BOOL)commitWriteTransactionWithoutNotifying:(NSArray<RLMNotificationToken *> *)tokens
+                                         error:(NSError **)error {
     for (RLMNotificationToken *token in tokens) {
         if (token.realm != self) {
             @throw RLMException(@"Incorrect Realm: only notifications for the Realm being modified can be skipped.");
@@ -483,9 +567,11 @@ REALM_NOINLINE void RLMRealmTranslateException(NSError **error) {
 
     try {
         _realm->commit_transaction();
+        [self endBackgroundTask];
         return YES;
     }
     catch (...) {
+        [self endBackgroundTask];
         RLMRealmTranslateException(error);
         return NO;
     }
@@ -507,6 +593,7 @@ REALM_NOINLINE void RLMRealmTranslateException(NSError **error) {
 - (void)cancelWriteTransaction {
     try {
         _realm->cancel_transaction();
+        [self endBackgroundTask];
     }
     catch (std::exception &ex) {
         @throw RLMException(ex);
@@ -528,6 +615,7 @@ REALM_NOINLINE void RLMRealmTranslateException(NSError **error) {
     }
 
     _realm->invalidate();
+    [self endBackgroundTask];
 
     for (auto& objectInfo : _info) {
         for (RLMObservationInfo *info : objectInfo.second.observedObjects) {
@@ -579,13 +667,16 @@ REALM_NOINLINE void RLMRealmTranslateException(NSError **error) {
 }
 
 - (void)dealloc {
-    if (_realm) {
-        if (_realm->is_in_transaction()) {
-            [self cancelWriteTransaction];
-            NSLog(@"WARNING: An RLMRealm instance was deallocated during a write transaction and all "
-                  "pending changes have been rolled back. Make sure to retain a reference to the "
-                  "RLMRealm for the duration of the write transaction.");
-        }
+    if (_realm && _realm->is_in_transaction()) {
+        [self cancelWriteTransaction];
+        NSLog(@"WARNING: An RLMRealm instance was deallocated during a write transaction and all "
+              "pending changes have been rolled back. Make sure to retain a reference to the "
+              "RLMRealm for the duration of the write transaction.");
+    }
+    if (_addedBackgroundNotification) {
+        [NSNotificationCenter.defaultCenter removeObserver:self
+                                                      name:@"UIApplicationDidEnterBackground"
+                                                    object:nil];
     }
 }
 

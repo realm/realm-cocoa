@@ -9,6 +9,9 @@ x.x.x Release notes (yyyy-MM-dd)
 
 * Add a `{RLM}SyncUser.isAdmin` property indicating whether a user is a Realm
   Object Server administrator.
+* Write transactions are automatically marked as background tasks on platforms
+  which support them to avoid having an app suspended while it holds the write
+  lock.
 
 ### Bugfixes
 
