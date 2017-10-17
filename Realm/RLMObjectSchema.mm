@@ -155,7 +155,9 @@ using namespace realm;
         if (!schema.primaryKeyProperty) {
             @throw RLMException(@"Primary key property '%@' does not exist on object '%@'", primaryKey, className);
         }
-        if (schema.primaryKeyProperty.type != RLMPropertyTypeInt && schema.primaryKeyProperty.type != RLMPropertyTypeString) {
+        if ((schema.primaryKeyProperty.type != RLMPropertyTypeInt
+             && schema.primaryKeyProperty.type != RLMPropertyTypeString)
+            || schema.primaryKeyProperty.subtype == RLMPropertySubtypeInteger) {
             @throw RLMException(@"Property '%@' cannot be made the primary key of '%@' because it is not a 'string' or 'int' property.",
                                 primaryKey, className);
         }
@@ -193,6 +195,7 @@ using namespace realm;
         RLMProperty *prop = nil;
         if (isSwiftClass) {
             prop = [[RLMProperty alloc] initSwiftPropertyWithName:propertyName
+                                                      objectClass:objectClass
                                                           indexed:[indexed containsObject:propertyName]
                                            linkPropertyDescriptor:linkingObjectsProperties[propertyName]
                                                          property:props[i]
@@ -200,6 +203,7 @@ using namespace realm;
         }
         else {
             prop = [[RLMProperty alloc] initWithName:propertyName
+                                         objectClass:objectClass
                                              indexed:[indexed containsObject:propertyName]
                               linkPropertyDescriptor:linkingObjectsProperties[propertyName]
                                             property:props[i]];

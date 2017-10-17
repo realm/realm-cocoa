@@ -64,6 +64,11 @@ class ObjectAccessorTests: TestCase {
 
         object.objectCol = SwiftBoolObject(value: [true])
         XCTAssertEqual(object.objectCol!.boolCol, true)
+
+        object.realmIntCol = RealmInteger(value: 10)
+        XCTAssertEqual(object.realmIntCol.value, 10)
+        object.realmIntCol = RealmInteger(value: 11)
+        XCTAssertEqual(object.realmIntCol.value, 11)
     }
 
     func testStandaloneAccessors() {
@@ -328,5 +333,12 @@ class ObjectAccessorTests: TestCase {
         XCTAssertEqual(object.optObjectCol!.boolCol, true)
         object.optObjectCol = nil
         XCTAssertNil(object.optObjectCol)
+
+        object.optRealmIntCol = RealmInteger(value: 20)
+        XCTAssertEqual(object.optRealmIntCol?.value, 20)
+        object.optRealmIntCol = nil
+        XCTAssertNil(object.optRealmIntCol)
+        object.optRealmIntCol = RealmInteger(value: 21)
+        XCTAssertEqual(object.optRealmIntCol?.value, 21)
     }
 }

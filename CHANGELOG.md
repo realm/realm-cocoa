@@ -1,3 +1,14 @@
+x.x.x Release notes (yyyy-mm-dd)
+=============================================================
+
+### Enhancements
+* Add support for `RLMInteger` (Objective-C) and `RealmInteger` (Swift),
+  which expose advanced Realm-specific functionality on integer properties
+  on model objects. Realm integers are interchangeable with normal nullable
+  and non-nullable integer properties, and allow integers to be incremented
+  in a way that preserves changes when a Realm is being used by multiple
+  processes or by multiple synchronized clients.
+
 3.0.0 Release notes (2017-10-16)
 =============================================================
 

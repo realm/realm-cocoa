@@ -144,12 +144,12 @@
 - (void)testDynamicTypes {
     NSDate *now = [NSDate dateWithTimeIntervalSince1970:100000];
     id obj1 = @[@YES, @1, @1.1f, @1.11, @"string", [NSData dataWithBytes:"a" length:1],
-                now, @YES, @11, NSNull.null];
+                now, @YES, @11, NSNull.null, @82, NSNull.null];
 
     StringObject *obj = [[StringObject alloc] init];
     obj.stringCol = @"string";
     id obj2 = @[@NO, @2, @2.2f, @2.22, @"string2", [NSData dataWithBytes:"b" length:1],
-                now, @NO, @22, obj];
+                now, @NO, @22, obj, @100, @58];
     @autoreleasepool {
         // open realm in autoreleasepool to create tables and then dispose
         RLMRealm *realm = [RLMRealm realmWithURL:RLMTestRealmURL()];
@@ -216,7 +216,7 @@
     [dyrealm beginWriteTransaction];
     RLMObject *stringObject = [dyrealm createObject:StringObject.className withValue:@[@"string"]];
     [dyrealm createObject:AllTypesObject.className withValue:@[@NO, @2, @2.2f, @2.22, @"string2",
-        [NSData dataWithBytes:"b" length:1], NSDate.date, @NO, @22, stringObject]];
+                                                               [NSData dataWithBytes:"b" length:1], NSDate.date, @NO, @22, stringObject, @15, @9001]];
     [dyrealm commitWriteTransaction];
 
     XCTAssertEqual(1U, [dyrealm allObjects:StringObject.className].count);
@@ -351,6 +351,42 @@
                               @"Cannot modify read-only property 'PersonObject.parents'");
 
     [realm commitWriteTransaction];
+}
+
+- (void)testDynamicCounterIncrement {
+    @autoreleasepool {
+        // open realm in autoreleasepool to create tables and then dispose
+        RLMRealm *realm = [self realmWithTestPath];
+        [realm beginWriteTransaction];
+        [RealmIntObject createInRealm:realm withValue:@[@9000]];
+        [RealmNullableIntObject createInRealm:realm withValue:@[@500]];
+        [realm commitWriteTransaction];
+    }
+
+    RLMRealm *testRealm = [self realmWithTestPathAndSchema:nil];
+
+    // Dynamically increment non-nullable integer.
+    RLMObject<RLMObjectMigrationProtocol> *intObject = [[RealmIntObject allObjectsInRealm:testRealm] firstObject];
+    XCTAssertTrue([intObject conformsToProtocol:@protocol(RLMObjectMigrationProtocol)]);
+    XCTAssertEqual([[intObject valueForKey:@"realmInt"] integerValue], 9000);
+    [testRealm beginWriteTransaction];
+    [intObject incrementValueOfIntegerProperty:@"realmInt" byValue:123];
+    [testRealm commitWriteTransaction];
+    XCTAssertEqual([[intObject valueForKey:@"realmInt"] integerValue], 9123);
+
+    // Dynamically increment nullable integer.
+    RLMObject<RLMObjectMigrationProtocol> *nullableIntObject = [[RealmNullableIntObject allObjectsInRealm:testRealm] firstObject];
+    XCTAssertTrue([nullableIntObject conformsToProtocol:@protocol(RLMObjectMigrationProtocol)]);
+    XCTAssertEqual([[nullableIntObject valueForKey:@"realmInt"] integerValue], 500);
+    [testRealm beginWriteTransaction];
+    [nullableIntObject incrementValueOfIntegerProperty:@"realmInt" byValue:-123];
+    [testRealm commitWriteTransaction];
+    XCTAssertEqual([[nullableIntObject valueForKey:@"realmInt"] integerValue], 377);
+    // Null it out
+    [testRealm beginWriteTransaction];
+    nullableIntObject[@"realmInt"] = [NSNull null];
+    RLMAssertThrows([nullableIntObject incrementValueOfIntegerProperty:@"realmInt" byValue:1]);
+    [testRealm commitWriteTransaction];
 }
 
 @end

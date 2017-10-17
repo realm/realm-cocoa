@@ -51,6 +51,19 @@ static void RLMAssertRealmSchemaMatchesTable(id self, RLMRealm *realm) {
     }
 }
 
+@interface RLMIntegerMigrationObject : RLMObject
+@property int normalInt;
+@property RLMInteger *realmInt;
+@property NSNumber<RLMInt> *nullableInt;
+@property RLMInteger *nullableRealmInt;
+@end
+
+@implementation RLMIntegerMigrationObject
++ (NSArray *)requiredProperties {
+    return @[@"realmInt"];
+}
+@end
+
 @interface MigrationObject : RLMObject
 @property int intCol;
 @property NSString *stringCol;
@@ -612,7 +625,7 @@ RLM_ARRAY_TYPE(MigrationObject);
     [realm commitWriteTransaction];
 }
 
-#pragma mark - Migration block invocatios
+#pragma mark - Migration block invocations
 
 - (void)testMigrationBlockNotCalledForIntialRealmCreation {
     RLMRealmConfiguration *config = [RLMRealmConfiguration new];
@@ -857,6 +870,51 @@ RLM_ARRAY_TYPE(MigrationObject);
     // verify migration
     MigrationObject *mig1 = [MigrationObject allObjectsInRealm:realm][1];
     XCTAssertEqualObjects(mig1[@"stringCol"], @"2", @"stringCol should be string after migration.");
+}
+
+/// Realm integers and normal integers should be considered interchangeable.
+- (void)testRealmIntInterchangeabilityWithRegularInt {
+    RLMObjectSchema *objectSchema = [RLMObjectSchema schemaForObjectClass:RLMIntegerMigrationObject.class];
+    // Swap around the Realm integers and the normal integers.
+    objectSchema.objectClass = RLMObject.class;
+    RLMProperty *normalInt = objectSchema.properties[0];
+    normalInt.subtype = RLMPropertySubtypeInteger;
+    RLMProperty *realmInt = objectSchema.properties[1];
+    realmInt.subtype = RLMPropertySubtypeNone;
+    RLMProperty *nullableInt = objectSchema.properties[2];
+    nullableInt.subtype = RLMPropertySubtypeInteger;
+    RLMProperty *nullableRealmInt = objectSchema.properties[3];
+    nullableRealmInt.subtype = RLMPropertySubtypeNone;
+
+    // create realm with old schema and populate
+    [self createTestRealmWithSchema:@[objectSchema] block:^(RLMRealm *realm) {
+        [realm createObject:RLMIntegerMigrationObject.className withValue:@[@10, @20, @30, @40]];
+        [realm createObject:RLMIntegerMigrationObject.className withValue:@[@1, @2, NSNull.null, @4]];
+    }];
+
+    // apply migration
+    RLMRealm *realm = [self migrateTestRealmWithBlock:nil];
+
+    // verify migration
+    RLMIntegerMigrationObject *object = [RLMIntegerMigrationObject allObjectsInRealm:realm][1];
+    XCTAssertEqual(object.normalInt, 1);
+    XCTAssertEqual([object.realmInt.value integerValue], 2);
+    XCTAssertNil(object.nullableInt);
+    XCTAssertEqual([object.nullableRealmInt.value integerValue], 4);
+
+    [realm beginWriteTransaction];
+    // Do some Realm Integer-specific stuff.
+    object.normalInt = 100;
+    [object.realmInt incrementValueBy:10];
+    object.nullableInt = @20;
+    object.nullableRealmInt = nil;
+    [realm commitWriteTransaction];
+
+    // Ensure all operations completed successfully.
+    XCTAssertEqual(object.normalInt, 100);
+    XCTAssertEqual([object.realmInt.value integerValue], 12);
+    XCTAssertEqual([object.nullableInt integerValue], 20);
+    XCTAssertNil(object.nullableRealmInt.value);
 }
 
 - (void)testChangeObjectLinkType {
@@ -1410,7 +1468,8 @@ RLM_ARRAY_TYPE(MigrationObject);
     objectSchema.properties = beforeProperties;
 
     NSDate *now = [NSDate dateWithTimeIntervalSince1970:100000];
-    id inputValue = @[@YES, @1, @1.1f, @1.11, @"string", [NSData dataWithBytes:"a" length:1], now, @YES, @11, @[@"a"]];
+    id inputValue = @[@YES, @1, @1.1f, @1.11, @"string", [NSData dataWithBytes:"a" length:1], now, @YES, @11, @[@"a"],
+                      @22, @30];
 
     [self createTestRealmWithSchema:@[objectSchema, stringObjectSchema, linkingObjectsSchema] block:^(RLMRealm *realm) {
         [AllTypesObject createInRealm:realm withValue:inputValue];
@@ -1423,7 +1482,9 @@ RLM_ARRAY_TYPE(MigrationObject);
         [afterProperties enumerateObjectsUsingBlock:^(RLMProperty *property, NSUInteger idx, __unused BOOL *stop) {
             [migration renamePropertyForClass:AllTypesObject.className oldName:[beforeProperties[idx] name] newName:property.name];
             [migration enumerateObjects:AllTypesObject.className block:^(RLMObject *oldObject, RLMObject *newObject) {
-                XCTAssertNotNil(oldObject[[beforeProperties[idx] name]]);
+                NSString *name = [beforeProperties[idx] name];
+                XCTAssertNotNil(oldObject[name],
+                                @"The value of the property named '%@' on the old object was nil", name);
                 RLMAssertThrowsWithReasonMatching(newObject[[beforeProperties[idx] name]], @"Invalid property name");
                 if (![property.objectClassName isEqualToString:@""]) { return; }
                 XCTAssertEqualObjects(oldObject[[beforeProperties[idx] name]], newObject[property.name]);
@@ -1453,6 +1514,8 @@ RLM_ARRAY_TYPE(MigrationObject);
     XCTAssertEqualObjects(inputValue[7], @(obj.cBoolCol));
     XCTAssertEqualObjects(inputValue[8], @(obj.longCol));
     XCTAssertEqualObjects(inputValue[9], @[obj.objectCol.stringCol]);
+    XCTAssertEqualObjects(inputValue[10], obj.realmIntCol.value);
+    XCTAssertEqualObjects(inputValue[11], obj.realmNullableIntCol.value);
 }
 
 - (void)testMultipleMigrationRenameProperty {

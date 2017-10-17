@@ -527,12 +527,18 @@ typedef void (^RLMObjectChangeBlock)(BOOL deleted,
  but that object will have its new values and not the values it had before the
  changes. This means that `previousValue` may be a deleted object, and you will
  need to check `invalidated` before accessing any of its properties.
+
+ For Realm integer properties this will provide a `NSNumber` containing the old
+ numeric value (or `NSNull` if appropriate), rather than a `RLMInteger` instance.
  */
 @property (nonatomic, readonly, strong, nullable) id previousValue;
 
 /**
  The value of the property after the change occurred. This will always be `nil`
  for `RLMArray` properties.
+
+ For Realm integer properties this will provide a `NSNumber` containing the new
+ numeric value (or `NSNull` if appropriate), rather than a `RLMInteger` instance.
  */
 @property (nonatomic, readonly, strong, nullable) id value;
 @end

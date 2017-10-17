@@ -30,6 +30,17 @@
 @implementation IntObject
 @end
 
+@implementation RealmIntObject
+
++ (NSArray *)requiredProperties {
+    return @[@"realmInt"];
+}
+
+@end
+
+@implementation RealmNullableIntObject
+@end
+
 @implementation AllIntSizesObject
 @end
 
@@ -84,7 +95,7 @@
 }
 + (NSArray *)requiredProperties
 {
-    return @[@"stringCol", @"dateCol", @"binaryCol"];
+    return @[@"stringCol", @"dateCol", @"binaryCol", @"realmIntCol"];
 }
 @end
 

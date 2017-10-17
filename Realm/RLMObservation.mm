@@ -20,6 +20,7 @@
 
 #import "RLMAccessor.h"
 #import "RLMArray_Private.hpp"
+#import "RLMInteger_Private.h"
 #import "RLMListBase.h"
 #import "RLMObjectSchema_Private.hpp"
 #import "RLMObject_Private.hpp"
@@ -215,7 +216,8 @@ id RLMObservationInfo::valueForKey(NSString *key) {
     static auto superValueForKey = reinterpret_cast<id(*)(id, SEL, NSString *)>([NSObject methodForSelector:@selector(valueForKey:)]);
     if (!lastProp) {
         // Not a managed property, so use NSObject's implementation of valueForKey:
-        return RLMCoerceToNil(superValueForKey(object, @selector(valueForKey:), key));
+        id value = RLMCoerceToNil(superValueForKey(object, @selector(valueForKey:), key));
+        return value;
     }
 
     auto getSuper = [&] {

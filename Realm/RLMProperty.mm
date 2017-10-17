@@ -22,7 +22,7 @@
 #import "RLMListBase.h"
 #import "RLMObject.h"
 #import "RLMObject_Private.h"
-#import "RLMOptionalBase.h"
+#import "RLMOptionalBase_Private.h"
 #import "RLMSchema_Private.h"
 #import "RLMSwiftSupport.h"
 #import "RLMUtil.hpp"
@@ -107,6 +107,8 @@ static bool rawTypeShouldBeTreatedAsComputedProperty(NSString *rawType) {
         _linkOriginPropertyName = linkOriginPropertyName;
         _indexed = indexed;
         _optional = optional;
+        // Since the dynamic API doesn't support integer property subtypes, we leave this as 'none'.
+        _subtype = RLMPropertySubtypeNone;
         [self updateAccessors];
     }
 
@@ -231,6 +233,10 @@ static realm::util::Optional<RLMPropertyType> typeFromProtocolString(const char 
                             @"RLMArrays can only contain instances of RLMObject subclasses. "
                             @"See https://realm.io/docs/objc/latest/#to-many for more information.", _name, _objectClassName);
     }
+    else if (strcmp(code, "@\"RLMInteger\"") == 0 || strcmp(code, "@\"RLMSwiftInteger\"") == 0) {
+        _type = RLMPropertyTypeInt;
+        _subtype = RLMPropertySubtypeInteger;
+    }
     else if (strncmp(code, numberPrefix, numberPrefixLen) == 0) {
         auto type = typeFromProtocolString(code + numberPrefixLen);
         if (type && (*type == RLMPropertyTypeInt || *type == RLMPropertyTypeFloat || *type == RLMPropertyTypeDouble || *type == RLMPropertyTypeBool)) {
@@ -335,6 +341,7 @@ static realm::util::Optional<RLMPropertyType> typeFromProtocolString(const char 
 }
 
 - (instancetype)initSwiftPropertyWithName:(NSString *)name
+                              objectClass:(Class)objectClass
                                   indexed:(BOOL)indexed
                    linkPropertyDescriptor:(RLMPropertyDescriptor *)linkPropertyDescriptor
                                  property:(objc_property_t)property
@@ -348,6 +355,7 @@ static realm::util::Optional<RLMPropertyType> typeFromProtocolString(const char 
 
     _name = name;
     _indexed = indexed;
+    _subtype = RLMPropertySubtypeNone;
 
     if (linkPropertyDescriptor) {
         _objectClassName = [linkPropertyDescriptor.objectClass className];
@@ -428,6 +436,9 @@ static realm::util::Optional<RLMPropertyType> typeFromProtocolString(const char 
                             "Add to Object.ignoredProperties() class method to ignore.",
                             self.name);
     }
+    if (self.subtype == RLMPropertySubtypeInteger) {
+        _swiftIvar = class_getInstanceVariable(objectClass, _name.UTF8String);
+    }
 
     if ([rawType isEqualToString:@"c"]) {
         // Check if it's a BOOL or Int8 by trying to set it to 2 and seeing if
@@ -444,6 +455,7 @@ static realm::util::Optional<RLMPropertyType> typeFromProtocolString(const char 
 }
 
 - (instancetype)initWithName:(NSString *)name
+                 objectClass:(Class)objectClass
                      indexed:(BOOL)indexed
       linkPropertyDescriptor:(RLMPropertyDescriptor *)linkPropertyDescriptor
                     property:(objc_property_t)property
@@ -455,6 +467,7 @@ static realm::util::Optional<RLMPropertyType> typeFromProtocolString(const char 
 
     _name = name;
     _indexed = indexed;
+    _subtype = RLMPropertySubtypeNone;
 
     if (linkPropertyDescriptor) {
         _objectClassName = [linkPropertyDescriptor.objectClass className];
@@ -473,6 +486,9 @@ static realm::util::Optional<RLMPropertyType> typeFromProtocolString(const char 
     if (![self setTypeFromRawType:rawType]) {
         @throw RLMException(@"Can't persist property '%@' with incompatible type. "
                              "Add to ignoredPropertyNames: method to ignore.", self.name);
+    }
+    if (self.subtype == RLMPropertySubtypeInteger) {
+        _swiftIvar = class_getInstanceVariable(objectClass, [[NSString stringWithFormat:@"_%@", self.name] UTF8String]);
     }
 
     if (!isReadOnly && shouldBeTreatedAsComputedProperty) {
@@ -500,6 +516,7 @@ static realm::util::Optional<RLMPropertyType> typeFromProtocolString(const char 
     _type = array.type;
     _optional = array.optional;
     _objectClassName = array.objectClassName;
+    _subtype = RLMPropertySubtypeNone;
 
     // no obj-c property for generic lists, and thus no getter/setter names
 
@@ -520,6 +537,7 @@ static realm::util::Optional<RLMPropertyType> typeFromProtocolString(const char 
     _indexed = indexed;
     _swiftIvar = ivar;
     _optional = true;
+    _subtype = RLMPropertySubtypeNone;
 
     // no obj-c property for generic optionals, and thus no getter/setter names
 
@@ -541,6 +559,7 @@ static realm::util::Optional<RLMPropertyType> typeFromProtocolString(const char 
     _objectClassName = objectClassName;
     _linkOriginPropertyName = linkOriginPropertyName;
     _swiftIvar = ivar;
+    _subtype = RLMPropertySubtypeNone;
 
     // no obj-c property for generic linking objects properties, and thus no getter/setter names
 
@@ -562,6 +581,7 @@ static realm::util::Optional<RLMPropertyType> typeFromProtocolString(const char 
     prop->_swiftIvar = _swiftIvar;
     prop->_optional = _optional;
     prop->_linkOriginPropertyName = _linkOriginPropertyName;
+    prop->_subtype = _subtype;
 
     return prop;
 }
@@ -582,6 +602,10 @@ static realm::util::Optional<RLMPropertyType> typeFromProtocolString(const char 
 
 - (BOOL)isEqualToProperty:(RLMProperty *)property {
     return _type == property->_type
+        && (_type != RLMPropertyTypeInt
+            || _subtype != RLMPropertySubtypeInteger
+            || property->_subtype != RLMPropertySubtypeInteger
+            || _subtype == property->_subtype)
         && _indexed == property->_indexed
         && _isPrimary == property->_isPrimary
         && _optional == property->_optional

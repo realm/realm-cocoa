@@ -47,10 +47,10 @@ public final class RealmOptional<Value: RealmOptionalType>: RLMOptionalBase {
     /// The value the optional represents.
     public var value: Value? {
         get {
-            return underlyingValue.map(dynamicBridgeCast)
+            return __underlyingValue.map(dynamicBridgeCast)
         }
         set {
-            underlyingValue = newValue.map(dynamicBridgeCast)
+            __underlyingValue = newValue.map(dynamicBridgeCast)
         }
     }
 

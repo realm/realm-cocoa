@@ -18,6 +18,8 @@
 
 #import <Realm/RLMObjectBase_Dynamic.h>
 
+#import <Realm/RLMMigration.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 // RLMObject accessor and read/write realm
@@ -53,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface RLMDynamicObject : RLMObject
+@interface RLMDynamicObject : RLMObject<RLMObjectMigrationProtocol>
 
 @end
 

@@ -497,6 +497,10 @@ public class ObjectUtil: NSObject {
             code = .double
         } else if type is RealmOptional<Bool>.Type {
             code = .bool
+        } else if type is Optional<RealmInteger>.Type {
+            code = .int
+        } else if type is RealmInteger.Type {
+            return nil
         } else if child.value is RLMOptionalBase {
             throwRealmException("'\(type)' is not a valid RealmOptional type.")
             code = .int // ignored
@@ -520,6 +524,7 @@ public class ObjectUtil: NSObject {
             } else if let optional = getOptionalPropertyMetadata(for: prop, at: idx) {
                 return optional
             }
+            // TODO: what about RealmInteger?
             return nil
         }
     }

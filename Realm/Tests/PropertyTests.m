@@ -58,6 +58,8 @@
             @"cBoolCol":  [[RLMProperty alloc] initWithName:@"cBoolCol"   type:RLMPropertyTypeBool   objectClassName:nil             linkOriginPropertyName:nil indexed:NO optional:NO],
             @"longCol":   [[RLMProperty alloc] initWithName:@"longCol"    type:RLMPropertyTypeInt    objectClassName:nil             linkOriginPropertyName:nil indexed:NO optional:NO],
             @"objectCol": [[RLMProperty alloc] initWithName:@"objectCol"  type:RLMPropertyTypeObject objectClassName:@"StringObject" linkOriginPropertyName:nil indexed:NO optional:YES],
+            @"realmIntCol": [[RLMProperty alloc] initWithName:@"realmIntCol"  type:RLMPropertyTypeInt objectClassName:nil linkOriginPropertyName:nil indexed:NO optional:NO],
+            @"realmNullableIntCol": [[RLMProperty alloc] initWithName:@"realmNullableIntCol"  type:RLMPropertyTypeInt objectClassName:nil linkOriginPropertyName:nil indexed:NO optional:YES],
         };
         XCTAssertEqual(objectSchema.properties.count, expectedProperties.allKeys.count);
         for (NSString *propertyName in expectedProperties) {
@@ -101,24 +103,30 @@
 }
 
 - (void)testTwoPropertiesAreEqual {
+    Class dummyClass = [self class];
     const char *name = "intCol";
     objc_property_t objcProperty1 = class_getProperty(AllTypesObject.class, name);
-    RLMProperty *property1 = [[RLMProperty alloc] initWithName:@(name) indexed:YES linkPropertyDescriptor:nil property:objcProperty1];
+    RLMProperty *property1 = [[RLMProperty alloc] initWithName:@(name) objectClass:dummyClass indexed:YES
+                                        linkPropertyDescriptor:nil property:objcProperty1];
 
     objc_property_t objcProperty2 = class_getProperty(IntObject.class, name);
-    RLMProperty *property2 = [[RLMProperty alloc] initWithName:@(name) indexed:YES linkPropertyDescriptor:nil property:objcProperty2];
+    RLMProperty *property2 = [[RLMProperty alloc] initWithName:@(name) objectClass:dummyClass indexed:YES
+                                        linkPropertyDescriptor:nil property:objcProperty2];
 
     XCTAssertEqualObjects(property1, property2);
 }
 
 - (void)testTwoPropertiesAreUnequal {
+    Class dummyClass = [self class];
     const char *name = "stringCol";
     objc_property_t objcProperty1 = class_getProperty(AllTypesObject.class, name);
-    RLMProperty *property1 = [[RLMProperty alloc] initWithName:@(name) indexed:YES linkPropertyDescriptor:nil property:objcProperty1];
+    RLMProperty *property1 = [[RLMProperty alloc] initWithName:@(name) objectClass:dummyClass indexed:YES
+                                        linkPropertyDescriptor:nil property:objcProperty1];
 
     name = "intCol";
     objc_property_t objcProperty2 = class_getProperty(IntObject.class, name);
-    RLMProperty *property2 = [[RLMProperty alloc] initWithName:@(name) indexed:YES linkPropertyDescriptor:nil property:objcProperty2];
+    RLMProperty *property2 = [[RLMProperty alloc] initWithName:@(name) objectClass:dummyClass indexed:YES
+                                        linkPropertyDescriptor:nil property:objcProperty2];
 
     XCTAssertNotEqualObjects(property1, property2);
 }

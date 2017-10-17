@@ -19,6 +19,7 @@
 #import <Foundation/Foundation.h>
 
 #import <Realm/RLMArray.h>
+#import <Realm/RLMInteger.h>
 #import <Realm/RLMMigration.h>
 #import <Realm/RLMObject.h>
 #import <Realm/RLMObjectSchema.h>

@@ -33,6 +33,7 @@ Class RLMUnmanagedAccessorClassForObjectClass(Class objectClass, RLMObjectSchema
 //
 // Dynamic getters/setters
 //
+FOUNDATION_EXTERN void RLMDynamicIntegerAdd(RLMObjectBase *obj, NSString *propName, NSInteger delta);
 FOUNDATION_EXTERN void RLMDynamicValidatedSet(RLMObjectBase *obj, NSString *propName, id __nullable val);
 FOUNDATION_EXTERN id __nullable RLMDynamicGet(RLMObjectBase *obj, RLMProperty *prop);
 FOUNDATION_EXTERN id __nullable RLMDynamicGetByName(RLMObjectBase *obj, NSString *propName, bool asList);

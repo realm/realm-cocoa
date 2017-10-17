@@ -867,7 +867,7 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions, NSArr
 
 @end
 
-// clang things the tests below have retain cycles because `_obj` could retain
+// clang thinks the tests below have retain cycles because `_obj` could retain
 // the block passed to addNotificationBlock (but it doesn't)
 #pragma clang diagnostic ignored "-Warc-retain-cycles"
 
@@ -886,9 +886,9 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions, NSArr
     StringObject *so = [[StringObject alloc] init];
     so.stringCol = @"string";
     _initialValues = @[@YES, @1, @1.1f, @1.11, @"string",
-                       [NSData dataWithBytes:"a" length:1], now, @YES, @11, NSNull.null];
+                       [NSData dataWithBytes:"a" length:1], now, @YES, @11, NSNull.null, @9001, NSNull.null];
     _values = @[@NO, @2, @2.2f, @2.22, @"string2", [NSData dataWithBytes:"b" length:1],
-                [now dateByAddingTimeInterval:1], @NO, @22, so];
+                [now dateByAddingTimeInterval:1], @NO, @22, so, @1234, @5678];
 
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm beginWriteTransaction];
@@ -969,8 +969,8 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions, NSArr
             XCTAssertNotNil(prop.value);
         }
         else {
-            XCTAssertEqualObjects(prop.previousValue, _initialValues[i]);
-            XCTAssertEqualObjects(prop.value, _values[i]);
+            XCTAssertEqualObjects(prop.previousValue ?: NSNull.null, _initialValues[i]);
+            XCTAssertEqualObjects(prop.value ?: NSNull.null, _values[i]);
         }
     }];
 

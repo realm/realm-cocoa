@@ -41,6 +41,14 @@
 
 @end
 
+@interface RealmIntObject : RLMObject
+@property RLMInteger *realmInt;
+@end
+
+@interface RealmNullableIntObject : RLMObject
+@property RLMInteger *realmInt;
+@end
+
 @interface AllIntSizesObject : RLMObject
 // int8_t not supported due to being ambiguous with BOOL
 
@@ -125,7 +133,8 @@ RLM_ARRAY_TYPE(IntObject)
 @property int64_t     longCol;
 @property StringObject *objectCol;
 @property (readonly) RLMLinkingObjects *linkingObjectsCol;
-
+@property RLMInteger *realmIntCol;
+@property RLMInteger *realmNullableIntCol;
 @end
 
 RLM_ARRAY_TYPE(AllTypesObject)

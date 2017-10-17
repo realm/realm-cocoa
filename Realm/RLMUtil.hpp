@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #import <Realm/RLMConstants.h>
-#import <Realm/RLMOptionalBase.h>
+#import <Realm/RLMOptionalBase_Private.h>
 #import <objc/runtime.h>
 
 #import <realm/array.hpp>

@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #import "RLMAccessor.h"
-#import "RLMOptionalBase.h"
+#import "RLMOptionalBase_Private.h"
 #import "RLMObject_Private.h"
 #import "RLMObjectStore.h"
 #import "RLMProperty_Private.h"

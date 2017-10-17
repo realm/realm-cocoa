@@ -72,7 +72,8 @@ class ObjectTests: TestCase {
         XCTAssert(schema.properties as AnyObject is [Property])
         XCTAssertEqual(schema.className, "SwiftObject")
         XCTAssertEqual(schema.properties.map { $0.name },
-            ["boolCol", "intCol", "floatCol", "doubleCol", "stringCol", "binaryCol", "dateCol", "objectCol", "arrayCol"]
+            ["boolCol", "intCol", "floatCol", "doubleCol", "stringCol", "binaryCol", "dateCol", "objectCol",
+             "realmIntCol", "arrayCol"]
         )
     }
 
@@ -115,7 +116,8 @@ class ObjectTests: TestCase {
     func testDescription() {
         let object = SwiftObject()
         // swiftlint:disable line_length
-        assertMatches(object.description, "SwiftObject \\{\n\tboolCol = 0;\n\tintCol = 123;\n\tfloatCol = 1\\.23;\n\tdoubleCol = 12\\.3;\n\tstringCol = a;\n\tbinaryCol = <61 — 1 total bytes>;\n\tdateCol = 1970-01-01 00:00:01 \\+0000;\n\tobjectCol = SwiftBoolObject \\{\n\t\tboolCol = 0;\n\t\\};\n\tarrayCol = List<SwiftBoolObject> <0x[0-9a-f]+> \\(\n\t\n\t\\);\n\\}")
+        let expected = "SwiftObject \\{\n\tboolCol = 0;\n\tintCol = 123;\n\tfloatCol = 1\\.23;\n\tdoubleCol = 12\\.3;\n\tstringCol = a;\n\tbinaryCol = <61 — 1 total bytes>;\n\tdateCol = 1970-01-01 00:00:01 \\+0000;\n\tobjectCol = SwiftBoolObject \\{\n\t\tboolCol = 0;\n\t\\};\n\trealmIntCol = RLMInteger \\(value: 0\\);\n\tarrayCol = List<SwiftBoolObject> <0x[0-9a-f]+> \\(\n\t\n\t\\);\n\\}"
+        assertMatches(object.description, expected)
 
         let recursiveObject = SwiftRecursiveObject()
         recursiveObject.objects.append(recursiveObject)
@@ -491,6 +493,7 @@ class ObjectTests: TestCase {
     }
 
     func expectChange<T: Equatable, U: Equatable>(_ name: String, _ old: T?, _ new: U?) -> ((ObjectChange) -> Void) {
+        // FIXME: Tests using this occasionally fail.
         let exp = expectation(description: "")
         return { change in
             if case .change(let properties) = change {
@@ -652,5 +655,96 @@ class ObjectTests: TestCase {
 
         // Should be able to use `isSameObject(as:)` to check if same row in the database.
         XCTAssertTrue(testObject.isSameObject(as: retrievedObject))
+    }
+}
+
+class RealmIntegerTests: TestCase {
+
+    func testBasicFunctionality() {
+        let realm = try! Realm()
+
+        let obj = SwiftRealmIntObject()
+        XCTAssertEqual(obj.realmInt.value, 0)
+
+        // Set the value of an unmanaged RealmInteger
+        obj.realmInt.value = 100
+        XCTAssertEqual(obj.realmInt.value, 100)
+
+        // Add an object with an int property to a Realm
+        try! realm.write {
+            realm.add(obj)
+        }
+        XCTAssertEqual(obj.realmInt.value, 100)
+
+        // Increment the int
+        try! realm.write {
+            obj.realmInt.incrementValue(by: 8901)
+        }
+        XCTAssertEqual(obj.realmInt.value, 9001)
+
+        // Set the int
+        try! realm.write {
+            obj.realmInt.value = 123
+        }
+        XCTAssertEqual(obj.realmInt.value, 123)
+
+        // Assign to the int
+        try! realm.write {
+            obj.realmInt = RealmInteger(value: 100)
+        }
+        XCTAssertEqual(obj.realmInt.value, 100)
+    }
+
+    func testBasicOptionalFunctionality() {
+        let realm = try! Realm()
+
+        let obj = SwiftNullableRealmIntObject()
+        XCTAssertEqual(obj.nullableRealmInt?.value, 0)
+
+        // Set the value of an unmanaged RealmInteger
+        obj.nullableRealmInt?.value = 100
+        XCTAssertEqual(obj.nullableRealmInt?.value, 100)
+
+        // Add an object with an int property to a Realm
+        try! realm.write {
+            realm.add(obj)
+        }
+        XCTAssertEqual(obj.nullableRealmInt?.value, 100)
+
+        // Increment the int
+        try! realm.write {
+            obj.nullableRealmInt!.incrementValue(by: 8901)
+        }
+        XCTAssertEqual(obj.nullableRealmInt?.value, 9001)
+
+        // Set the int to nil
+        try! realm.write {
+            obj.nullableRealmInt!.value = nil
+        }
+        XCTAssertNil(obj.nullableRealmInt?.value)
+
+        // Set the int to a real value
+        try! realm.write {
+            obj.nullableRealmInt!.value = 123
+        }
+        XCTAssertEqual(obj.nullableRealmInt?.value, 123)
+
+        // Assign to the int
+        try! realm.write {
+            obj.nullableRealmInt = RealmInteger(value: 102)
+        }
+        XCTAssertEqual(obj.nullableRealmInt?.value, 102)
+
+        // Assign nil to the int
+        try! realm.write {
+            obj.nullableRealmInt = nil
+        }
+        XCTAssertNil(obj.nullableRealmInt?.value)
+
+        // Assign a non-nil value to a nil'ed out int
+        try! realm.write {
+            obj.nullableRealmInt = RealmInteger(value: 104)
+        }
+        XCTAssertEqual(obj.nullableRealmInt?.value, 104)
     }
 }

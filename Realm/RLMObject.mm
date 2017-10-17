@@ -22,6 +22,7 @@
 #import "RLMArray.h"
 #import "RLMCollection_Private.hpp"
 #import "RLMObjectBase_Private.h"
+#import "RLMInteger.h"
 #import "RLMObjectSchema_Private.hpp"
 #import "RLMObjectStore.h"
 #import "RLMProperty.h"
@@ -228,6 +229,10 @@
     RLMDynamicValidatedSet(self, key, value);
 }
 
+- (void)incrementValueOfIntegerProperty:(NSString *)propertyName byValue:(NSInteger)delta {
+    RLMDynamicIntegerAdd(self, propertyName, delta);
+}
+
 @end
 
 @implementation RLMWeakObjectHandle {
@@ -359,6 +364,9 @@ RLMNotificationToken *RLMObjectAddNotificationBlock(RLMObjectBase *obj, RLMObjec
                 id value = [object valueForKey:name];
                 if (!value || [value isKindOfClass:[RLMArray class]]) {
                     [values addObject:NSNull.null];
+                }
+                else if (RLMInteger *v = RLMDynamicCast<RLMInteger>(value)) {
+                    [values addObject:([v value] ?: NSNull.null)];
                 }
                 else {
                     [values addObject:value];

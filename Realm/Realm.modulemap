@@ -14,7 +14,7 @@ framework module Realm {
         header "RLMObjectBase_Private.h"
         header "RLMObjectSchema_Private.h"
         header "RLMObjectStore.h"
-        header "RLMOptionalBase.h"
+        header "RLMOptionalBase_Private.h"
         header "RLMProperty_Private.h"
         header "RLMRealm_Private.h"
         header "RLMRealmConfiguration_Private.h"

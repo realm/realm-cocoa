@@ -22,6 +22,13 @@
 
 @class RLMObjectBase;
 
+// Enum for binding-specific subtypes of properties that are not backed by
+// a unique column type in the underlying database.
+typedef enum : NSUInteger {
+    RLMPropertySubtypeNone = 0,
+    RLMPropertySubtypeInteger,
+} RLMPropertySubtype;
+
 NS_ASSUME_NONNULL_BEGIN
 
 BOOL RLMPropertyTypeIsComputed(RLMPropertyType propertyType);
@@ -62,11 +69,13 @@ static inline NSString *RLMTypeToString(RLMPropertyType type) {
 }
 
 - (instancetype)initWithName:(NSString *)name
+                 objectClass:(Class)objectClass
                      indexed:(BOOL)indexed
       linkPropertyDescriptor:(nullable RLMPropertyDescriptor *)linkPropertyDescriptor
                     property:(objc_property_t)property;
 
 - (instancetype)initSwiftPropertyWithName:(NSString *)name
+                              objectClass:(Class)objectClass
                                   indexed:(BOOL)indexed
                    linkPropertyDescriptor:(nullable RLMPropertyDescriptor *)linkPropertyDescriptor
                                  property:(objc_property_t)property
@@ -96,6 +105,7 @@ static inline NSString *RLMTypeToString(RLMPropertyType type) {
 @property (nonatomic, assign) NSUInteger index;
 @property (nonatomic, assign) BOOL isPrimary;
 @property (nonatomic, assign) Ivar swiftIvar;
+@property (nonatomic) RLMPropertySubtype subtype;
 
 // getter and setter names
 @property (nonatomic, copy) NSString *getterName;

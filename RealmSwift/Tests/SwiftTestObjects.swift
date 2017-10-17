@@ -45,6 +45,8 @@ class SwiftObject: Object {
     @objc dynamic var binaryCol = "a".data(using: String.Encoding.utf8)!
     @objc dynamic var dateCol = Date(timeIntervalSince1970: 1)
     @objc dynamic var objectCol: SwiftBoolObject? = SwiftBoolObject()
+    // FIXME: Move this after `arrayCol` once the bug with generating object schemas is fixed
+    var realmIntCol = RealmInteger()
     let arrayCol = List<SwiftBoolObject>()
 
     class func defaultValues() -> [String: Any] {
@@ -57,6 +59,7 @@ class SwiftObject: Object {
             "binaryCol": "a".data(using: String.Encoding.utf8)!,
             "dateCol": Date(timeIntervalSince1970: 1),
             "objectCol": [false],
+            "realmIntCol": RealmInteger(),
             "arrayCol": []
         ]
     }
@@ -76,6 +79,7 @@ class SwiftOptionalObject: Object {
     let optDoubleCol = RealmOptional<Double>()
     let optBoolCol = RealmOptional<Bool>()
     @objc dynamic var optObjectCol: SwiftBoolObject?
+    var optRealmIntCol: RealmInteger?
 }
 
 class SwiftOptionalPrimaryObject: SwiftOptionalObject {
@@ -546,4 +550,12 @@ class SwiftGenericPropsOrderingObject: SwiftGenericPropsOrderingParent {
 class SwiftGenericPropsOrderingHelper: Object {
     @objc dynamic var first: SwiftGenericPropsOrderingObject?
     @objc dynamic var second: SwiftGenericPropsOrderingObject?
+}
+
+class SwiftRealmIntObject: Object {
+    var realmInt = RealmInteger()
+}
+
+class SwiftNullableRealmIntObject: Object {
+    var nullableRealmInt: RealmInteger? = RealmInteger()
 }

@@ -80,7 +80,7 @@ public:
     template<typename T>
     T unbox(id v, bool create = false, bool update = false);
 
-    bool is_null(id v) { return v == NSNull.null; }
+    bool is_null(id v);
     id null_value() { return NSNull.null; }
     id no_value() { return nil; }
     bool allow_missing(id v) { return [v isKindOfClass:[NSArray class]]; }

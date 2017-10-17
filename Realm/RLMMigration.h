@@ -25,6 +25,22 @@ NS_ASSUME_NONNULL_BEGIN
 @class RLMObject;
 
 /**
+ A protocol which provides additional APIs on the types of `RLMObject`s used for migrations.
+ */
+@protocol RLMObjectMigrationProtocol
+
+/**
+ Dynamically increment the value of an integer property.
+
+ @warning This property will throw an Objective-C exception if the property
+          cannot be incremented (for example, if it is a primary key, if it
+          is not an integer, or if its current value is null).
+ */
+- (void)incrementValueOfIntegerProperty:(NSString *)propertyName byValue:(NSInteger)delta;
+
+@end
+
+/**
  A block type which provides both the old and new versions of an object in the Realm. Object
  properties can only be accessed using keyed subscripting.
 
@@ -33,7 +49,8 @@ NS_ASSUME_NONNULL_BEGIN
  @param oldObject The object from the original Realm (read-only).
  @param newObject The object from the migrated Realm (read-write).
 */
-typedef void (^RLMObjectMigrationBlock)(RLMObject * __nullable oldObject, RLMObject * __nullable newObject);
+typedef void (^RLMObjectMigrationBlock)(RLMObject * __nullable oldObject,
+                                        RLMObject<RLMObjectMigrationProtocol> * __nullable newObject);
 
 /**
  `RLMMigration` instances encapsulate information intended to facilitate a schema migration.
