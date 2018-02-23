@@ -704,7 +704,18 @@ case "$COMMAND" in
         ;;
 
     "test-osx-object-server")
-        xc "-scheme 'Object Server Tests' -configuration $CONFIGURATION -sdk macosx test"
+        xc "-scheme 'Object Server Tests' -configuration $CONFIGURATION -sdk macosx test \
+            -skip-testing:ObjectServerTests/RLMObjectServerTests/testUsernamePasswordAuthenticationWithReconnection \
+            -skip-testing:ObjectServerTests/RLMObjectServerTests/testAddObjectsWithReconnection \
+            -skip-testing:ObjectServerTests/RLMObjectServerTests/testDownloadRealmWithReconnection"
+        exit 0
+        ;;
+
+    "test-osx-object-server-poor-network")
+        xc "-scheme 'Object Server Tests' -configuration $CONFIGURATION -sdk macosx test \
+            -only-testing:ObjectServerTests/RLMObjectServerTests/testUsernamePasswordAuthenticationWithReconnection \
+            -only-testing:ObjectServerTests/RLMObjectServerTests/testAddObjectsWithReconnection \
+            -only-testing:ObjectServerTests/RLMObjectServerTests/testDownloadRealmWithReconnection"
         exit 0
         ;;
 
@@ -844,6 +855,13 @@ case "$COMMAND" in
     "verify-osx-object-server")
         sh build.sh download-object-server
         sh build.sh test-osx-object-server
+        sh build.sh reset-object-server
+        exit 0
+        ;;
+
+    "verify-osx-object-server-poor-network")
+        sh build.sh download-object-server
+        sh build.sh test-osx-object-server-poor-network
         sh build.sh reset-object-server
         exit 0
         ;;

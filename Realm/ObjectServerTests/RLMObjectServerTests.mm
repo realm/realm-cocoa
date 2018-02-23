@@ -70,12 +70,22 @@
 /// Valid username/password credentials should be able to log in a user. Using the same credentials should return the
 /// same user object.
 - (void)testUsernamePasswordAuthentication {
-    RLMSyncUser *firstUser = [self logInUserForCredentials:[RLMSyncTestCase basicCredentialsWithName:NSStringFromSelector(_cmd)
+    [self verifyUsernamePasswordAuthenticationWithUsername:NSStringFromSelector(_cmd) simulateReconnection:NO];
+}
+
+- (void)testUsernamePasswordAuthenticationWithReconnection {
+    [self verifyUsernamePasswordAuthenticationWithUsername:NSStringFromSelector(_cmd) simulateReconnection:YES];
+}
+
+- (void)verifyUsernamePasswordAuthenticationWithUsername:(NSString *)username simulateReconnection:(BOOL)simulateReconnection  {
+    RLMSyncUser *firstUser = [self logInUserForCredentials:[RLMSyncTestCase basicCredentialsWithName:username
                                                                                             register:YES]
-                                                    server:[RLMSyncTestCase authServerURL]];
-    RLMSyncUser *secondUser = [self logInUserForCredentials:[RLMSyncTestCase basicCredentialsWithName:NSStringFromSelector(_cmd)
+                                                    server:[RLMSyncTestCase authServerURL]
+                                      simulateReconnection:simulateReconnection];
+    RLMSyncUser *secondUser = [self logInUserForCredentials:[RLMSyncTestCase basicCredentialsWithName:username
                                                                                              register:NO]
-                                                     server:[RLMSyncTestCase authServerURL]];
+                                                     server:[RLMSyncTestCase authServerURL]
+                                       simulateReconnection:simulateReconnection];
     // Two users created with the same credential should resolve to the same actual user.
     XCTAssertTrue([firstUser.identity isEqualToString:secondUser.identity]);
     // Authentication server property should be properly set.
@@ -614,16 +624,38 @@
 
 /// If client B adds objects to a synced Realm, client A should see those objects.
 - (void)testAddObjects {
-    NSURL *url = REALM_URL();
-    RLMSyncUser *user = [self logInUserForCredentials:[RLMObjectServerTests basicCredentialsWithName:NSStringFromSelector(_cmd)
+    [self verifyAddObjectsWithUsername:NSStringFromSelector(_cmd) relamURL:REALM_URL() simulateReconnection:NO];
+}
+
+- (void)testAddObjectsWithReconnection {
+    [self verifyAddObjectsWithUsername:NSStringFromSelector(_cmd) relamURL:REALM_URL() simulateReconnection:YES];
+}
+
+- (void)verifyAddObjectsWithUsername:(NSString *)username
+                            relamURL:(NSURL *)url
+                simulateReconnection:(BOOL)simulateReconnection {
+    RLMSyncUser *user = [self logInUserForCredentials:[RLMObjectServerTests basicCredentialsWithName:username
                                                                                             register:self.isParent]
-                                              server:[RLMObjectServerTests authServerURL]];
-    RLMRealm *realm = [self openRealmForURL:url user:user];
+                                               server:[RLMObjectServerTests authServerURL]];
+    if (!self.isParent && simulateReconnection) {
+        [self disableNetworking];
+    }
+    RLMRealm *realm = [self immediatelyOpenRealmForURL:url
+                                                  user:user
+                                         encryptionKey:nil
+                                            stopPolicy:RLMSyncStopPolicyAfterChangesUploaded];
     if (self.isParent) {
         CHECK_COUNT(0, SyncObject, realm);
         RLMRunChildAndWait();
+        if (simulateReconnection) {
+            [self disableNetworking];
+            [self enableNetworkingAfter:20];
+        }
         [self waitForDownloadsForUser:user realms:@[realm] realmURLs:@[url] expectedCounts:@[@3]];
     } else {
+        if (simulateReconnection) {
+            [self enableNetworkingAfter:20];
+        }
         // Add objects.
         [self addSyncObjectsToRealm:realm descriptions:@[@"child-1", @"child-2", @"child-3"]];
         [self waitForUploadsForUser:user url:url];
@@ -1311,15 +1343,28 @@
 #pragma mark - Download Realm
 
 - (void)testDownloadRealm {
+    [self verifyDownloadRealmWithUsername:NSStringFromSelector(_cmd) relamURL:REALM_URL() simulateReconnection:NO];
+}
+
+- (void)testDownloadRealmWithReconnection {
+    [self verifyDownloadRealmWithUsername:NSStringFromSelector(_cmd) relamURL:REALM_URL() simulateReconnection:YES];
+}
+
+- (void)verifyDownloadRealmWithUsername:(NSString *)username
+                               relamURL:(NSURL *)url
+                   simulateReconnection:(BOOL)simulateReconnection {
     const NSInteger NUMBER_OF_BIG_OBJECTS = 2;
-    NSURL *url = REALM_URL();
     // Log in the user.
-    RLMSyncUser *user = [self logInUserForCredentials:[RLMObjectServerTests basicCredentialsWithName:NSStringFromSelector(_cmd)
+    RLMSyncUser *user = [self logInUserForCredentials:[RLMObjectServerTests basicCredentialsWithName:username
                                                                                             register:self.isParent]
                                                server:[RLMObjectServerTests authServerURL]];
     if (self.isParent) {
         // Wait for the child process to upload everything.
         RLMRunChildAndWait();
+        if (simulateReconnection) {
+            [self disableNetworking];
+            [self enableNetworkingAfter:20];
+        }
         XCTestExpectation *ex = [self expectationWithDescription:@"download-realm"];
         RLMRealmConfiguration *c = [RLMRealmConfiguration defaultConfiguration];
         RLMSyncConfiguration *syncConfig = [[RLMSyncConfiguration alloc] initWithUser:user realmURL:url];
@@ -1346,18 +1391,29 @@
             XCTAssertTrue([[RLMRealm realmWithConfiguration:c error:nil] isEmpty]);
         }
         XCTAssertNil(RLMGetAnyCachedRealmForPath(c.pathOnDisk.UTF8String));
-        [self waitForExpectationsWithTimeout:10.0 handler:nil];
+        if (simulateReconnection) {
+            [self waitForExpectationsWithTimeout:60.0 handler:nil];
+        } else {
+            [self waitForExpectationsWithTimeout:10.0 handler:nil];
+        }
         XCTAssertGreaterThan(fileSize(c.pathOnDisk), sizeBefore);
         XCTAssertNil(RLMGetAnyCachedRealmForPath(c.pathOnDisk.UTF8String));
     } else {
-        RLMRealm *realm = [self openRealmForURL:url user:user];
+        if (simulateReconnection) {
+            [self disableNetworking];
+            [self enableNetworkingAfter:20];
+        }
+        RLMRealm *realm = [self immediatelyOpenRealmForURL:url
+                                                      user:user
+                                             encryptionKey:nil
+                                                stopPolicy:RLMSyncStopPolicyAfterChangesUploaded];
         // Write lots of data to the Realm, then wait for it to be uploaded.
         [realm beginWriteTransaction];
         for (NSInteger i=0; i<NUMBER_OF_BIG_OBJECTS; i++) {
             [realm addObject:[HugeSyncObject object]];
         }
         [realm commitWriteTransaction];
-        [self waitForUploadsForUser:user url:url];
+        [self waitForUploadsForUser:user url:url timeout:simulateReconnection ? 20.0 : 60.0 error:nil];
         CHECK_COUNT(NUMBER_OF_BIG_OBJECTS, HugeSyncObject, realm);
     }
 }
