@@ -24,10 +24,10 @@ target:
   - osx-object-server
   - swiftpm
 
-  # These are disabled because the machinen with the devices attached is currently offline
-  # - ios-device-objc-ios8
-  # - ios-device-objc-ios10
-  # - tvos-device
+  - ios-device-objc-ios8
+  - ios-device-objc-ios10
+  - tvos-device
+
   # These are disabled because they were very unreliable on CI
   # - ios-device-swift-ios8
   # - ios-device-swift-ios10
