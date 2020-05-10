@@ -19,6 +19,59 @@ x.y.z Release notes (yyyy-MM-dd)
 Upgraded realm-core from ? to ?
 Upgraded realm-sync from ? to ?
 
+
+4.4.2 Release notes (2020-05-10)
+=============================================================
+
+### Enhancements
+
+* Add crud protocols for simple usage
+
+### Example
+
+Firstly, just daclare the new object we want to store in Realm
+
+``` swift
+class Person: Object {
+    @objc dynamic var name = ""
+    @objc dynamic var surname = ""
+    
+    init(name: String, surname: String) {
+        super.init()
+        self.key = key
+        self.data = data
+    }
+        
+    required init() {
+        super.init()
+    }
+}
+```
+
+Then we need to add conformance to crud protocols
+``` swift
+extension Person: RealmStorable {
+    typealias Entity = Person
+}
+```
+
+After that we can easily use all the default implementations of the crud methods.
+
+Example of storing Person object
+``` swift
+Person(name: "Jon", surname: "Doe").persist()
+```
+
+Example of fetching all Person objects
+``` swift
+let persons = Person.fetchAll()
+```
+
+### Fixed
+
+* None.
+  
+
 4.4.1 Release notes (2020-04-16)
 =============================================================
 
