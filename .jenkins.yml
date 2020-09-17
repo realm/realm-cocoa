@@ -587,6 +587,10 @@ exclude:
     target: swiftpm
     configuration: Debug
 
+  - xcode_version: 11.3
+    target: swiftpm
+    configuration: Release
+
   - xcode_version: 11.4.1
     target: swiftpm
     configuration: Debug
@@ -610,10 +614,6 @@ exclude:
   - xcode_version: 11.6
     target: swiftpm
     configuration: Release
-
-  - xcode_version: 12.0
-    target: swiftpm
-    configuration: Debug
 
   - xcode_version: 11.3
     target: swiftpm-address

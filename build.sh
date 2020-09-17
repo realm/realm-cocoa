@@ -345,7 +345,7 @@ download_common() {
         version=$REALM_SYNC_VERSION
         url="${REALM_BASE_URL}/sync/realm-sync${kind}-${version}.tar.xz"
     else
-        echo "Unknown dowload_type: $download_type"
+        echo "Unknown download_type: $download_type"
         exit 1
     fi
 
@@ -845,9 +845,9 @@ case "$COMMAND" in
         if [ -n "$SANITIZER" ]; then
             SANITIZER="--sanitize $SANITIZER"
             export ASAN_OPTIONS='check_initialization_order=true:detect_stack_use_after_return=true'
+            export REALM_BUILD_FROM_SOURCE=1
         fi
         xcrun swift package resolve
-        find .build -name views.cpp -delete
         xcrun swift test --configuration $(echo $CONFIGURATION | tr "[:upper:]" "[:lower:]") $SANITIZER
         exit 0
         ;;
@@ -1161,12 +1161,32 @@ case "$COMMAND" in
             PlistBuddy -c "Set :CFBundleShortVersionString $realm_version" "$version_file"
         done
         sed -i '' "s/^VERSION=.*/VERSION=$realm_version/" dependencies.list
-        sed -i '' "s/^let coreVersionStr =.*/let coreVersionStr = \"$REALM_CORE_VERSION\"/" Package.swift
         sed -i '' "s/^let cocoaVersionStr =.*/let cocoaVersionStr = \"$realm_version\"/" Package.swift
         sed -i '' "s/x.y.z Release notes (yyyy-MM-dd)/$realm_version Release notes ($(date '+%Y-%m-%d'))/" CHANGELOG.md
 
         exit 0
         ;;
+
+    "set-core-version")
+        core_version="$2"
+        sync_version="$3"
+        if [ -z "$core_version" ] || [ -z "$sync_version" ]; then
+            echo 'usage: sh build.sh set-core-version core-version sync-version'
+            exit 1
+        fi
+
+        # Update version numbers
+        sed -i '' "s/^REALM_CORE_VERSION=.*/REALM_CORE_VERSION=$core_version/" dependencies.list
+        sed -i '' "s/^REALM_SYNC_VERSION=.*/REALM_SYNC_VERSION=$sync_version/" dependencies.list
+        sed -i '' "s/^let coreVersionStr =.*/let coreVersionStr = \"$core_version\"/" Package.swift
+        sed -i '' "s/^let syncVersionStr =.*/let syncVersionStr = \"$sync_version\"/" Package.swift
+
+        # Set the binary checksum for spm
+        readonly url="${REALM_BASE_URL}/sync/realm-sync-${sync_version}.xcframework.zip"
+        readonly checksum="$(/usr/bin/curl --fail --show-error --location "$url" | shasum -a 256 -b | cut -d' ' -f1)"
+        sed -i '' "s/checksum: .*/checksum: \"$checksum\"/" Package.swift
+        ;;
+
 
     ######################################
     # Bitcode Detection

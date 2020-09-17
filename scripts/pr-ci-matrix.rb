@@ -38,7 +38,7 @@ targets = {
   'cocoapods-ios-dynamic' => oldest_and_latest,
   'cocoapods-watchos' => oldest_and_latest,
 
-  'swiftpm' => oldest_and_latest,
+  'swiftpm' => minimum_version(12),
   'swiftpm-address' => latest_only,
   'swiftpm-thread' => latest_only,
   'swiftpm-ios' => latest_only,
