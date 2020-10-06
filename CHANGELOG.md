@@ -133,7 +133,7 @@ non-SPM installation methods.
 
 * File format: Generates Realms with format v11 (Reads and upgrades all previous formats)
 * Realm Object Server: 3.21.0 or later.
-* Realm Studio: 3.12 or later.
+* Realm Studio: 5.0.0 or later.
 * APIs are backwards compatible with all previous releases in the 5.x.y series.
 * Carthage release for Swift is built with Xcode 12.
 
@@ -153,7 +153,7 @@ non-SPM installation methods.
 
 * File format: Generates Realms with format v11 (Reads and upgrades all previous formats)
 * Realm Object Server: 3.21.0 or later.
-* Realm Studio: 3.12 or later.
+* Realm Studio: 5.0.0 or later.
 * APIs are backwards compatible with all previous releases in the 5.x.y series.
 * Carthage release for Swift is built with Xcode 12.
 
@@ -186,7 +186,7 @@ non-SPM installation methods.
 
 * File format: Generates Realms with format v11 (Reads and upgrades all previous formats)
 * Realm Object Server: 3.21.0 or later.
-* Realm Studio: 3.12 or later.
+* Realm Studio: 5.0.0 or later.
 * APIs are backwards compatible with all previous releases in the 5.x.y series.
 * Carthage release for Swift is built with Xcode 11.7.
 
@@ -200,7 +200,7 @@ non-SPM installation methods.
 
 This version bumps the Realm file format version. This means that older
 versions of Realm will be unable to open Realm files written by this version,
-and a new version of Realm Studio will be required. There are no actual format
+and Realm Studio 5.0.0 (or above) will be required. There are no actual format
 changes and the version bump is just to force a re-migration of incorrectly
 upgraded Realms.
 
@@ -219,7 +219,7 @@ upgraded Realms.
 
 * File format: Generates Realms with format v11 (Reads and upgrades all previous formats)
 * Realm Object Server: 3.21.0 or later.
-* Realm Studio: 3.12 or later.
+* Realm Studio: 5.0.0 or later.
 * APIs are backwards compatible with all previous releases in the 5.x.y series.
 * Carthage release for Swift is built with Xcode 11.6.
 
@@ -247,7 +247,7 @@ upgraded Realms.
 
 * File format: Generates Realms with format v10 (Reads and upgrades all previous formats)
 * Realm Object Server: 3.21.0 or later.
-* Realm Studio: 3.11 or later.
+* Realm Studio: 4.0.0 or later.
 * APIs are backwards compatible with all previous releases in the 5.x.y series.
 * Carthage release for Swift is built with Xcode 11.6.
 
@@ -278,7 +278,7 @@ upgraded Realms.
 
 * File format: Generates Realms with format v10 (Reads and upgrades all previous formats)
 * Realm Object Server: 3.21.0 or later.
-* Realm Studio: 3.11 or later.
+* Realm Studio: 4.0.0 or later.
 * APIs are backwards compatible with all previous releases in the 5.x.y series.
 * Carthage release for Swift is built with Xcode 11.6.
 
@@ -307,7 +307,7 @@ upgraded Realms.
 
 * File format: Generates Realms with format v10 (Reads and upgrades all previous formats)
 * Realm Object Server: 3.21.0 or later.
-* Realm Studio: 3.11 or later.
+* Realm Studio: 4.0.0 or later.
 * APIs are backwards compatible with all previous releases in the 5.x.y series.
 * Carthage release for Swift is built with Xcode 11.6.
 
@@ -336,7 +336,7 @@ upgraded Realms.
 
 * File format: Generates Realms with format v10 (Reads and upgrades all previous formats)
 * Realm Object Server: 3.21.0 or later.
-* Realm Studio: 3.11 or later.
+* Realm Studio: 4.0.0 or later.
 * APIs are backwards compatible with all previous releases in the 5.x.y series.
 * Carthage release for Swift is built with Xcode 11.6.
 
@@ -367,7 +367,7 @@ upgraded Realms.
 
 * File format: Generates Realms with format v10 (Reads and upgrades all previous formats)
 * Realm Object Server: 3.21.0 or later.
-* Realm Studio: 3.11 or later.
+* Realm Studio: 4.0.0 or later.
 * APIs are backwards compatible with all previous releases in the 5.x.y series.
 * Carthage release for Swift is built with Xcode 11.6.
 
@@ -398,7 +398,7 @@ upgraded Realms.
 
 * File format: Generates Realms with format v10 (Reads and upgrades all previous formats)
 * Realm Object Server: 3.21.0 or later.
-* Realm Studio: 3.11 or later.
+* Realm Studio: 4.0.0 or later.
 * APIs are backwards compatible with all previous releases in the 5.x.y series.
 * Carthage release for Swift is built with Xcode 11.6.
 
@@ -434,7 +434,7 @@ upgraded Realms.
 
 * File format: Generates Realms with format v10 (Reads and upgrades all previous formats)
 * Realm Object Server: 3.21.0 or later.
-* Realm Studio: 3.11 or later.
+* Realm Studio: 4.0.0 or later.
 * APIs are backwards compatible with all previous releases in the 5.x.y series.
 * Carthage release for Swift is built with Xcode 11.5.
 
@@ -475,7 +475,7 @@ Xcode 11.3 and iOS 9 are now the minimum supported versions.
 
 * File format: Generates Realms with format v10 (Reads and upgrades all previous formats)
 * Realm Object Server: 3.21.0 or later.
-* Realm Studio: 3.11 or later.
+* Realm Studio: 4.0.0 or later.
 * APIs are backwards compatible with all previous releases in the 5.x.y series.
 * Carthage release for Swift is built with Xcode 11.5.
 
@@ -508,7 +508,7 @@ Xcode 11.3 and iOS 9 are now the minimum supported versions.
 
 * File format: Generates Realms with format v10 (Reads and upgrades all previous formats)
 * Realm Object Server: 3.21.0 or later.
-* Realm Studio: 3.11 or later.
+* Realm Studio: 4.0.0 or later.
 * APIs are backwards compatible with all previous releases in the 5.x.y series.
 * Carthage release for Swift is built with Xcode 11.5.
 
@@ -532,7 +532,7 @@ Xcode 11.3 and iOS 9 are now the minimum supported versions.
 
 * File format: Generates Realms with format v10 (Reads and upgrades all previous formats)
 * Realm Object Server: 3.21.0 or later.
-* Realm Studio: 3.11 or later.
+* Realm Studio: 4.0.0 or later.
 * APIs are backwards compatible with all previous releases in the 5.x.y series.
 * Carthage release for Swift is built with Xcode 11.5.
 
@@ -563,7 +563,7 @@ Xcode 11.3 and iOS 9 are now the minimum supported versions.
 
 * File format: Generates Realms with format v10 (Reads and upgrades all previous formats)
 * Realm Object Server: 3.21.0 or later.
-* Realm Studio: 3.11 or later.
+* Realm Studio: 4.0.0 or later.
 * APIs are backwards compatible with all previous releases in the 5.x.y series.
 * Carthage release for Swift is built with Xcode 11.5.
 
@@ -593,7 +593,7 @@ Xcode 11.3 and iOS 9 are now the minimum supported versions.
 
 * File format: Generates Realms with format v10 (Reads and upgrades all previous formats)
 * Realm Object Server: 3.21.0 or later.
-* Realm Studio: 3.11 or later.
+* Realm Studio: 4.0.0 or later.
 * APIs are backwards compatible with all previous releases in the 5.x.y series.
 * Carthage release for Swift is built with Xcode 11.5.
 
@@ -689,7 +689,7 @@ to open the new file format.
 
 * File format: Generates Realms with format v10 (Reads and upgrades all previous formats)
 * Realm Object Server: 3.21.0 or later.
-* Realm Studio: 3.11 or later.
+* Realm Studio: 4.0.0 or later.
 * APIs are backwards compatible with all previous releases in the 5.x.y series.
 * Carthage release for Swift is built with Xcode 11.4.1.
 
