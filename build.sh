@@ -423,11 +423,6 @@ case "$COMMAND" in
         exit 0
         ;;
 
-    "setup-baas")
-        ruby Realm/ObjectServerTests/setup_baas.rb
-        exit 0
-        ;;
-
     "prelaunch-simulator")
         if [ -z "$REALM_SKIP_PRELAUNCH" ]; then
             sh "${source_root}/scripts/reset-simulators.sh" "$1"
@@ -1114,8 +1109,7 @@ case "$COMMAND" in
 
             if [[ "$target" = *"server"* ]] || [[ "$target" = "swiftpm"* ]]; then
                 source "$(brew --prefix nvm)/nvm.sh" --no-use
-                nvm install 8.11.2
-                sh build.sh setup-baas
+                nvm install 14.15.4
             fi
 
             # Reset CoreSimulator.log

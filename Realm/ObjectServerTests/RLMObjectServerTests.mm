@@ -1567,7 +1567,7 @@ static const NSInteger NUMBER_OF_BIG_OBJECTS = 2;
     RLMApp *app = [RLMApp appWithId:appId configuration:config];
     RLMUser *user = [self logInUserForCredentials:[RLMCredentials anonymousCredentials] app:app];
 
-    RLMRealmConfiguration *c = [user configurationWithPartitionValue:appId];
+    RLMRealmConfiguration *c = [user configurationWithPartitionValue:NSStringFromSelector(_cmd)];
     c.objectClasses = @[Person.class];
     RLMSyncConfiguration *syncConfig = c.syncConfiguration;
     syncConfig.cancelAsyncOpenOnNonFatalErrors = true;
@@ -1617,7 +1617,7 @@ static const NSInteger NUMBER_OF_BIG_OBJECTS = 2;
     // Create a large object and then delete it in the next transaction so that
     // the file is bloated
     @autoreleasepool {
-        RLMRealm *realm = [self immediatelyOpenRealmForPartitionValue:partitionValue
+        RLMRealm *realm = [self immediatelyOpenRealmForPartitionValue:NSStringFromSelector(_cmd)
                                                                  user:user
                                                         encryptionKey:nil
                                                            stopPolicy:RLMSyncStopPolicyImmediately];

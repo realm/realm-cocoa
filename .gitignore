@@ -23,6 +23,7 @@ realm-core-*-xcframework
 
 # sh build.sh test
 build/
+.build/
 
 # sh build.sh ios-framework
 # sh build.sh package-examples

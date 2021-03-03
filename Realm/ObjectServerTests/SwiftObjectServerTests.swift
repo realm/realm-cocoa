@@ -29,20 +29,6 @@ import RealmSyncTestSupport
 import RealmTestSupport
 #endif
 
-class SwiftHugeSyncObject: Object {
-    @objc dynamic var _id = ObjectId.generate()
-    @objc dynamic var data: Data?
-
-    override class func primaryKey() -> String? {
-        return "_id"
-    }
-
-    class func create() -> SwiftHugeSyncObject {
-        let fakeDataSize = 1000000
-        return SwiftHugeSyncObject(value: ["data": Data(repeating: 16, count: fakeDataSize)])
-    }
-}
-
 extension User {
     func configuration(testName: String) -> Realm.Configuration {
         var config = self.configuration(partitionValue: testName)
@@ -318,7 +304,7 @@ class SwiftObjectServerTests: SwiftSyncTestCase {
 
     func populateRealm(user: User, partitionValue: String) {
         do {
-            let user = try logInUser(for: basicCredentials())
+            assert(user.isLoggedIn)
             let config = user.configuration(testName: partitionValue)
             let realm = try openRealm(configuration: config)
             try! realm.write {
@@ -571,7 +557,7 @@ class SwiftObjectServerTests: SwiftSyncTestCase {
         let app = App(id: appId, configuration: appConfig)
 
         let syncTimeoutOptions = SyncTimeoutOptions()
-        syncTimeoutOptions.connectTimeout = 2000
+        syncTimeoutOptions.connectTimeout = 3000
         app.syncManager.timeoutOptions = syncTimeoutOptions
 
         let user: User
@@ -599,7 +585,7 @@ class SwiftObjectServerTests: SwiftSyncTestCase {
 
         // Two second timeout with a two second delay should fail
         autoreleasepool {
-            proxy.delay = 3.0
+            proxy.delay = 3.5
             let ex = expectation(description: "async open")
             Realm.asyncOpen(configuration: config) { result in
                 guard case .failure(let error) = result else {
@@ -693,7 +679,7 @@ class SwiftObjectServerTests: SwiftSyncTestCase {
             manuallySetRefreshToken(for: user, value: badAccessToken())
             // Try to open a Realm with the user; this will cause our errorHandler block defined above to be fired.
             XCTAssertFalse(blockCalled)
-            _ = try immediatelyOpenRealm(partitionValue: "realm_id", user: user)
+            _ = try immediatelyOpenRealm(partitionValue: #function, user: user)
 
             waitForExpectations(timeout: 10.0, handler: nil)
         } catch {

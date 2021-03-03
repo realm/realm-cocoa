@@ -26,6 +26,20 @@ import RealmTestSupport
 import RealmSyncTestSupport
 #endif
 
+public class SwiftHugeSyncObject: Object {
+    @objc dynamic var _id = ObjectId.generate()
+    @objc dynamic var data: Data?
+
+    public override class func primaryKey() -> String? {
+        return "_id"
+    }
+
+    public class func create() -> SwiftHugeSyncObject {
+        let fakeDataSize = 1000000
+        return SwiftHugeSyncObject(value: ["data": Data(repeating: 16, count: fakeDataSize)])
+    }
+}
+
 public class SwiftPerson: Object {
     @objc public dynamic var _id: ObjectId? = ObjectId.generate()
     @objc public dynamic var firstName: String = ""
@@ -82,7 +96,7 @@ open class SwiftSyncTestCase: RLMSyncTestCase {
     public func openRealm(configuration: Realm.Configuration) throws -> Realm {
         var configuration = configuration
         if configuration.objectTypes == nil {
-            configuration.objectTypes = [SwiftPerson.self, Person.self, Dog.self, HugeSyncObject.self]
+            configuration.objectTypes = [SwiftPerson.self, SwiftHugeSyncObject.self]
         }
         let realm = try Realm(configuration: configuration)
         waitForDownloads(for: realm)
@@ -92,7 +106,7 @@ open class SwiftSyncTestCase: RLMSyncTestCase {
     public func immediatelyOpenRealm(partitionValue: String, user: User) throws -> Realm {
         var configuration = user.configuration(partitionValue: partitionValue)
         if configuration.objectTypes == nil {
-            configuration.objectTypes = [SwiftPerson.self, Person.self, Dog.self, HugeSyncObject.self]
+            configuration.objectTypes = [SwiftPerson.self, SwiftHugeSyncObject.self]
         }
         return try Realm(configuration: configuration)
     }
