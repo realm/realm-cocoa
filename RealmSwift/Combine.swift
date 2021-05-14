@@ -310,6 +310,35 @@ public func changesetPublisher<T: Object>(_ object: T) -> RealmPublishers.Object
     RealmPublishers.ObjectChangeset<T>(object)
 }
 
+extension Realm {
+    @available(OSX 10.15, watchOS 6.0, iOS 13.0, iOSApplicationExtension 13.0, OSXApplicationExtension 10.15, tvOS 13.0, *)
+    public func asyncWrite<S: Scheduler>(on scheduler: S = DispatchQueue.main as! S, _ block: @escaping (Realm) -> Void) -> RealmPublishers.AsyncWriteFromRealm<S> {
+        RealmPublishers.AsyncWriteFromRealm(scheduler, configuration: configuration, block)
+    }
+    @available(OSX 10.15, watchOS 6.0, iOS 13.0, iOSApplicationExtension 13.0, OSXApplicationExtension 10.15, tvOS 13.0, *)
+    public func asyncWrite<S: Scheduler, Confined: ThreadConfined>(
+        on scheduler: S = DispatchQueue.main as! S,
+        _ confined: Confined,
+        _ block: @escaping (Realm, Confined) -> Void) -> RealmPublishers.AsyncWriteRealmCombine<S, Confined> {
+        RealmPublishers.AsyncWriteRealmCombine(scheduler,
+                                               configuration: configuration,
+                                               confined: confined,
+                                               block)
+    }
+    @available(OSX 10.15, watchOS 6.0, iOS 13.0, iOSApplicationExtension 13.0, OSXApplicationExtension 10.15, tvOS 13.0, *)
+    public func asyncWrite<S: Scheduler, Confined: ThreadConfined, Confined2: ThreadConfined>(
+        on scheduler: S = DispatchQueue.main as! S,
+        _ confined: Confined,
+        _ confined2: Confined2,
+        _ block: @escaping (Realm, Confined, Confined2) -> Void) -> RealmPublishers.AsyncWriteRealmCombine2<S, Confined, Confined2> {
+        RealmPublishers.AsyncWriteRealmCombine2(scheduler,
+                                                configuration: configuration,
+                                                confined: confined,
+                                                confined2: confined2,
+                                                block)
+    }
+}
+
 /// Creates a publisher that emits a collection changeset each time the collection changes.
 ///
 /// - precondition: The collection must be a managed collection which has not been invalidated.
@@ -878,6 +907,204 @@ public enum RealmPublishers {
                 .receive(on: scheduler)
                 .compactMap { realm(config, scheduler)?.resolve($0) }
                 .receive(subscriber: subscriber)
+        }
+    }
+    /// A helper publisher used to support `receive(on:)` on Realm publishers.
+    public class AsyncWriteRealmCombine<S: Scheduler, Output: ThreadConfined>: Publisher {
+        private class AsyncRealmWriteSubscription: Subscription {
+            func request(_ demand: Subscribers.Demand) {
+            }
+
+            func cancel() {
+            }
+
+            var combineIdentifier: CombineIdentifier {
+                CombineIdentifier(self)
+            }
+        }
+        /// :nodoc:
+        public typealias Failure = Error
+
+        private let config: Realm.Configuration
+        private let scheduler: S
+        private var subscribers = [AnySubscriber<Output, Failure>]()
+        private let block: (Realm, Output) -> Void
+        private var blocks = [(Realm, Output) -> Void]()
+        var confined: Output
+        internal init(_ scheduler: S, configuration: Realm.Configuration, confined: Output, _ block: @escaping (Realm, Output) -> Void) {
+            self.config = configuration
+            self.scheduler = scheduler
+            self.block = block
+            self.confined = confined
+            blocks.append(block)
+
+        }
+
+        /// :nodoc:
+        public func receive<Sub>(subscriber: Sub) where Sub: Subscriber, Sub.Failure == Failure, Output == Sub.Input {
+            subscribers.append(AnySubscriber(subscriber))
+            subscriber.receive(subscription: AsyncRealmWriteSubscription())
+
+            let frozenConfined1 = self.confined.freeze()
+            self.scheduler.schedule {
+                guard let thawed1 = frozenConfined1.thaw() else {
+                    return subscriber.receive(completion: .failure(NSError()))
+                }
+                let r = realm(self.config.rlmConfiguration, self.scheduler)!
+                r.beginWrite()
+                do {
+                    self.block(r, thawed1)
+                    try r.commitWrite()
+                    _ = subscriber.receive(thawed1)
+                    subscriber.receive(completion: .finished)
+                } catch {
+                    subscriber.receive(completion: .failure(error))
+                }
+            }
+        }
+
+        public func combineWrite<Confined: ThreadConfined>(with confined: Confined,
+                                                         _ block: @escaping (Realm, Confined) -> Void) -> Publishers.CombineLatest<AsyncWriteRealmCombine<S, Output>, AsyncWriteRealmCombine<S, Confined>> {
+            return combineLatest(AsyncWriteRealmCombine<S, Confined>.init(scheduler,
+                                                                          configuration: config,
+                                                                          confined: confined, block))
+        }
+    }
+    /// A helper publisher used to support `receive(on:)` on Realm publishers.
+    public struct AsyncWriteRealmCombine2<S: Scheduler, Confined: ThreadConfined, Confined2: ThreadConfined>: Publisher {
+        private class AsyncRealmWriteSubscription: Subscription {
+            func request(_ demand: Subscribers.Demand) {
+            }
+
+            func cancel() {
+            }
+
+            var combineIdentifier: CombineIdentifier {
+                CombineIdentifier(self)
+            }
+        }
+        /// :nodoc:
+        public typealias Output = (Confined, Confined2)
+        public typealias Failure = Error
+
+        private let config: Realm.Configuration
+        private let scheduler: S
+        private let block: (Realm, Confined, Confined2) -> Void
+        var confined: Confined
+        var confined2: Confined2
+        internal init(_ scheduler: S,
+                      configuration: Realm.Configuration,
+                      confined: Confined,
+                      confined2: Confined2, _ block: @escaping (Realm, Confined, Confined2) -> Void) {
+            precondition(confined.realm != nil, "Only managed types can be published")
+            precondition(!confined.isInvalidated, "Confined type is invalidated or deleted")
+            precondition(confined2.realm != nil, "Only managed types can be published")
+            precondition(!confined2.isInvalidated, "Confined type is invalidated or deleted")
+            self.config = configuration
+            self.scheduler = scheduler
+            self.block = block
+            self.confined = confined
+            self.confined2 = confined2
+        }
+
+        /// :nodoc:
+        public func receive<Sub>(subscriber: Sub) where Sub: Subscriber, Sub.Failure == Failure, Output == Sub.Input {
+            subscriber.receive(subscription: AsyncRealmWriteSubscription())
+            let tsr = ThreadSafeReference(to: confined)
+            let tsr2 = ThreadSafeReference(to: confined2)
+
+            self.scheduler.schedule {
+                guard let r = realm(config.rlmConfiguration, scheduler),
+                      let resolved1 = r.resolve(tsr),
+                      let resolved2 = r.resolve(tsr2) else {
+                    return subscriber.receive(completion: .failure(NSError()))
+                }
+
+                r.beginWrite()
+                do {
+                    self.block(r, resolved1, resolved2)
+                    try r.commitWrite()
+
+                    DispatchQueue.main.async {
+                        _ = subscriber.receive((confined, confined2))
+                    }
+                    subscriber.receive(completion: .finished)
+                } catch {
+                    subscriber.receive(completion: .failure(error))
+                }
+            }
+        }
+
+        public func combineWrite<Confined: ThreadConfined>(on scheduler: S? = nil,
+                                                           with confined: Confined,
+                                                         _ block: @escaping (Realm, Confined) -> Void) -> Publishers.CombineLatest<Self, AsyncWriteRealmCombine<S, Confined>> {
+            return combineLatest(AsyncWriteRealmCombine<S, Confined>.init(scheduler ?? self.scheduler,
+                                                                          configuration: config,
+                                                                          confined: confined, block))
+        }
+        public func combineWrite<Confined: ThreadConfined, Confined2: ThreadConfined>(
+            on scheduler: S? = nil,
+            with confined: Confined,
+            _ confined2: Confined2,
+            _ block: @escaping (Realm, Confined, Confined2) -> Void) -> Publishers.CombineLatest<Self, AsyncWriteRealmCombine2<S, Confined, Confined2>> {
+            return combineLatest(AsyncWriteRealmCombine2<S, Confined, Confined2>.init(scheduler ?? self.scheduler,
+                                                                                      configuration: config,
+                                                                                      confined: confined,
+                                                                                      confined2: confined2,
+                                                                                      block))
+        }
+    }
+    /// A helper publisher used to support `receive(on:)` on Realm publishers.
+    public struct AsyncWriteFromRealm<S: Scheduler>: Publisher {
+        private class AsyncRealmWriteSubscription: Subscription {
+            func request(_ demand: Subscribers.Demand) {
+            }
+
+            func cancel() {
+            }
+
+            var combineIdentifier: CombineIdentifier {
+                CombineIdentifier(self)
+            }
+        }
+        /// :nodoc:
+        public typealias Output = Realm
+        public typealias Failure = Error
+
+        fileprivate let config: Realm.Configuration
+        fileprivate let scheduler: S
+        private let block: (Realm) -> Void
+        internal init(_ scheduler: S, configuration: Realm.Configuration, _ block: @escaping (Realm) -> Void) {
+            self.config = configuration
+            self.scheduler = scheduler
+            self.block = block
+
+        }
+
+        /// :nodoc:
+        public func receive<Sub>(subscriber: Sub) where Sub: Subscriber, Sub.Failure == Failure, Output == Sub.Input {
+            subscriber.receive(subscription: AsyncRealmWriteSubscription())
+            self.scheduler.schedule {
+                let r = realm(self.config.rlmConfiguration, self.scheduler)!
+                r.beginWrite()
+                self.block(r)
+                do {
+                    try r.commitWrite()
+                    _ = subscriber.receive(r)
+                    subscriber.receive(completion: .finished)
+                } catch {
+                    subscriber.receive(completion: .failure(error))
+                }
+            }
+        }
+
+        public func combineWrite<Confined: ThreadConfined>(
+            on scheduler: S? = nil,
+            with confined: Confined,
+            _ block: @escaping (Realm, Confined) -> Void) -> Publishers.CombineLatest<AsyncWriteFromRealm<S>, AsyncWriteRealmCombine<S, Confined>> {
+            return combineLatest(AsyncWriteRealmCombine<S, Confined>.init(scheduler ?? self.scheduler,
+                                                                          configuration: config,
+                                                                          confined: confined, block))
         }
     }
 
@@ -1475,6 +1702,33 @@ public enum RealmPublishers {
                 }
                 .receive(subscriber: subscriber)
         }
+    }
+}
+
+@available(OSX 10.15, watchOS 6.0, iOS 13.0, iOSApplicationExtension 13.0, OSXApplicationExtension 10.15, tvOS 13.0, *)
+extension Publishers.CombineLatest {
+    public func combineWrite<Confined: ThreadConfined, S: Scheduler, BOutput: ThreadConfined>(
+        with confined: Confined,
+        _ block: @escaping (Realm, Confined) -> Void) -> Publishers.CombineLatest3<RealmPublishers.AsyncWriteFromRealm<S>, RealmPublishers.AsyncWriteRealmCombine<S, B.Output>, RealmPublishers.AsyncWriteRealmCombine<S, Confined>> where A == RealmPublishers.AsyncWriteFromRealm<S>, B == RealmPublishers.AsyncWriteRealmCombine<S, BOutput> {
+        let next = RealmPublishers.AsyncWriteRealmCombine<S, Confined>(a.scheduler,
+                                                                       configuration: a.config,
+                                                                       confined: confined,
+                                                                       block)
+        return Publishers.CombineLatest3<A, B, RealmPublishers.AsyncWriteRealmCombine<S, Confined>> (self.a, self.b, next)
+    }
+}
+@available(OSX 10.15, watchOS 6.0, iOS 13.0, iOSApplicationExtension 13.0, OSXApplicationExtension 10.15, tvOS 13.0, *)
+extension Publishers.CombineLatest3 {
+    public func combineWrite<Confined: ThreadConfined, S: Scheduler, BOutput: ThreadConfined, COutput: ThreadConfined>(
+        with confined: Confined,
+        _ block: @escaping (Realm, Confined) -> Void) -> Publishers.CombineLatest4<RealmPublishers.AsyncWriteFromRealm<S>, RealmPublishers.AsyncWriteRealmCombine<S, B.Output>,
+    RealmPublishers.AsyncWriteRealmCombine<S, C.Output>,
+    RealmPublishers.AsyncWriteRealmCombine<S, Confined>> where A == RealmPublishers.AsyncWriteFromRealm<S>, B == RealmPublishers.AsyncWriteRealmCombine<S, BOutput>, C == RealmPublishers.AsyncWriteRealmCombine<S, COutput> {
+        let next = RealmPublishers.AsyncWriteRealmCombine<S, Confined>(a.scheduler,
+                                                                       configuration: a.config,
+                                                                       confined: confined,
+                                                                       block)
+        return Publishers.CombineLatest4<A, B, C, RealmPublishers.AsyncWriteRealmCombine<S, Confined>> (self.a, self.b, self.c, next)
     }
 }
 #endif // canImport(Combine)

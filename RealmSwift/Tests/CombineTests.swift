@@ -190,6 +190,48 @@ class CombineRealmTests: CombinePublisherTestCase {
         }
         wait(for: [exp], timeout: 1)
     }
+
+    func testAsyncWrite() throws {
+        let exp = XCTestExpectation()
+
+        let intObject = SwiftIntObject()
+        let boolObject = SwiftBoolObject()
+        let stringObject = SwiftStringObject()
+
+        let listObject = SwiftListObject()
+
+        try! realm.write {
+            realm.add([intObject, boolObject, stringObject, listObject])
+        }
+
+        XCTAssertTrue(Thread.isMainThread)
+
+        cancellable = self.realm.asyncWrite(on: subscribeOnQueue, intObject, boolObject) { realm, intObject, boolObject in
+            XCTAssertFalse(Thread.isMainThread)
+            intObject.intCol = 42
+            boolObject.boolCol = true
+        }.combineWrite(on: receiveOnQueue, with: listObject.double, stringObject) { realm, doubleList, stringObject in
+            XCTAssertFalse(Thread.isMainThread)
+            doubleList.append(42.42)
+            stringObject.stringCol = "foo"
+        }
+        .sink(receiveCompletion: { completion in
+            if case .failure(let error) = completion {
+                XCTFail(error.localizedDescription)
+            }
+            exp.fulfill()
+        }, receiveValue: { (write1, write2) in
+            XCTAssertTrue(Thread.isMainThread)
+            let (intObject, boolObject) = write1
+            let (doubleList, stringObject) = write2
+            XCTAssertEqual(intObject.intCol, 42)
+            XCTAssertEqual(boolObject.boolCol, true)
+            XCTAssertEqual(doubleList.first, 42.42)
+            XCTAssertEqual(stringObject.stringCol, "foo")
+        })
+
+        wait(for: [exp], timeout: 10)
+    }
 }
 
 @available(OSX 10.15, watchOS 6.0, iOS 13.0, iOSApplicationExtension 13.0, OSXApplicationExtension 10.15, tvOS 13.0, *)
