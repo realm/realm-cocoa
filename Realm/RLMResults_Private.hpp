@@ -18,6 +18,8 @@
 
 #import "RLMResults_Private.h"
 
+#import "RLMIvarStorage.hpp"
+
 #import <realm/object-store/results.hpp>
 
 class RLMClassInfo;
@@ -26,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface RLMResults () {
 @protected
-    realm::Results _results;
+    RLMIvar<realm::Results> _results;
 }
 
 /**

@@ -18,6 +18,8 @@
 
 #import "RLMSchema_Private.h"
 
+#import <Realm/RLMConstants.h>
+
 #import <memory>
 
 namespace realm {
@@ -26,6 +28,6 @@ namespace realm {
 }
 
 @interface RLMSchema ()
-+ (instancetype)dynamicSchemaFromObjectStoreSchema:(realm::Schema const&)objectStoreSchema;
-- (realm::Schema)objectStoreCopy;
++ (instancetype)dynamicSchemaFromObjectStoreSchema:(realm::Schema const&)objectStoreSchema RLM_OBJC_DIRECT;
+- (realm::Schema)objectStoreCopy RLM_OBJC_DIRECT;
 @end

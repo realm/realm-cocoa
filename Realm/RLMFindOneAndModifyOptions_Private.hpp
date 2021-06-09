@@ -18,8 +18,10 @@
 
 #import <Realm/RLMFindOneAndModifyOptions.h>
 
+#import <Realm/RLMConstants.h>
+
 #import <realm/object-store/sync/mongo_collection.hpp>
 
 @interface RLMFindOneAndModifyOptions ()
-- (realm::app::MongoCollection::FindOneAndModifyOptions)_findOneAndModifyOptions;
+- (realm::app::MongoCollection::FindOneAndModifyOptions)_findOneAndModifyOptions RLM_OBJC_DIRECT;
 @end

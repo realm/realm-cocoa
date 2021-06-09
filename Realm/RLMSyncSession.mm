@@ -170,15 +170,19 @@ static RLMSyncConnectionState convertConnectionState(SyncSession::ConnectionStat
     }
 }
 
+static std::function<void(std::error_code)> wrapCallback(dispatch_queue_t queue, void(^callback)(NSError *)) {
+    queue = queue ?: dispatch_get_main_queue();
+    return [=](std::error_code err) {
+        NSError *error = err == std::error_code{} ? nil : make_sync_error(err);
+        dispatch_async(queue, ^{
+            callback(error);
+        });
+    };
+}
+
 - (BOOL)waitForUploadCompletionOnQueue:(dispatch_queue_t)queue callback:(void(^)(NSError *))callback {
     if (auto session = _session.lock()) {
-        queue = queue ?: dispatch_get_main_queue();
-        session->wait_for_upload_completion([=](std::error_code err) {
-            NSError *error = (err == std::error_code{}) ? nil : make_sync_error(err);
-            dispatch_async(queue, ^{
-                callback(error);
-            });
-        });
+        session->wait_for_upload_completion(wrapCallback(queue, callback));
         return YES;
     }
     return NO;
@@ -186,16 +190,21 @@ static RLMSyncConnectionState convertConnectionState(SyncSession::ConnectionStat
 
 - (BOOL)waitForDownloadCompletionOnQueue:(dispatch_queue_t)queue callback:(void(^)(NSError *))callback {
     if (auto session = _session.lock()) {
-        queue = queue ?: dispatch_get_main_queue();
-        session->wait_for_download_completion([=](std::error_code err) {
-            NSError *error = (err == std::error_code{}) ? nil : make_sync_error(err);
-            dispatch_async(queue, ^{
-                callback(error);
-            });
-        });
+        session->wait_for_download_completion(wrapCallback(queue, callback));
         return YES;
     }
     return NO;
+}
+
+static std::function<void(uint64_t, uint64_t)> wrapCallback(dispatch_queue_t queue, RLMProgressNotificationBlock block) {
+    return [=](uint64_t transferred, uint64_t transferrable) {
+        dispatch_async(queue, ^{
+            @autoreleasepool {
+                block(static_cast<NSUInteger>(transferred),
+                      static_cast<NSUInteger>(transferrable));
+            }
+        });
+    };
 }
 
 - (RLMProgressNotificationToken *)addProgressNotificationForDirection:(RLMSyncProgressDirection)direction
@@ -207,11 +216,8 @@ static RLMSyncConnectionState convertConnectionState(SyncSession::ConnectionStat
                                    ? SyncSession::NotifierType::upload
                                    : SyncSession::NotifierType::download);
         bool is_streaming = (mode == RLMSyncProgressModeReportIndefinitely);
-        uint64_t token = session->register_progress_notifier([=](uint64_t transferred, uint64_t transferrable) {
-            dispatch_async(queue, ^{
-                block((NSUInteger)transferred, (NSUInteger)transferrable);
-            });
-        }, notifier_direction, is_streaming);
+        uint64_t token = session->register_progress_notifier(wrapCallback(queue, block),
+                                                             notifier_direction, is_streaming);
         return [[RLMProgressNotificationToken alloc] initWithTokenValue:token session:std::move(session)];
     }
     return nil;
@@ -271,27 +277,16 @@ static RLMSyncConnectionState convertConnectionState(SyncSession::ConnectionStat
 
 @implementation RLMAsyncOpenTask {
     bool _cancel;
-    NSMutableArray<RLMProgressNotificationBlock> *_blocks;
+    std::vector<std::function<void(uint64_t, uint64_t)>> _blocks;
 }
 
 - (void)addProgressNotificationOnQueue:(dispatch_queue_t)queue block:(RLMProgressNotificationBlock)block {
-    auto wrappedBlock = ^(NSUInteger transferred_bytes, NSUInteger transferrable_bytes) {
-        dispatch_async(queue, ^{
-            @autoreleasepool {
-                block(transferred_bytes, transferrable_bytes);
-            }
-        });
-    };
-
     @synchronized (self) {
         if (_task) {
-            _task->register_download_progress_notifier(wrappedBlock);
+            _task->register_download_progress_notifier(wrapCallback(queue, block));
         }
         else if (!_cancel) {
-            if (!_blocks) {
-                _blocks = [NSMutableArray new];
-            }
-            [_blocks addObject:wrappedBlock];
+            _blocks.push_back(wrapCallback(queue, block));
         }
     }
 }
@@ -307,7 +302,7 @@ static RLMSyncConnectionState convertConnectionState(SyncSession::ConnectionStat
         }
         else {
             _cancel = true;
-            _blocks = nil;
+            _blocks.clear();
         }
     }
 }
@@ -318,10 +313,10 @@ static RLMSyncConnectionState convertConnectionState(SyncSession::ConnectionStat
         if (_cancel) {
             _task->cancel();
         }
-        for (RLMProgressNotificationBlock block in _blocks) {
-            _task->register_download_progress_notifier(block);
+        for (auto& block : _blocks) {
+            _task->register_download_progress_notifier(std::move(block));
         }
-        _blocks = nil;
+        _blocks.clear();
     }
 }
 @end

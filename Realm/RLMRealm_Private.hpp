@@ -19,6 +19,7 @@
 #import "RLMRealm_Private.h"
 
 #import "RLMClassInfo.hpp"
+#import "RLMIvarStorage.hpp"
 
 #import <realm/object-store/object_schema.hpp>
 
@@ -43,5 +44,5 @@ struct RLMResultsSetInfo {
 }
 
 // FIXME - group should not be exposed
-@property (nonatomic, readonly) realm::Group &group;
+@property (nonatomic, readonly RLM_DIRECT) realm::Group &group;
 @end

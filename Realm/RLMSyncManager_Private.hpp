@@ -39,12 +39,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface RLMSyncManager ()
 
-- (std::weak_ptr<realm::app::App>)app;
-- (std::shared_ptr<realm::SyncManager>)syncManager;
-- (instancetype)initWithSyncManager:(std::shared_ptr<realm::SyncManager>)syncManager;
+- (std::weak_ptr<realm::app::App>)app RLM_OBJC_DIRECT;
+- (std::shared_ptr<realm::SyncManager>)syncManager RLM_OBJC_DIRECT;
+- (instancetype)initWithSyncManager:(std::shared_ptr<realm::SyncManager>)syncManager RLM_OBJC_DIRECT;
 
 + (realm::SyncClientConfig)configurationWithRootDirectory:(nullable NSURL *)rootDirectory
-                                                    appId:(nonnull NSString *)appId;
+                                                    appId:(nonnull NSString *)appId RLM_OBJC_DIRECT;
 
 - (void)_fireError:(NSError *)error;
 

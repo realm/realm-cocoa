@@ -508,9 +508,9 @@ static void RLMInsertObject(RLMManagedArray *ar, id object, NSUInteger index) {
     RLMRealm *frozenRealm = [_realm freeze];
     auto& parentInfo = _ownerInfo->resolve(frozenRealm);
     return translateRLMResultsErrors([&] {
-        return [[self.class alloc] initWithList:_backingList.freeze(frozenRealm->_realm)
-                                     parentInfo:&parentInfo
-                                       property:parentInfo.rlmObjectSchema[_key]];
+        return [[RLMManagedArray alloc] initWithList:_backingList.freeze(frozenRealm->_realm)
+                                          parentInfo:&parentInfo
+                                            property:parentInfo.rlmObjectSchema[_key]];
     });
 }
 
@@ -522,9 +522,9 @@ static void RLMInsertObject(RLMManagedArray *ar, id object, NSUInteger index) {
     RLMRealm *liveRealm = [_realm thaw];
     auto& parentInfo = _ownerInfo->resolve(liveRealm);
     return translateRLMResultsErrors([&] {
-        return [[self.class alloc] initWithList:_backingList.freeze(liveRealm->_realm)
-                                     parentInfo:&parentInfo
-                                       property:parentInfo.rlmObjectSchema[_key]];
+        return [[RLMManagedArray alloc] initWithList:_backingList.freeze(liveRealm->_realm)
+                                          parentInfo:&parentInfo
+                                            property:parentInfo.rlmObjectSchema[_key]];
     });
 }
 

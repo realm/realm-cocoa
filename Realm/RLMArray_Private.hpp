@@ -48,7 +48,7 @@ class RLMObservationInfo;
 - (instancetype)initWithParent:(RLMObjectBase *)parentObject property:(RLMProperty *)property;
 - (RLMManagedArray *)initWithList:(realm::List)list
                        parentInfo:(RLMClassInfo *)parentInfo
-                         property:(__unsafe_unretained RLMProperty *const)property;
+                         property:(__unsafe_unretained RLMProperty *const)property RLM_OBJC_DIRECT;
 
 - (bool)isBackedByList:(realm::List const&)list;
 

@@ -33,7 +33,6 @@
 #import <realm/query_engine.hpp>
 #import <realm/query_expression.hpp>
 #import <realm/util/cf_ptr.hpp>
-#import <realm/util/overload.hpp>
 
 using namespace realm;
 
@@ -674,6 +673,13 @@ void QueryBuilder::add_diacritic_sensitive_string_constraint(NSPredicateOperator
     }
 }
 
+auto as_subexpr(StringData value) { return make_subexpr<ConstantStringValue>(value); }
+auto as_subexpr(const Columns<String>& c) { return c.clone(); }
+auto as_subexpr(const Columns<Lst<String>>& c) { return c.clone(); }
+auto as_subexpr(BinaryData value) { return make_subexpr<ConstantStringValue>(StringData(value.data(), value.size())); }
+auto as_subexpr(const Columns<BinaryData>& c) { return c.clone(); }
+auto as_subexpr(const Columns<Lst<BinaryData>>& c) { return c.clone(); }
+
 template <typename C, typename T>
 void QueryBuilder::add_string_constraint(NSPredicateOperatorType operatorType,
                                          NSComparisonPredicateOptions predicateOptions,
@@ -684,14 +690,6 @@ void QueryBuilder::add_string_constraint(NSPredicateOperatorType operatorType,
         return;
     }
 
-    auto as_subexpr = util::overload{
-        [](StringData value) { return make_subexpr<ConstantStringValue>(value); },
-        [](const Columns<String>& c) { return c.clone(); },
-        [](const Columns<Lst<String>>& c) { return c.clone(); },
-        [](BinaryData value) { return make_subexpr<ConstantStringValue>(StringData(value.data(), value.size())); },
-        [](const Columns<BinaryData>& c) { return c.clone(); },
-        [](const Columns<Lst<BinaryData>>& c) { return c.clone(); }
-    };
     auto left = as_subexpr(column);
     auto right = as_subexpr(value);
 

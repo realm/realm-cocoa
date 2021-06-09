@@ -39,6 +39,13 @@ NS_ASSUME_NONNULL_BEGIN
 #define RLM_ERROR_ENUM(type, name, domain) NS_ENUM(type, name)
 #endif
 
+#if __has_attribute(objc_direct)
+#define RLM_OBJC_DIRECT __attribute__((objc_direct))
+#define RLM_DIRECT , direct
+#else
+#define RLM_OBJC_DIRECT
+#define RLM_DIRECT
+#endif
 
 #pragma mark - Enums
 

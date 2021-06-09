@@ -21,8 +21,8 @@
 #import <realm/object-store/shared_realm.hpp>
 
 @interface RLMRealmConfiguration ()
-- (realm::Realm::Config&)config;
+- (realm::Realm::Config&)config RLM_OBJC_DIRECT;
 
-@property (nonatomic) realm::SchemaMode schemaMode;
+@property (nonatomic RLM_DIRECT) realm::SchemaMode schemaMode;
 - (void)updateSchemaMode;
 @end

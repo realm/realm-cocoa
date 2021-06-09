@@ -28,8 +28,9 @@
 
 - (void)testVisitingAllExpressionTypes {
     auto testPredicate = [&](NSPredicate *predicate, size_t expectedExpressionCount) {
-        size_t visitCount = 0;
-        auto visitExpression = [&](NSExpression *expression) {
+        static size_t visitCount;
+        visitCount = 0;
+        auto visitExpression = [](NSExpression *expression) {
             visitCount++;
             return expression;
         };

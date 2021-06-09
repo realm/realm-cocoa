@@ -16,7 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#import "RLMSchema_Private.h"
+#import "RLMSchema_Private.hpp"
 
 #import "RLMAccessor.h"
 #import "RLMObjectBase_Private.h"

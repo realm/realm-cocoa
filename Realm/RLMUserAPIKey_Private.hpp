@@ -18,9 +18,11 @@
 
 #import <Realm/RLMUserAPIKey.h>
 
+#import <Realm/RLMConstants.h>
+
 #import <realm/object-store/sync/app.hpp>
 
 @interface RLMUserAPIKey ()
-- (realm::app::App::UserAPIKey)_apiKey;
-- (instancetype)initWithUserAPIKey:(realm::app::App::UserAPIKey)userAPIKey;
+- (realm::app::App::UserAPIKey)_apiKey RLM_OBJC_DIRECT;
+- (instancetype)initWithUserAPIKey:(realm::app::App::UserAPIKey)userAPIKey RLM_OBJC_DIRECT;
 @end

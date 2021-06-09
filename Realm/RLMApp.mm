@@ -21,6 +21,7 @@
 #import "RLMBSON_Private.hpp"
 #import "RLMCredentials_Private.hpp"
 #import "RLMEmailPasswordAuth.h"
+#import "RLMIvarStorage.hpp"
 #import "RLMPushClient_Private.hpp"
 #import "RLMSyncManager_Private.hpp"
 #import "RLMUser_Private.hpp"
@@ -84,7 +85,7 @@ namespace {
 
 #pragma mark RLMAppConfiguration
 @implementation RLMAppConfiguration {
-    realm::app::App::Config _config;
+    RLMIvar<realm::app::App::Config> _config;
 }
 
 - (instancetype)initWithConfig:(const realm::app::App::Config &)config {
@@ -119,10 +120,10 @@ namespace {
         self.localAppVersion = localAppVersion;
         self.defaultRequestTimeoutMS = defaultRequestTimeoutMS;
 
-        _config.platform = "Realm Cocoa";
+        _config->platform = "Realm Cocoa";
 
-        RLMNSStringToStdString(_config.platform_version, [[NSProcessInfo processInfo] operatingSystemVersionString]);
-        RLMNSStringToStdString(_config.sdk_version, REALM_COCOA_VERSION);
+        RLMNSStringToStdString(_config->platform_version, [[NSProcessInfo processInfo] operatingSystemVersionString]);
+        RLMNSStringToStdString(_config->sdk_version, REALM_COCOA_VERSION);
         return self;
     }
     return nil;
@@ -133,12 +134,12 @@ namespace {
 }
 
 - (void)setAppId:(NSString *)appId {
-    RLMNSStringToStdString(_config.app_id, appId);
+    RLMNSStringToStdString(_config->app_id, appId);
 }
 
 - (NSString *)baseURL {
-    if (_config.base_url) {
-        return @(_config.base_url->c_str());
+    if (_config->base_url) {
+        return @(_config->base_url->c_str());
     }
 
     return nil;
@@ -147,29 +148,29 @@ namespace {
 - (void)setBaseURL:(nullable NSString *)baseURL {
     std::string base_url;
     RLMNSStringToStdString(base_url, baseURL);
-    _config.base_url = base_url.empty() ? util::none : util::Optional(base_url);
+    _config->base_url = base_url.empty() ? util::none : util::Optional(base_url);
     return;
 }
 
 - (id<RLMNetworkTransport>)transport {
-    return static_cast<CocoaNetworkTransport*>(_config.transport_generator().get())->transport();
+    return static_cast<CocoaNetworkTransport*>(_config->transport_generator().get())->transport();
 }
 
 - (void)setTransport:(id<RLMNetworkTransport>)transport {
     if (transport) {
-        _config.transport_generator = [transport]{
+        _config->transport_generator = [transport]{
             return std::make_unique<CocoaNetworkTransport>(transport);
         };
     } else {
-        _config.transport_generator = []{
+        _config->transport_generator = []{
             return std::make_unique<CocoaNetworkTransport>([RLMNetworkTransport new]);
         };
     }
 }
 
 - (NSString *)localAppName {
-    if (_config.local_app_name) {
-        return @((_config.base_url)->c_str());
+    if (_config->local_app_name) {
+        return @((_config->base_url)->c_str());
     }
 
     return nil;
@@ -178,13 +179,13 @@ namespace {
 - (void)setLocalAppName:(nullable NSString *)localAppName {
     std::string local_app_name;
     RLMNSStringToStdString(local_app_name, localAppName);
-    _config.local_app_name = local_app_name.empty() ? util::none : util::Optional(local_app_name);
+    _config->local_app_name = local_app_name.empty() ? util::none : util::Optional(local_app_name);
     return;
 }
 
 - (NSString *)localAppVersion {
-    if (_config.local_app_version) {
-        return @(_config.base_url->c_str());
+    if (_config->local_app_version) {
+        return @(_config->base_url->c_str());
     }
 
     return nil;
@@ -193,16 +194,16 @@ namespace {
 - (void)setLocalAppVersion:(nullable NSString *)localAppVersion {
     std::string local_app_version;
     RLMNSStringToStdString(local_app_version, localAppVersion);
-    _config.local_app_version = local_app_version.empty() ? util::none : util::Optional(local_app_version);
+    _config->local_app_version = local_app_version.empty() ? util::none : util::Optional(local_app_version);
     return;
 }
 
 - (NSUInteger)defaultRequestTimeoutMS {
-    return _config.default_request_timeout_ms.value_or(6000U);
+    return _config->default_request_timeout_ms.value_or(6000U);
 }
 
 - (void)setDefaultRequestTimeoutMS:(NSUInteger)defaultRequestTimeoutMS {
-    _config.default_request_timeout_ms = (uint64_t)defaultRequestTimeoutMS;
+    _config->default_request_timeout_ms = (uint64_t)defaultRequestTimeoutMS;
 }
 
 @end

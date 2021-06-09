@@ -18,12 +18,14 @@
 
 #import <Realm/RLMObjectId.h>
 
+#import <Realm/RLMConstants.h>
+
 namespace realm {
 class ObjectId;
 }
 
 @interface RLMObjectId ()
-@property (nonatomic, readonly) realm::ObjectId value;
+@property (nonatomic, readonly RLM_DIRECT) realm::ObjectId value;
 
-- (instancetype)initWithValue:(realm::ObjectId)value;
+- (instancetype)initWithValue:(realm::ObjectId)value RLM_OBJC_DIRECT;
 @end

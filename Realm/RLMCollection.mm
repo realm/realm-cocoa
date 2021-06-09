@@ -44,8 +44,8 @@ static const int RLMEnumerationBufferSize = 16;
 
     // A pointer to either _snapshot or a Results from the source collection,
     // to avoid having to copy the Results when not in a write transaction
-    realm::Results *_results;
-    realm::Results _snapshot;
+    RLMIvar<realm::Results *> _results;
+    RLMIvar<realm::Results> _snapshot;
 
     // A strong reference to the collection being enumerated to ensure it stays
     // alive when we're holding a pointer to a member in it
@@ -68,14 +68,14 @@ static const int RLMEnumerationBufferSize = 16;
             _collection = collection;
             [_realm registerEnumerator:self];
         }
-        _results = &_snapshot;
+        _results = &*_snapshot;
     }
     return self;
 }
 
 - (instancetype)initWithResults:(realm::Results&)results
                      collection:(id)collection
-                      classInfo:(RLMClassInfo&)info
+                      classInfo:(RLMClassInfo&)info RLM_OBJC_DIRECT
 {
     self = [super init];
     if (self) {
@@ -83,7 +83,7 @@ static const int RLMEnumerationBufferSize = 16;
         _realm = _info->realm;
         if (_realm.inWriteTransaction) {
             _snapshot = results.snapshot();
-            _results = &_snapshot;
+            _results = &*_snapshot;
         }
         else {
             _results = &results;
@@ -101,15 +101,15 @@ static const int RLMEnumerationBufferSize = 16;
 }
 
 - (void)detach {
-    _snapshot = _results->snapshot();
-    _results = &_snapshot;
+    _snapshot = (*_results)->snapshot();
+    _results = &*_snapshot;
     _collection = nil;
 }
 
 - (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state
                                     count:(NSUInteger)len {
     [_realm verifyThread];
-    if (!_results->is_valid()) {
+    if (!(*_results)->is_valid()) {
         @throw RLMException(@"Collection is no longer valid");
     }
     // The fast enumeration buffer size is currently a hardcoded number in the
@@ -124,7 +124,7 @@ static const int RLMEnumerationBufferSize = 16;
     @autoreleasepool {
         RLMAccessorContext ctx(*_info);
         for (NSUInteger index = state->state; index < count && batchCount < len; ++index) {
-            _strongBuffer[batchCount] = _results->get(ctx, index);
+            _strongBuffer[batchCount] = (*_results)->get(ctx, index);
             batchCount++;
         }
     }
@@ -140,7 +140,7 @@ static const int RLMEnumerationBufferSize = 16;
             _collection = nil;
             [_realm unregisterEnumerator:self];
         }
-        _snapshot = {};
+        _snapshot = realm::Results{};
     }
 
     state->itemsPtr = (__unsafe_unretained id *)(void *)_strongBuffer;
@@ -295,10 +295,10 @@ std::vector<std::pair<std::string, bool>> RLMSortDescriptorsToKeypathArray(NSArr
 }
 
 @implementation RLMCollectionChange {
-    realm::CollectionChangeSet _indices;
+    RLMIvar<realm::CollectionChangeSet> _indices;
 }
 
-- (instancetype)initWithChanges:(realm::CollectionChangeSet)indices {
+- (instancetype)initWithChanges:(realm::CollectionChangeSet)indices RLM_OBJC_DIRECT {
     self = [super init];
     if (self) {
         _indices = std::move(indices);
@@ -315,15 +315,15 @@ static NSArray *toArray(realm::IndexSet const& set) {
 }
 
 - (NSArray *)insertions {
-    return toArray(_indices.insertions);
+    return toArray(_indices->insertions);
 }
 
 - (NSArray *)deletions {
-    return toArray(_indices.deletions);
+    return toArray(_indices->deletions);
 }
 
 - (NSArray *)modifications {
-    return toArray(_indices.modifications);
+    return toArray(_indices->modifications);
 }
 
 static NSArray *toIndexPathArray(realm::IndexSet const& set, NSUInteger section) {
@@ -337,15 +337,15 @@ static NSArray *toIndexPathArray(realm::IndexSet const& set, NSUInteger section)
 }
 
 - (NSArray<NSIndexPath *> *)deletionsInSection:(NSUInteger)section {
-    return toIndexPathArray(_indices.deletions, section);
+    return toIndexPathArray(_indices->deletions, section);
 }
 
 - (NSArray<NSIndexPath *> *)insertionsInSection:(NSUInteger)section {
-    return toIndexPathArray(_indices.insertions, section);
+    return toIndexPathArray(_indices->insertions, section);
 }
 
 - (NSArray<NSIndexPath *> *)modificationsInSection:(NSUInteger)section {
-    return toIndexPathArray(_indices.modifications, section);
+    return toIndexPathArray(_indices->modifications, section);
 }
 
 - (NSString *)description {

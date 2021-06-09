@@ -18,12 +18,14 @@
 
 #import <Realm/RLMFindOptions.h>
 
+#import <Realm/RLMConstants.h>
+
 #import <realm/object-store/sync/mongo_collection.hpp>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface RLMFindOptions ()
-- (realm::app::MongoCollection::FindOptions)_findOptions;
+- (realm::app::MongoCollection::FindOptions)_findOptions RLM_OBJC_DIRECT;
 @end
 
 NS_ASSUME_NONNULL_END

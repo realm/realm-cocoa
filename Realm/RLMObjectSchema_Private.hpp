@@ -18,6 +18,8 @@
 
 #import "RLMObjectSchema_Private.h"
 
+#import <Realm/RLMConstants.h>
+
 namespace realm {
     class ObjectSchema;
 }
@@ -25,8 +27,8 @@ namespace realm {
 
 @interface RLMObjectSchema ()
 // create realm::ObjectSchema copy
-- (realm::ObjectSchema)objectStoreCopy:(RLMSchema *)schema;
+- (realm::ObjectSchema)objectStoreCopy:(RLMSchema *)schema RLM_OBJC_DIRECT;
 
 // initialize with realm::ObjectSchema
-+ (instancetype)objectSchemaForObjectStoreSchema:(realm::ObjectSchema const&)objectSchema;
++ (instancetype)objectSchemaForObjectStoreSchema:(realm::ObjectSchema const&)objectSchema RLM_OBJC_DIRECT;
 @end

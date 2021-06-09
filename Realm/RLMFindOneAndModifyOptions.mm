@@ -17,10 +17,12 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #import "RLMFindOneAndModifyOptions_Private.hpp"
+
 #import "RLMBSON_Private.hpp"
+#import "RLMIvarStorage.hpp"
 
 @interface RLMFindOneAndModifyOptions() {
-    realm::app::MongoCollection::FindOneAndModifyOptions _options;
+    RLMIvar<realm::app::MongoCollection::FindOneAndModifyOptions> _options;
 };
 @end
 
@@ -39,50 +41,50 @@
     return self;
 }
 
-- (realm::app::MongoCollection::FindOneAndModifyOptions)_findOneAndModifyOptions {
-    return _options;
+- (realm::app::MongoCollection::FindOneAndModifyOptions)_findOneAndModifyOptions RLM_OBJC_DIRECT {
+    return *_options;
 }
 
 - (id<RLMBSON>)projection {
-    return RLMConvertBsonDocumentToRLMBSON(_options.projection_bson);
+    return RLMConvertBsonDocumentToRLMBSON(_options->projection_bson);
 }
 
 - (id<RLMBSON>)sort {
-    return RLMConvertBsonDocumentToRLMBSON(_options.sort_bson);
+    return RLMConvertBsonDocumentToRLMBSON(_options->sort_bson);
 }
 
 - (BOOL)upsert {
-    return _options.upsert;
+    return _options->upsert;
 }
 
 - (BOOL)shouldReturnNewDocument {
-    return _options.return_new_document;
+    return _options->return_new_document;
 }
 
 - (void)setProjection:(id<RLMBSON>)projection {
     if (projection) {
         auto bson = realm::bson::BsonDocument(RLMConvertRLMBSONToBson(projection));
-        _options.projection_bson = realm::util::Optional<realm::bson::BsonDocument>(bson);
+        _options->projection_bson = realm::util::Optional<realm::bson::BsonDocument>(bson);
     } else {
-        _options.projection_bson = realm::util::none;
+        _options->projection_bson = realm::util::none;
     }
 }
 
 - (void)setSort:(id<RLMBSON>)sort {
     if (sort) {
         auto bson = realm::bson::BsonDocument(RLMConvertRLMBSONToBson(sort));
-        _options.sort_bson = realm::util::Optional<realm::bson::BsonDocument>(bson);
+        _options->sort_bson = realm::util::Optional<realm::bson::BsonDocument>(bson);
     } else {
-        _options.sort_bson = realm::util::none;
+        _options->sort_bson = realm::util::none;
     }
 }
 
 - (void)setUpsert:(BOOL)upsert {
-    _options.upsert = upsert;
+    _options->upsert = upsert;
 }
 
 - (void)setShouldReturnNewDocument:(BOOL)returnNewDocument {
-    _options.return_new_document = returnNewDocument;
+    _options->return_new_document = returnNewDocument;
 }
 
 @end

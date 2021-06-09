@@ -16,17 +16,15 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#import "RLMUserAPIKey.h"
 #import "RLMUserAPIKey_Private.hpp"
-#import "RLMUtil.hpp"
+
+#import "RLMIvarStorage.hpp"
 #import "RLMObjectId_Private.hpp"
+#import "RLMUtil.hpp"
 
-@interface RLMUserAPIKey() {
-    realm::app::App::UserAPIKey _userAPIKey;
+@implementation RLMUserAPIKey {
+    RLMIvar<realm::app::App::UserAPIKey> _userAPIKey;
 }
-@end
-
-@implementation RLMUserAPIKey
 
 - (instancetype)initWithUserAPIKey:(realm::app::App::UserAPIKey)userAPIKey {
     if (self = [super init]) {
@@ -39,26 +37,26 @@
 
 // Indicates if the API key is disabled or not
 - (BOOL)disabled {
-    return _userAPIKey.disabled;
+    return _userAPIKey->disabled;
 }
 
 // The name of the key.
 - (NSString *)name {
-    return @(_userAPIKey.name.c_str());
+    return @(_userAPIKey->name.c_str());
 }
 
 // The actual key. Will only be included in
 // the response when an API key is first created.
 - (NSString *)key {
-    if (_userAPIKey.key) {
-        return @(_userAPIKey.name.c_str());
+    if (_userAPIKey->key) {
+        return @(_userAPIKey->name.c_str());
     }
     
     return nil;
 }
 
 - (RLMObjectId *)objectId {
-    return [[RLMObjectId alloc] initWithValue:_userAPIKey.id];
+    return [[RLMObjectId alloc] initWithValue:_userAPIKey->id];
 }
 
 - (realm::app::App::UserAPIKey)_apiKey {

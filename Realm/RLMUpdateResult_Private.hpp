@@ -18,10 +18,12 @@
 
 #import <Realm/RLMUpdateResult.h>
 
+#import <Realm/RLMConstants.h>
+
 #import <realm/object-store/sync/mongo_collection.hpp>
 
 NS_ASSUME_NONNULL_BEGIN
 @interface RLMUpdateResult ()
-- (instancetype)initWithUpdateResult:(realm::app::MongoCollection::UpdateResult)UpdateResult;
+- (instancetype)initWithUpdateResult:(realm::app::MongoCollection::UpdateResult)UpdateResult RLM_OBJC_DIRECT;
 @end
 NS_ASSUME_NONNULL_END

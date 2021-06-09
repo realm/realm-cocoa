@@ -35,7 +35,7 @@ struct Request;
 
 @interface RLMNetworkTransport()
 
-- (RLMRequest *)RLMRequestFromRequest:(realm::app::Request)request;
+- (RLMRequest *)RLMRequestFromRequest:(realm::app::Request)request RLM_OBJC_DIRECT;
 
 @end
 

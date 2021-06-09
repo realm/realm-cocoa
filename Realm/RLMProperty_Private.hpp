@@ -26,8 +26,8 @@ namespace realm {
 
 @interface RLMProperty ()
 
-+ (instancetype)propertyForObjectStoreProperty:(const realm::Property&)property;
++ (instancetype)propertyForObjectStoreProperty:(const realm::Property&)property RLM_OBJC_DIRECT;
 
-- (realm::Property)objectStoreCopy:(RLMSchema *)schema;
+- (realm::Property)objectStoreCopy:(RLMSchema *)schema RLM_OBJC_DIRECT;
 
 @end

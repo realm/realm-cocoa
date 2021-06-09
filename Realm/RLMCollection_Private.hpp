@@ -18,6 +18,8 @@
 
 #import <Realm/RLMCollection_Private.h>
 
+#import <Realm/RLMConstants.h>
+
 #import <vector>
 
 namespace realm {
@@ -45,10 +47,10 @@ class RLMClassInfo;
 @interface RLMFastEnumerator : NSObject
 - (instancetype)initWithList:(realm::List&)list
                   collection:(id)collection
-                   classInfo:(RLMClassInfo&)info;
+                   classInfo:(RLMClassInfo&)info RLM_OBJC_DIRECT;
 - (instancetype)initWithResults:(realm::Results&)results
                      collection:(id)collection
-                      classInfo:(RLMClassInfo&)info;
+                      classInfo:(RLMClassInfo&)info RLM_OBJC_DIRECT;
 
 // Detach this enumerator from the source collection. Must be called before the
 // source collection is changed.
@@ -62,10 +64,6 @@ NSUInteger RLMFastEnumerate(NSFastEnumerationState *state, NSUInteger len, id<RL
 @interface RLMNotificationToken ()
 - (void)suppressNextNotification;
 - (RLMRealm *)realm;
-@end
-
-@interface RLMCollectionChange ()
-- (instancetype)initWithChanges:(realm::CollectionChangeSet)indices;
 @end
 
 realm::List& RLMGetBackingCollection(RLMManagedArray *);

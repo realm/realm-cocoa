@@ -18,6 +18,8 @@
 
 #import "RLMPushClient.h"
 
+#import <Realm/RLMConstants.h>
+
 namespace realm {
 namespace app {
 class PushClient;
@@ -26,6 +28,6 @@ class PushClient;
 
 @interface RLMPushClient ()
 
-- (instancetype)initWithPushClient:(realm::app::PushClient&&)pushClient;
+- (instancetype)initWithPushClient:(realm::app::PushClient&&)pushClient RLM_OBJC_DIRECT;
 
 @end

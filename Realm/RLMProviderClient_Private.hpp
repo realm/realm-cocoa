@@ -18,6 +18,8 @@
 
 #import <Realm/RLMProviderClient.h>
 
+#import <Realm/RLMConstants.h>
+
 #import <realm/object-store/sync/app.hpp>
 
 @interface RLMProviderClient ()
@@ -26,5 +28,5 @@
 typedef void(^RLMProviderClientOptionalErrorBlock)(NSError * _Nullable);
 
 - (void)handleResponse:(realm::util::Optional<realm::app::AppError>)error
-            completion:(nonnull RLMProviderClientOptionalErrorBlock)completion;
+            completion:(nonnull RLMProviderClientOptionalErrorBlock)completion RLM_OBJC_DIRECT;
 @end

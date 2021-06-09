@@ -22,6 +22,6 @@
 
 @interface RLMCredentials()
 
-@property (nonatomic) realm::app::AppCredentials& appCredentials;
+@property (nonatomic RLM_DIRECT) realm::app::AppCredentials& appCredentials;
 
 @end

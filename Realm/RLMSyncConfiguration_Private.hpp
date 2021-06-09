@@ -37,9 +37,9 @@ NS_ASSUME_NONNULL_BEGIN
                customFileURL:(nullable NSURL *)customFileURL
                   stopPolicy:(RLMSyncStopPolicy)stopPolicy;
 
-- (instancetype)initWithRawConfig:(realm::SyncConfig)config;
+- (instancetype)initWithRawConfig:(realm::SyncConfig)config RLM_OBJC_DIRECT;
 
-- (realm::SyncConfig&)rawConfiguration;
+- (realm::SyncConfig&)rawConfiguration RLM_OBJC_DIRECT;
 
 @end
 

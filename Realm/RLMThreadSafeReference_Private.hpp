@@ -18,6 +18,8 @@
 
 #import "RLMThreadSafeReference.h"
 
+#import <Realm/RLMConstants.h>
+
 #import <realm/object-store/thread_safe_reference.hpp>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -38,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface RLMThreadSafeReference ()
 
-- (nullable id<RLMThreadConfined>)resolveReferenceInRealm:(RLMRealm *)realm;
+- (nullable id<RLMThreadConfined>)resolveReferenceInRealm:(RLMRealm *)realm RLM_OBJC_DIRECT;
 
 @end
 

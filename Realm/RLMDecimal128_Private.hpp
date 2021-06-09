@@ -18,11 +18,13 @@
 
 #import <Realm/RLMDecimal128.h>
 
+#import <Realm/RLMConstants.h>
+
 namespace realm {
 class Decimal128;
 }
 
 @interface RLMDecimal128 ()
-- (instancetype)initWithDecimal128:(realm::Decimal128)value;
-- (realm::Decimal128)decimal128Value;
+- (instancetype)initWithDecimal128:(realm::Decimal128)value RLM_OBJC_DIRECT;
+- (realm::Decimal128)decimal128Value RLM_OBJC_DIRECT;
 @end
