@@ -60,6 +60,200 @@ extension Int32: AddableType {}
 extension Int64: AddableType {}
 extension Decimal128: AddableType {}
 
+/// :nodoc:
+public protocol _ManagedPrimitiveType {}
+extension Int: _ManagedPrimitiveType {}
+/// :nodoc:
+extension Int8: _ManagedPrimitiveType {}
+/// :nodoc:
+extension Int16: _ManagedPrimitiveType {
+}
+/// :nodoc:
+extension Int32: _ManagedPrimitiveType {
+}
+/// :nodoc:
+extension Int64: _ManagedPrimitiveType {
+}
+/// :nodoc:
+extension Float: _ManagedPrimitiveType {
+}
+/// :nodoc:
+extension Double: _ManagedPrimitiveType {
+}
+/// :nodoc:
+extension Bool: _ManagedPrimitiveType {
+}
+/// :nodoc:
+extension String: _ManagedPrimitiveType {
+}
+/// :nodoc:
+extension NSString: _ManagedPrimitiveType {
+}
+/// :nodoc:
+extension Data: _ManagedPrimitiveType {
+}
+/// :nodoc:
+extension NSData: _ManagedPrimitiveType {
+}
+/// :nodoc:
+extension Date: _ManagedPrimitiveType {
+}
+/// :nodoc:
+extension NSDate: _ManagedPrimitiveType {
+}
+/// :nodoc:
+extension Decimal128: _ManagedPrimitiveType {
+}
+/// :nodoc:
+extension ObjectId: _ManagedPrimitiveType {
+}
+
+fileprivate class Expr {
+    var value: String = ""
+
+    @discardableResult func equals<Rhs>(_ rhs: Rhs) -> Self {
+        if rhs is String {
+            value += " = '\(rhs)'"
+        } else {
+            value += " = \(rhs)"
+        }
+        return self
+    }
+    @discardableResult func greaterThan<Rhs>(_ rhs: Rhs) -> Self {
+        if rhs is String {
+            value += " > '\(rhs)'"
+        } else {
+            value += " > \(rhs)"
+        }
+        return self
+    }
+    @discardableResult func lessThan<Rhs>(_ rhs: Rhs) -> Self {
+        if rhs is String {
+            value += " < '\(rhs)'"
+        } else {
+            value += " < \(rhs)"
+        }
+        return self
+    }
+    @discardableResult func and<T, R>(_ rhs: QueryExpr<T, R>) -> Self {
+        value += " AND \(rhs.expr.value)"
+        return self
+    }
+
+    func contains(_ other: String) {
+        value += " CONTAINS '\(other)'"
+    }
+}
+
+public protocol Query {
+    var predicate: NSPredicate { get }
+}
+
+private func observeKeyPathString<T, V>(_ member: KeyPath<T, V>, writeBlock: (T) -> ()) -> String where T: Object {
+    let inst = T()
+    var name: String? = nil
+    let condition = NSCondition()
+    let imConf = Realm.Configuration(inMemoryIdentifier: "keyPathDeducer-\(UUID().uuidString)")
+    let imRealm = try! Realm(configuration: imConf)
+    try! imRealm.write { imRealm.add(inst) }
+    let dq = DispatchQueue(label: "deduction")
+    // Determining name from a KeyPath is currently not supported through any builtin means.
+    // _kvcKeyPathString does not work from a generic function and using KVO to deduce the name
+    // does not work for types that are not KVO compliant.
+    // Therefore, we deduce the name of the property by observing the Object, modifying the property,
+    // and reading the name of the property that was modified.
+    let token = inst.observe(on: dq) { change in
+        switch change {
+        case .change(_, let property):
+            name = property.first?.name
+        default: break
+        }
+        if name != nil {
+            condition.broadcast()
+        }
+    }
+    defer { token.invalidate() }
+    try! imRealm.write {
+        writeBlock(inst)
+    }
+    condition.wait()
+    try! imRealm.write { imRealm.deleteAll() }
+    return name!
+}
+
+@dynamicMemberLookup
+public struct QueryExpr<T: Object, R>: Query {
+    fileprivate var expr = Expr()
+
+    public static func == (_ lhs: Self, _ rhs: R) -> Self {
+        let cpy = lhs
+        cpy.expr.equals(rhs)
+        return cpy
+    }
+    public static func > <Rhs>(_ lhs: Self, _ rhs: Rhs) -> Query where Rhs: _ManagedPropertyType & Comparable {
+        let cpy = lhs
+        cpy.expr.greaterThan(rhs)
+        return cpy
+    }
+    public static func < <Rhs>(_ lhs: Self, _ rhs: Rhs) -> Query where Rhs: _ManagedPropertyType & Comparable {
+        let cpy = lhs
+        cpy.expr.lessThan(rhs)
+        return cpy
+    }
+    public static func && <R>(_ lhs: Self, _ rhs: QueryExpr<T, R>) -> QueryExpr<T, R> {
+        let cpy = lhs
+        cpy.expr.and(rhs)
+        return QueryExpr<T, R>(expr: cpy.expr)
+    }
+
+    public var predicate: NSPredicate {
+        NSPredicate(format: expr.value)
+    }
+
+    public subscript<V>(dynamicMember member: ReferenceWritableKeyPath<T, V>) -> QueryExpr<T, V> where V: _ManagedPrimitiveType {
+        let copy = QueryExpr<T, V>()
+        copy.expr.value += observeKeyPathString(member) { inst in
+            inst[keyPath: member] = inst[keyPath: member]
+        }
+        return copy
+    }
+
+    public subscript<V>(dynamicMember member: KeyPath<T, List<V>>) -> QueryExpr<T, List<V>> where V: Object {
+        let propertyName = observeKeyPathString(member) { inst in
+            inst[keyPath: member].append(V())
+        }
+        let copy = QueryExpr<T, List<V>>(expr: self.expr)
+        copy.expr.value += "ANY \(propertyName)"
+        return copy
+    }
+}
+
+public extension QueryExpr where R == String {
+    func contains(_ other: String) -> Self {
+        let cpy = self
+        cpy.expr.contains(other)
+        return cpy
+    }
+}
+
+public extension QueryExpr where R: ListBase {
+    subscript<Element, V>(dynamicMember member: ReferenceWritableKeyPath<Element, V>) -> Self where Element: Object, R == List<Element> {
+        let propertyName = observeKeyPathString(member) { inst in
+            inst[keyPath: member] = inst[keyPath: member]
+        }
+        let copy = self
+        copy.expr.value += ".\(propertyName)"
+        return copy
+    }
+
+    static func == <Rhs>(_ lhs: Self, _ rhs: Rhs) -> Self where Rhs: _ManagedPropertyType & Equatable {
+        let cpy = lhs
+        cpy.expr.equals(rhs)
+        return cpy
+    }
+}
+
+// MARK: Results
 /**
  `Results` is an auto-updating container type in Realm returned from object queries.
 
@@ -195,6 +389,16 @@ extension Decimal128: AddableType {}
      */
     public func filter(_ predicate: NSPredicate) -> Results<Element> {
         return Results<Element>(rlmResults.objects(with: predicate))
+    }
+
+    // FIXME: Why is this called `query` instead of filter?
+    //        This ends up having the exact same signature as the builtin
+    //        `Sequence.filter`, so without giving the compiler extra hints
+    //        (which defeats the purpose of this feature), it defaults to the
+    //        `filter`.
+    public func query(_ queryBuilder: (QueryExpr<Element, Void>) -> Query) -> Self where Element: ObjectBase {
+        let query = queryBuilder(QueryExpr<Element, Void>())
+        return Results(rlmResults.objects(with: query.predicate))
     }
 
     // MARK: Sorting

@@ -226,6 +226,7 @@
 		53124AD925B71AF700771CE4 /* SwiftUITestHostUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53124AD825B71AF700771CE4 /* SwiftUITestHostUITests.swift */; };
 		532E916F24AA533A003FD9DB /* TimeoutProxyServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 532E916E24AA533A003FD9DB /* TimeoutProxyServer.swift */; };
 		5346E7322487AC9D00595C68 /* RLMBSONTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5346E7312487AC9D00595C68 /* RLMBSONTests.mm */; };
+		5348D0D3260552D1000B231A /* QueryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5348D0D2260552D1000B231A /* QueryTests.swift */; };
 		535EA9E225B0919800DBF3CD /* SwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535EA9E125B0919800DBF3CD /* SwiftUI.swift */; };
 		535EAA7525B0B02B00DBF3CD /* SwiftUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535EAA7425B0B02B00DBF3CD /* SwiftUITests.swift */; };
 		53626AAF25D31CAC00D9515D /* Objects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53626AAE25D31CAC00D9515D /* Objects.swift */; };
@@ -762,6 +763,7 @@
 		532E916E24AA533A003FD9DB /* TimeoutProxyServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TimeoutProxyServer.swift; path = Realm/ObjectServerTests/TimeoutProxyServer.swift; sourceTree = "<group>"; };
 		53343A7C25D7292E0008F97A /* SwiftUITestHost.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SwiftUITestHost.xctestplan; sourceTree = "<group>"; };
 		5346E7312487AC9D00595C68 /* RLMBSONTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = RLMBSONTests.mm; path = Realm/ObjectServerTests/RLMBSONTests.mm; sourceTree = "<group>"; };
+		5348D0D2260552D1000B231A /* QueryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryTests.swift; sourceTree = "<group>"; };
 		535EA9E125B0919800DBF3CD /* SwiftUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUI.swift; sourceTree = "<group>"; };
 		535EAA7425B0B02B00DBF3CD /* SwiftUITests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUITests.swift; sourceTree = "<group>"; };
 		53626A8C25D3172000D9515D /* SwiftUITestHostTests.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SwiftUITestHostTests.xcconfig; sourceTree = "<group>"; };
@@ -1270,6 +1272,7 @@
 				5D66100C1BE98D880021E04F /* RealmTests.swift */,
 				5D66100D1BE98D880021E04F /* SchemaTests.swift */,
 				5D66100E1BE98D880021E04F /* SortDescriptorTests.swift */,
+				5348D0D2260552D1000B231A /* QueryTests.swift */,
 				5D66100F1BE98D880021E04F /* SwiftLinkTests.swift */,
 				5D6610101BE98D880021E04F /* SwiftTestObjects.swift */,
 				535EAA7425B0B02B00DBF3CD /* SwiftUITests.swift */,
@@ -2420,6 +2423,7 @@
 				5D6610251BE98D880021E04F /* SwiftTestObjects.swift in Sources */,
 				3F88250C1E5E335000586B35 /* SwiftUnicodeTests.swift in Sources */,
 				5D6610271BE98D880021E04F /* TestCase.swift in Sources */,
+				5348D0D3260552D1000B231A /* QueryTests.swift in Sources */,
 				3F558C8A22C29A03002F0F30 /* TestUtils.mm in Sources */,
 				3F88250D1E5E335000586B35 /* ThreadSafeReferenceTests.swift in Sources */,
 				5DBEC9B11F719A9D001233EC /* Util.swift in Sources */,
