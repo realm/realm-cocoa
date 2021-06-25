@@ -485,6 +485,11 @@ extension MutableSet: RealmCollection {
         fatalError("index(matching:) is not available on MutableSet")
     }
 
+    /// :nodoc:
+    public func objects(at indexes: IndexSet) -> [Element] {
+        fatalError("objects(at indexes:) is not available on MutableSet")
+    }
+
     /**
      - warning: Ordering is not guaranteed on a MutableSet. `first` is implemented for
                 convenience should not be relied on.

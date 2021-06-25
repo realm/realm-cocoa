@@ -270,6 +270,18 @@ public protocol RealmCollection: RealmCollectionBase {
     func index(matching predicateFormat: String, _ args: Any...) -> Int?
 
 
+    // MARK: Object Retrieval
+
+    /**
+     Returns an array containing the objects in the collection at the indexes specified by a given index set.
+
+     - warning Throws if an index supplied in the IndexSet is out of bounds.
+
+     - parameter indexes: The indexes in the collection to select objects from.
+     */
+    func objects(at indexes: IndexSet) -> [Element]
+
+
     // MARK: Filtering
 
     /**
@@ -614,6 +626,7 @@ private class _AnyRealmCollectionBase<T: RealmCollectionValue>: AssistedObjectiv
     var description: String { fatalError() }
     func index(of object: Element) -> Int? { fatalError() }
     func index(matching predicate: NSPredicate) -> Int? { fatalError() }
+    func objects(at indexes: IndexSet) -> [Element] { fatalError() }
     func filter(_ predicate: NSPredicate) -> Results<Element> { fatalError() }
     func sorted(byKeyPath keyPath: String, ascending: Bool) -> Results<Element> { fatalError() }
     func sorted<S: Sequence>(by sortDescriptors: S) -> Results<Element> where S.Iterator.Element == SortDescriptor {
@@ -660,6 +673,10 @@ private final class _AnyRealmCollection<C: RealmCollection>: _AnyRealmCollection
     override func index(of object: C.Element) -> Int? { return base.index(of: object) }
 
     override func index(matching predicate: NSPredicate) -> Int? { return base.index(matching: predicate) }
+
+    // MARK: Object Retrieval
+
+    override func objects(at indexes: IndexSet) -> [Element] { return base.objects(at: indexes) }
 
     // MARK: Filtering
 
@@ -821,6 +838,19 @@ public struct AnyRealmCollection<Element: RealmCollectionValue>: RealmCollection
      - parameter predicate: The predicate with which to filter the objects.
      */
     public func index(matching predicate: NSPredicate) -> Int? { return base.index(matching: predicate) }
+
+
+    // MARK: Object Retrieval
+
+    /**
+     Returns an array containing the objects in the collection at the indexes specified by a given index set.
+
+     - warning Throws if an index supplied in the IndexSet is out of bounds.
+
+     - parameter indexes: The indexes in the collection to select objects from.
+     */
+    public func objects(at indexes: IndexSet) -> [Element] { return base.objects(at: indexes) }
+
 
     // MARK: Filtering
 

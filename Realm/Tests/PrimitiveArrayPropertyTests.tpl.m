@@ -243,6 +243,27 @@ static double average(NSArray *values) {
     uncheckedAssertEqualObjects([unmanaged.intObj objectAtIndex:0], @1);
 }
 
+- (void)testObjectsAtIndexes {
+    NSMutableIndexSet *indexSet = [NSMutableIndexSet new];
+    [indexSet addIndex:0];
+    [indexSet addIndex:2];
+    XCTAssertNil([unmanaged.intObj objectsAtIndexes:indexSet]);
+    XCTAssertNil([managed.intObj objectsAtIndexes:indexSet]);
+
+    [unmanaged.intObj addObject:@1];
+    [unmanaged.intObj addObject:@2];
+    [unmanaged.intObj addObject:@3];
+    uncheckedAssertEqualObjects([unmanaged.intObj objectsAtIndexes:indexSet], (@[@1, @3]));
+    [managed.intObj addObject:@1];
+    [managed.intObj addObject:@2];
+    [managed.intObj addObject:@3];
+    uncheckedAssertEqualObjects([managed.intObj objectsAtIndexes:indexSet], (@[@1, @3]));
+
+    [indexSet addIndex:3];
+    XCTAssertNil([unmanaged.intObj objectsAtIndexes:indexSet]);
+    XCTAssertNil([managed.intObj objectsAtIndexes:indexSet]);
+}
+
 - (void)testFirstObject {
     uncheckedAssertNil($allArrays.firstObject);
 

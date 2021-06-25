@@ -120,6 +120,26 @@
     RLMAssertThrowsWithReasonMatching([IntObject objectsWhere:@"intCol > 5"][2], @"2.*less than 2");
 }
 
+- (void)testObjectsAtIndexes {
+    NSMutableIndexSet *indexSet = [NSMutableIndexSet new];
+    [indexSet addIndex:0];
+    [indexSet addIndex:1];
+
+    XCTAssertNil([[IntObject allObjects] objectsAtIndexes:indexSet]);
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    [IntObject createInDefaultRealmWithValue:@[@10]];
+    [IntObject createInDefaultRealmWithValue:@[@20]];
+    [realm commitWriteTransaction];
+
+    XCTAssertEqual([[[IntObject allObjects] objectsAtIndexes:indexSet][0] intCol], 10);
+    XCTAssertEqual([[[IntObject allObjects] objectsAtIndexes:indexSet][1] intCol], 20);
+
+    [indexSet addIndex:3];
+    XCTAssertNil([[IntObject allObjects] objectsAtIndexes:indexSet]);
+    XCTAssertNil([[IntObject allObjects] objectsAtIndexes:indexSet]);
+}
+
 - (void)testValueForKey {
     RLMRealm *realm = self.realmWithTestPath;
 

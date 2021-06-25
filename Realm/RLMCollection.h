@@ -56,6 +56,16 @@ typedef RLM_CLOSED_ENUM(int32_t, RLMPropertyType);
 - (id)objectAtIndexedSubscript:(NSUInteger)index;
 
 /**
+ Returns an array containing the objects in the collection at the indexes specified by a given index set.
+ `nil` will be returned if the index set contains an index out of the collections bounds.
+
+ @param indexes The indexes in the collection to retrieve objects from.
+
+ @return The objects at the specified indexes.
+ */
+- (nullable NSArray *)objectsAtIndexes:(NSIndexSet *)indexes;
+
+/**
  Returns the index of an object in the collection.
 
  Returns `NSNotFound` if the object is not found in the collection.

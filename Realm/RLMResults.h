@@ -98,6 +98,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (RLMObjectType)objectAtIndex:(NSUInteger)index;
 
 /**
+ Returns an array containing the objects in the results at the indexes specified by a given index set.
+ `nil` will be returned if the index set contains an index out of the arrays bounds.
+
+ @param indexes The indexes in the results to retrieve objects from.
+
+ @return The objects at the specified indexes.
+ */
+- (nullable NSArray<RLMObjectType> *)objectsAtIndexes:(NSIndexSet *)indexes;
+
+/**
  Returns the first object in the results collection.
 
  Returns `nil` if called on an empty results collection.

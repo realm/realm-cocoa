@@ -76,7 +76,7 @@
 
 // Only in use for RLMArray
 - (NSArray *)objectsAtIndexes:(NSIndexSet *)indexes {
-    return [(RLMArray *)self._rlmCollection objectsAtIndexes:indexes];
+    return [self._rlmCollection objectsAtIndexes:indexes];
 }
 
 // Only in use for RLMDictionary

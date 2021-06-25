@@ -114,6 +114,20 @@ public final class List<Element: RealmCollectionValue>: RLMSwiftCollectionBase {
     /// Returns the last object in the list, or `nil` if the list is empty.
     public var last: Element? { return rlmArray.lastObject().map(dynamicBridgeCast) }
 
+    /**
+     Returns an array containing the objects in the array at the indexes specified by a given index set.
+
+     - warning Throws if an index supplied in the IndexSet is out of bounds.
+
+     - parameter indexes: The indexes in the list to select objects from.
+     */
+    public func objects(at indexes: IndexSet) -> [Element] {
+        guard let r = rlmArray.objects(at: indexes) else {
+            throwRealmException("Indexes for List are out of bounds.")
+        }
+        return r.map(dynamicBridgeCast)
+    }
+
     // MARK: KVC
 
     /**

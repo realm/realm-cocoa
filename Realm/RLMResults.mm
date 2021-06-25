@@ -220,6 +220,25 @@ static inline void RLMResultsValidateInWriteTransaction(__unsafe_unretained RLMR
     });
 }
 
+- (NSArray *)objectsAtIndexes:(NSIndexSet *)indexes {
+    if (!_info) {
+        return nil;
+    }
+    size_t c = self.count;
+    NSMutableArray *result = [[NSMutableArray alloc] initWithCapacity:indexes.count];
+    NSUInteger i = [indexes firstIndex];
+    RLMAccessorContext context(*_info);
+    while (i != NSNotFound) {
+        if (i >= 0 && i < c) {
+            [result addObject:_results.get(context, i)];
+        } else {
+            return nil;
+        }
+        i = [indexes indexGreaterThanIndex:i];
+    }
+    return result;
+}
+
 - (id)firstObject {
     if (!_info) {
         return nil;

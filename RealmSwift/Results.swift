@@ -155,6 +155,20 @@ extension AnyRealmValue: AddableType {}
     /// Returns the last object in the results, or `nil` if the results are empty.
     public var last: Element? { return rlmResults.lastObject().map(dynamicBridgeCast) }
 
+    /**
+     Returns an array containing the objects in the results at the indexes specified by a given index set.
+
+     - warning Throws if an index supplied in the IndexSet is out of bounds.
+
+     - parameter indexes: The indexes in the results to select objects from.
+     */
+    public func objects(at indexes: IndexSet) -> [Element] {
+        guard let r = rlmResults.objects(at: indexes) else {
+            throwRealmException("Indexes for Results are out of bounds")
+        }
+        return r.map(dynamicBridgeCast)
+    }
+
     // MARK: KVC
 
     /**

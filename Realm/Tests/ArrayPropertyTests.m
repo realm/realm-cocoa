@@ -246,6 +246,10 @@
     XCTAssertEqualObjects(array.array.firstObject, obj1, @"Objects should be equal");
     XCTAssertEqualObjects(array.array.lastObject, obj3, @"Objects should be equal");
     XCTAssertEqualObjects([array.array objectAtIndex:1], obj2, @"Objects should be equal");
+    NSMutableIndexSet *indexSet = [NSMutableIndexSet new];
+    [indexSet addIndex:0];
+    [indexSet addIndex:2];
+    XCTAssertEqualObjects([array.array objectsAtIndexes:indexSet], (@[obj1, obj3]), @"Objects should be equal");
 
     [realm beginWriteTransaction];
     [realm addObject:array];
@@ -254,6 +258,9 @@
     XCTAssertEqual(array.array.count, 3U, @"Should have two elements in array");
     XCTAssertEqualObjects([array.array[0] stringCol], @"a", @"First element should have property value 'a'");
     XCTAssertEqualObjects([array.array[1] stringCol], @"b", @"Second element should have property value 'b'");
+    NSArray<StringObject *> *objectsAtIndexes = [array.array objectsAtIndexes:indexSet];
+    XCTAssertEqualObjects([objectsAtIndexes[0] stringCol], @"a", @"First element should have property value 'a'");
+    XCTAssertEqualObjects([objectsAtIndexes[1] stringCol], @"c", @"Second element should have property value 'c'");
 
     [realm beginWriteTransaction];
     [array.array replaceObjectAtIndex:0 withObject:obj3];

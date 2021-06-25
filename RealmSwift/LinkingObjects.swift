@@ -114,6 +114,20 @@ import Realm
     /// Returns the last object in the linking objects, or `nil` if the linking objects are empty.
     public var last: Element? { return unsafeBitCast(rlmResults.lastObject(), to: Optional<Element>.self) }
 
+    /**
+     Returns an array containing the objects in the linking objects at the indexes specified by a given index set.
+
+     - warning Throws if an index supplied in the IndexSet is out of bounds.
+
+     - parameter indexes: The indexes in the linking objects to select objects from.
+     */
+    public func objects(at indexes: IndexSet) -> [Element] {
+        guard let r = rlmResults.objects(at: indexes) else {
+            throwRealmException("Indexes for Linking Objects are out of bounds.")
+        }
+        return r.map(dynamicBridgeCast)
+    }
+
     // MARK: KVC
 
     /**
