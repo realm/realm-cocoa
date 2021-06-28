@@ -410,7 +410,7 @@ download_common() {
         if ! [ -f $test_lib ]; then
             test_lib="core/librealm-sync-ios-dbg.a"
         fi
-        clang++ -Wl,-all_load -g -arch x86_64 -shared -target ios13.0 \
+        xcrun clang++ -Wl,-all_load -g -arch x86_64 -shared -target ios13.0 \
           -isysroot $(xcrun --sdk iphonesimulator --show-sdk-path) -o tmp.dylib \
           $test_lib -lz -framework Security
         if ! dsymutil tmp.dylib -o tmp.dSYM 2> /dev/null; then
@@ -689,7 +689,7 @@ case "$COMMAND" in
                 # -all_load makes every object file in the input get linked
                 # into the shared library.
                 ar -d $realm_lib feature_token.cpp.o 2> /dev/null || true
-                clang++ -shared $architectures \
+                xcrun clang++ -shared $architectures \
                     -target ${target} \
                     -isysroot $(xcrun --sdk ${sdk} --show-sdk-path) \
                     -install_name "$install_name" \
