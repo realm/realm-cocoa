@@ -840,3 +840,18 @@ class EmbeddedTreeObject3: EmbeddedObject, EmbeddedTreeObject {
     let parent3 = LinkingObjects(fromType: EmbeddedTreeObject2.self, property: "child")
     let parent4 = LinkingObjects(fromType: EmbeddedTreeObject2.self, property: "children")
 }
+
+class ObjectWithNestedEmbeddedObject: Object {
+    @objc dynamic var value = 0
+    @objc dynamic var inner: NestedInnerClass?
+
+    @objc(NestedInnerClass)
+    class NestedInnerClass: EmbeddedObject {
+        @objc dynamic var value = 0
+    }
+}
+
+@objc(PrivateObjectSubclass)
+private class PrivateObjectSubclass: Object {
+    @objc dynamic var value = 0
+}

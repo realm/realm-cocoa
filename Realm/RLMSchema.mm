@@ -120,7 +120,7 @@ static void RLMRegisterClassLocalNames(Class *classes, NSUInteger count) {
         // but not for nested classes. _T indicates it's a Swift symbol, t
         // indicates it's a type, and C indicates it's a class.
         else if ([className hasPrefix:@"_TtC"]) {
-            @throw RLMException(@"RLMObject subclasses cannot be nested within other declarations. Please move %@ to global scope.", className);
+            @throw RLMException(@"Object subclass '%@' must explicitly set the class's objective-c name with @objc(ClassName) because it is not a top-level public class.", className);
         }
 
         if (Class existingClass = s_localNameToClass[className]) {

@@ -5,7 +5,9 @@ x.y.z Release notes (yyyy-MM-dd)
 
 ### Fixed
 * <How to hit and notice issue? what was the impact?> ([#????](https://github.com/realm/realm-cocoa/issues/????), since v?.?.?)
-* None.
+* Adjust the error message for private `Object` subclasses and subclasses
+  nested inside other types to explain how to make them work rather than state
+  that it's impossible. ([#5662](https://github.com/realm/realm-cocoa/issues/5662)).
 
 <!-- ### Breaking Changes - ONLY INCLUDE FOR NEW MAJOR version -->
 
