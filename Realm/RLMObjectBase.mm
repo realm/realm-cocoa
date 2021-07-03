@@ -91,7 +91,7 @@ static void maybeInitObjectSchemaForUnmanaged(RLMObjectBase *obj) {
 }
 
 static id coerceToObjectType(id obj, Class cls, RLMSchema *schema) {
-    if ([obj isKindOfClass:cls]) {
+    if ([obj isKindOfClass:cls] && ![(id)cls isEmbedded]) {
         return obj;
     }
     id value = [[cls alloc] init];

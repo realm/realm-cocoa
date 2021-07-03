@@ -4,6 +4,7 @@ x.y.z Release notes (yyyy-MM-dd)
 * None.
 
 ### Fixed
+* Copy EmbeddedObject for embedded object property on initializing unmanaged object ([#6921](https://github.com/realm/realm-cocoa/issues/6921)
 * <How to hit and notice issue? what was the impact?> ([#????](https://github.com/realm/realm-cocoa/issues/????), since v?.?.?)
 * None.
 
