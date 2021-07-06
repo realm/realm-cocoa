@@ -630,6 +630,13 @@
 			remoteGlobalIDString = 5DD7557B1BE056DE002800DA;
 			remoteInfo = "Realm iOS static";
 		};
+		AC2C2A4626946DB900B4DA33 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E8D89B8F1955FC6D00CF2B9A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AC8846722686573B00DF4A65;
+			remoteInfo = SwifttUISyncTestHost;
+		};
 		AC88469D2686577B00DF4A65 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E8D89B8F1955FC6D00CF2B9A /* Project object */;
@@ -657,13 +664,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = AC8846722686573B00DF4A65;
 			remoteInfo = SwifttUISyncTestHost;
-		};
-		AC8847AA268BC47E00DF4A65 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E8D89B8F1955FC6D00CF2B9A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 3F1A5E711992EB7400F45F4C;
-			remoteInfo = TestHost;
 		};
 		E8267FB51D90B79000E001C7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -979,6 +979,7 @@
 		681EE34625EE8E5600A9DEC5 /* ObjectiveCSupport+AnyRealmValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ObjectiveCSupport+AnyRealmValue.swift"; sourceTree = "<group>"; };
 		A05FA61E1B62C3900000C9B2 /* RLMObjectBase_Dynamic.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RLMObjectBase_Dynamic.h; sourceTree = "<group>"; };
 		AC2C2A3E268E1ACE00B4DA33 /* SwiftServerObjects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SwiftServerObjects.swift; path = Realm/ObjectServerTests/SwiftServerObjects.swift; sourceTree = "<group>"; };
+		AC2C2A43268F982D00B4DA33 /* SwifttUISyncTestHostUITests.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SwifttUISyncTestHostUITests.entitlements; sourceTree = "<group>"; };
 		AC7D182B261F2F560080E1D2 /* RLMObjectServerPartitionTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RLMObjectServerPartitionTests.mm; path = Realm/ObjectServerTests/RLMObjectServerPartitionTests.mm; sourceTree = "<group>"; };
 		AC7D182C261F2F560080E1D2 /* SwiftObjectServerPartitionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SwiftObjectServerPartitionTests.swift; path = Realm/ObjectServerTests/SwiftObjectServerPartitionTests.swift; sourceTree = "<group>"; };
 		AC8846732686573B00DF4A65 /* SwifttUISyncTestHost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwifttUISyncTestHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1527,6 +1528,7 @@
 				AC8847492687E0BD00DF4A65 /* Info.plist */,
 				AC8846B82687BD4D00DF4A65 /* SwifttUISyncTestHostUITests-Bridging-Header.h */,
 				AC8846902686573D00DF4A65 /* SwifttUISyncTestHostUITests.swift */,
+				AC2C2A43268F982D00B4DA33 /* SwifttUISyncTestHostUITests.entitlements */,
 			);
 			path = SwifttUISyncTestHostUITests;
 			sourceTree = "<group>";
@@ -2092,6 +2094,7 @@
 			);
 			dependencies = (
 				534DF4D025B86F3A00655AE2 /* PBXTargetDependency */,
+				AC2C2A4726946DB900B4DA33 /* PBXTargetDependency */,
 			);
 			name = SwiftUITestHostUITests;
 			productName = SwiftUITestHostUITests;
@@ -2211,7 +2214,6 @@
 			dependencies = (
 				AC88475A26888C6300DF4A65 /* PBXTargetDependency */,
 				AC88479E26891D4500DF4A65 /* PBXTargetDependency */,
-				AC8847AB268BC47E00DF4A65 /* PBXTargetDependency */,
 			);
 			name = SwiftUISyncTestHostUITests;
 			productName = SwiftUISyncTestHostUITests;
@@ -3128,6 +3130,11 @@
 			target = 5DD7557B1BE056DE002800DA /* Realm iOS static */;
 			targetProxy = 5DD755D31BE0582A002800DA /* PBXContainerItemProxy */;
 		};
+		AC2C2A4726946DB900B4DA33 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AC8846722686573B00DF4A65 /* SwifttUISyncTestHost */;
+			targetProxy = AC2C2A4626946DB900B4DA33 /* PBXContainerItemProxy */;
+		};
 		AC88469E2686577B00DF4A65 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 5D659E7D1BE04556006515A0 /* Realm */;
@@ -3147,11 +3154,6 @@
 			isa = PBXTargetDependency;
 			target = AC8846722686573B00DF4A65 /* SwifttUISyncTestHost */;
 			targetProxy = AC88479D26891D4500DF4A65 /* PBXContainerItemProxy */;
-		};
-		AC8847AB268BC47E00DF4A65 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 3F1A5E711992EB7400F45F4C /* TestHost */;
-			targetProxy = AC8847AA268BC47E00DF4A65 /* PBXContainerItemProxy */;
 		};
 		E8267FB41D90B79000E001C7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -3247,6 +3249,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				TEST_TARGET_NAME = SwifttUISyncTestHost;
 			};
 			name = Debug;
 		};
@@ -3256,6 +3259,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "\"-\"";
 				CODE_SIGN_STYLE = Automatic;
+				TEST_TARGET_NAME = SwifttUISyncTestHost;
 			};
 			name = Release;
 		};
@@ -3377,7 +3381,7 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_APP_SANDBOX = YES;
-				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -3465,7 +3469,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_APP_SANDBOX = YES;
-				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -3504,6 +3508,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = AC8847442687DFE700DF4A65 /* SwiftUISyncTestHostTests.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Realm/Tests/SwifttUISyncTestHostUITests/SwifttUISyncTestHostUITests.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
@@ -3522,6 +3527,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = AC8847442687DFE700DF4A65 /* SwiftUISyncTestHostTests.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Realm/Tests/SwifttUISyncTestHostUITests/SwifttUISyncTestHostUITests.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;

@@ -603,7 +603,7 @@ class SwiftObjectServerTests: SwiftSyncTestCase {
         let appConfig = AppConfiguration(baseURL: "http://localhost:5678",
                                          transport: AsyncOpenConnectionTimeoutTransport(),
                                          localAppName: nil, localAppVersion: nil)
-        let app = App(id: appId)
+        let app = App(id: appId, configuration: appConfig)
 
         let syncTimeoutOptions = SyncTimeoutOptions()
         syncTimeoutOptions.connectTimeout = 2000
