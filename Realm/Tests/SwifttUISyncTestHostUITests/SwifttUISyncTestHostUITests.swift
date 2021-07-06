@@ -23,11 +23,55 @@ import RealmSwift
 class SwifttUISyncTestHostUITests: SwiftSyncTestCase {
     func testDownloadRealmAsyncOpenApp() throws {
         do {
-            let _ = try logInUser(for: basicCredentials())
+            let user = logInUser(for: basicCredentials(withName: #function, register: true))
+            if !isParent {
+                populateRealm(user: user, partitionValue: #function)
+                return
+            }
+
+            executeChild()
+
             let app = XCUIApplication()
-            app.launchEnvironment["test_type"] = "multi_realm_test"
+            app.launchEnvironment["test_type"] = "async_open"
             app.launchEnvironment["app_id"] = appId
+            app.launchEnvironment["function_name"] = #function
             app.launch()
+
+            let ex = expectation(description: "download-populated-realm-async-open")
+            let _ = XCTWaiter.wait(for: [ex], timeout: 5)
+            XCTAssertEqual(app.tables.firstMatch.cells.count, self.bigObjectCount)
+
+            // Test the data is synced in our local realm
+            let realm = try Realm(configuration: user.configuration(partitionValue: #function))
+            self.checkCount(expected: self.bigObjectCount, realm, SwiftHugeSyncObject.self)
+        } catch {
+            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
+        }
+    }
+
+    func testDownloadRealmAutoOpenApp() throws {
+        do {
+            let user = logInUser(for: basicCredentials(withName: "lmao@10gen.com", register: isParent))
+            if !isParent {
+                populateRealm(user: user, partitionValue: #function)
+                return
+            }
+
+            executeChild()
+
+            let app = XCUIApplication()
+            app.launchEnvironment["test_type"] = "auto_open"
+            app.launchEnvironment["app_id"] = appId
+            app.launchEnvironment["partition_value"] = #function
+            app.launch()
+
+            let ex = expectation(description: "download-populated-realm-auto-open")
+            let _ = XCTWaiter.wait(for: [ex], timeout: 5)
+            XCTAssertEqual(app.tables.firstMatch.cells.count, self.bigObjectCount)
+
+            // Test the data is synced in our local realm
+            let realm = try Realm(configuration: user.configuration(partitionValue: #function))
+            self.checkCount(expected: self.bigObjectCount, realm, SwiftHugeSyncObject.self)
         } catch {
             XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
         }

@@ -18,28 +18,76 @@
 
 import SwiftUI
 import RealmSwift
+import Combine
+
+struct LoginView: View {
+    @ObservedObject var loginHelper = LoginHelper()
+    var body: some View {
+        NavigationView {
+            if loginHelper.isLogged {
+                switch ProcessInfo.processInfo.environment["test_type"] {
+                case "async_open":
+                    AsyncOpenView()
+                case "auto_open":
+                    AutoOpenView()
+                default:
+                    EmptyView()
+                }
+            } else {
+                ProgressView("Logging...")
+            }
+        }
+        .onAppear(perform: {
+            loginHelper.login(email: ProcessInfo.processInfo.environment["function_name"]!, password: "password")
+        })
+    }
+}
+
+class LoginHelper: ObservableObject {
+    @Published var isLogged: Bool = false
+    var cancellables = Set<AnyCancellable>()
+
+    func login(email: String, password: String) {
+        let appConfig = AppConfiguration(baseURL: "http://localhost:9090",
+                                         transport: nil,
+                                         localAppName: nil,
+                                         localAppVersion: nil)
+        let app = RealmSwift.App(id: ProcessInfo.processInfo.environment["app_id"]!, configuration: appConfig)
+        app.login(credentials: Credentials.emailPassword(email: email, password: password))
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { _ in
+            }, receiveValue: { _ in
+                self.isLogged = true
+            })
+            .store(in: &cancellables)
+    }
+}
 
 struct AsyncOpenView: View {
-    @AsyncOpen(appId: ProcessInfo.processInfo.environment["app_id"]!, partitionValue: #function) var asyncOpen
+    @AsyncOpen(appId: ProcessInfo.processInfo.environment["app_id"]!, partitionValue: ProcessInfo.processInfo.environment["function_name"]!) var asyncOpen
 
     var body: some View {
+
         switch asyncOpen {
         case .notOpen:
+            let _ = print("-------------> not opened")
             ProgressView()
         case .open(let realm):
+            let _ = print("-------------> List view is opened")
             ListView()
                 .environment(\.realm, realm)
         case .error(_):
+            let _ = print("-------------> Error")
             ErrorView()
         case .progress(let progress):
+            let _ = print("-------------> Progress during async \(progress)")
             ProgressView(progress)
         }
     }
 }
 
-
 struct AutoOpenView: View {
-    @AsyncOpen(appId: "", partitionValue: #function) var asyncOpen
+    @AsyncOpen(appId: ProcessInfo.processInfo.environment["app_id"]!, partitionValue: ProcessInfo.processInfo.environment["function_name"]!) var asyncOpen
 
     var body: some View {
         switch asyncOpen {
@@ -63,19 +111,12 @@ struct ErrorView: View {
 }
 
 struct ListView: View {
-    @ObservedResults(SwiftPerson.self) var persons
+    @ObservedResults(SwiftHugeSyncObject.self) var objects
 
     var body: some View {
         List {
-            ForEach(persons) { person in
-                HStack {
-                    VStack {
-                        Text("\(person.firstName)")
-                        Text("\(person.lastName)")
-                    }
-                    Spacer()
-                    Text("\(person.age)")
-                }
+            ForEach(objects) { object in
+                Text("\(object._id)")
             }
         }
         .navigationTitle("SwiftPerson's List")

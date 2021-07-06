@@ -173,7 +173,7 @@ public class SwiftMissingObject: Object {
     }
 }
 
-@objcMembers public class SwiftHugeSyncObject: Object {
+@objcMembers public class SwiftHugeSyncObject: Object, ObjectKeyIdentifiable {
     dynamic var _id = ObjectId.generate()
     dynamic var data: Data?
 

@@ -23,14 +23,7 @@ import RealmSwift
 struct App: SwiftUI.App {
     var body: some Scene {
         let view: AnyView = {
-            switch ProcessInfo.processInfo.environment["test_type"] {
-            case "async_open":
-                return AnyView(AsyncOpenView())
-            case "auto_open":
-                return AnyView(EmptyView())
-            default:
-                return AnyView(EmptyView())
-            }
+            AnyView(LoginView())
         }()
         return WindowGroup {
             view
