@@ -31,12 +31,8 @@ class SwiftUIServerTests: SwiftSyncTestCase {
     // MARK: - AsyncOpen
     func testOpenRealmWithAsyncOpen() {
         do {
-            let user = try logInUser(for: basicCredentials())
-
-            var configuration = user.configuration(partitionValue: #function)
-            configuration.objectTypes = [SwiftHugeSyncObject.self]
-
-            let asyncOpen = AsyncOpen(appId: appId, configuration: configuration)
+            let _ = try logInUser(for: basicCredentials())
+            let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function)
             let ex = expectation(description: "download-realm-async-open")
             let _ = XCTWaiter.wait(for: [ex], timeout: 5)
             if case let .open(realm) = asyncOpen.wrappedValue {
@@ -61,10 +57,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
 
             executeChild()
 
-            var configuration = user.configuration(partitionValue: #function)
-            configuration.objectTypes = [SwiftHugeSyncObject.self]
-
-            let asyncOpen = AsyncOpen(appId: appId, configuration: configuration)
+            let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function)
             let ex = expectation(description: "download-populated-realm-async-open")
             let _ = XCTWaiter.wait(for: [ex], timeout: 5)
             if case let .open(realm) = asyncOpen.wrappedValue {
@@ -82,7 +75,6 @@ class SwiftUIServerTests: SwiftSyncTestCase {
     func testDownloadRealmFailWithAsyncOpen() {
         do {
             let _ = try logInUser(for: basicCredentials())
-
             let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function)
             let ex = expectation(description: "download-realm-async-open")
             let _ = XCTWaiter.wait(for: [ex], timeout: 5)
@@ -103,10 +95,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
             let user = try logInUser(for: basicCredentials())
             user.logOut { _ in } //Logout current user
 
-            var configuration = user.configuration(partitionValue: #function)
-            configuration.objectTypes = [SwiftHugeSyncObject.self]
-
-            let asyncOpen = AsyncOpen(appId: appId, configuration: configuration)
+            let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function)
             let ex = expectation(description: "download-populated-realm-async-open")
             let _ = XCTWaiter.wait(for: [ex], timeout: 5)
             if case .notOpen = asyncOpen.wrappedValue {
