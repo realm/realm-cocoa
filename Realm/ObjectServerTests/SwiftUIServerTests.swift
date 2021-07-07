@@ -31,7 +31,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
     // MARK: - AsyncOpen
     func testOpenRealmWithAsyncOpen() {
         do {
-            let _ = try logInUser(for: basicCredentials())
+            _ = try logInUser(for: basicCredentials())
             let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function)
             let ex = expectation(description: "download-realm-async-open")
             _ = XCTWaiter.wait(for: [ex], timeout: 5)
@@ -109,7 +109,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
         }
     }
 
-    //MARK: - AutoOpen
+    // MARK: - AutoOpen
     func testOpenRealmWithAutoOpen() {
         do {
             _ = try logInUser(for: basicCredentials())
