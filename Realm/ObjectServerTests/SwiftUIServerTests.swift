@@ -74,7 +74,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
 
     func testDownloadRealmFailWithAsyncOpen() {
         do {
-            let _ = try logInUser(for: basicCredentials())
+            _ = try logInUser(for: basicCredentials())
             let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function)
             let ex = expectation(description: "download-realm-async-open")
             let _ = XCTWaiter.wait(for: [ex], timeout: 5)
@@ -109,95 +109,86 @@ class SwiftUIServerTests: SwiftSyncTestCase {
         }
     }
 
-// MARK: - AutoOpen
-//    func testOpenRealmWithAutoOpen() {
-//        do {
-//            let user = try logInUser(for: basicCredentials())
-//
-//            var configuration = user.configuration(partitionValue: #function)
-//            configuration.objectTypes = [SwiftHugeSyncObject.self]
-//
-//            let autoOpen = AutoOpen(appId: appId, configuration: configuration)
-//            let ex = expectation(description: "download-realm-async-open")
-//            let _ = XCTWaiter.wait(for: [ex], timeout: 5)
-//            if case let .open(realm) = autoOpen.wrappedValue {
-//                XCTAssertNotNil(realm)
-//                ex.fulfill()
-//            } else {
-//                XCTFail("Could not open Realm")
-//            }
-//            asyncOpen.cancel()
-//        } catch {
-//            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
-//        }
-//    }
-//
-//    func testDownloadRealmWithAutoOpen() {
-//        do {
-//            let user = try logInUser(for: basicCredentials())
-//            if !isParent {
-//                populateRealm(user: user, partitionValue: #function)
-//                return
-//            }
-//
-//            executeChild()
-//
-//            var configuration = user.configuration(partitionValue: #function)
-//            configuration.objectTypes = [SwiftHugeSyncObject.self]
-//
-//            let autoOpen = AutoOpen(appId: appId, configuration: configuration)
-//            let ex = expectation(description: "download-populated-realm-async-open")
-//            let _ = XCTWaiter.wait(for: [ex], timeout: 5)
-//            if case let .open(realm) = autoOpen.wrappedValue {
-//                XCTAssertNotNil(realm)
-//                self.checkCount(expected: self.bigObjectCount, realm, SwiftHugeSyncObject.self)
-//            } else {
-//                XCTFail("Could not open Realm or failed")
-//            }
-//            asyncOpen.cancel()
-//        } catch {
-//            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
-//        }
-//    }
-//
-//    func testDownloadRealmFailWithAutoOpen() {
-//        do {
-//            let _ = try logInUser(for: basicCredentials())
-//
-//            let autoOpen = AutoOpen(appId: appId, partitionValue: #function)
-//            let ex = expectation(description: "download-realm-async-open")
-//            let _ = XCTWaiter.wait(for: [ex], timeout: 5)
-//            if case let .error(error) = autoOpen.wrappedValue {
-//                XCTAssertNotNil(error)
-//                ex.fulfill()
-//            } else {
-//                XCTFail("Not Expected State")
-//            }
-//            asyncOpen.cancel()
-//        } catch {
-//            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
-//        }
-//    }
-//
-//    func testDownloadRealmWithoutUserLoggedWithAutoOpen() {
-//        do {
-//            let user = try logInUser(for: basicCredentials())
-//            user.logOut { _ in } //Logout current user
-//
-//            var configuration = user.configuration(partitionValue: #function)
-//            configuration.objectTypes = [SwiftHugeSyncObject.self]
-//
-//            let autoOpen = AutoOpen(appId: appId, configuration: configuration)
-//            let ex = expectation(description: "download-populated-realm-async-open")
-//            let _ = XCTWaiter.wait(for: [ex], timeout: 5)
-//            if case .notOpen = autoOpen.wrappedValue {
-//                ex.fulfill()
-//            } else {
-//                XCTFail("Not Expected State")
-//            }
-//            asyncOpen.cancel()
-//        } catch {
-//            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
-//        }
-//    }
+    //MARK: - AutoOpen
+    func testOpenRealmWithAutoOpen() {
+        do {
+            _ = try logInUser(for: basicCredentials())
+
+            let autoOpen = AutoOpen(appId: appId, partitionValue: #function)
+            let ex = expectation(description: "download-realm-async-open")
+            let _ = XCTWaiter.wait(for: [ex], timeout: 5)
+            if case let .open(realm) = autoOpen.wrappedValue {
+                XCTAssertNotNil(realm)
+                ex.fulfill()
+            } else {
+                XCTFail("Could not open Realm")
+            }
+            autoOpen.cancel()
+        } catch {
+            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
+        }
+    }
+
+    func testDownloadRealmWithAutoOpen() {
+        do {
+            let user = try logInUser(for: basicCredentials())
+            if !isParent {
+                populateRealm(user: user, partitionValue: #function)
+                return
+            }
+
+            executeChild()
+
+            let autoOpen = AutoOpen(appId: appId, partitionValue: #function)
+            let ex = expectation(description: "download-populated-realm-async-open")
+            let _ = XCTWaiter.wait(for: [ex], timeout: 5)
+            if case let .open(realm) = autoOpen.wrappedValue {
+                XCTAssertNotNil(realm)
+                self.checkCount(expected: self.bigObjectCount, realm, SwiftHugeSyncObject.self)
+            } else {
+                XCTFail("Could not open Realm or failed")
+            }
+            autoOpen.cancel()
+        } catch {
+            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
+        }
+    }
+
+    func testDownloadRealmFailWithAutoOpen() {
+        do {
+            _ = try logInUser(for: basicCredentials())
+
+            let autoOpen = AutoOpen(appId: appId, partitionValue: #function)
+            let ex = expectation(description: "download-realm-async-open")
+            let _ = XCTWaiter.wait(for: [ex], timeout: 5)
+            if case let .error(error) = autoOpen.wrappedValue {
+                XCTAssertNotNil(error)
+                ex.fulfill()
+            } else {
+                XCTFail("Not Expected State")
+            }
+            autoOpen.cancel()
+        } catch {
+            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
+        }
+    }
+
+    func testDownloadRealmWithoutUserLoggedWithAutoOpen() {
+        do {
+            let user = try logInUser(for: basicCredentials())
+            user.logOut { _ in } //Logout current user
+
+            let autoOpen = AutoOpen(appId: appId, partitionValue: #function)
+            let ex = expectation(description: "download-populated-realm-async-open")
+            let _ = XCTWaiter.wait(for: [ex], timeout: 5)
+            if case .notOpen = autoOpen.wrappedValue {
+                ex.fulfill()
+            } else {
+                XCTFail("Not Expected State")
+            }
+            autoOpen.cancel()
+        } catch {
+            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
+        }
+    }
 }

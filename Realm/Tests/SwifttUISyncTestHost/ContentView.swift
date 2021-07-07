@@ -70,17 +70,12 @@ struct AsyncOpenView: View {
 
         switch asyncOpen {
         case .notOpen:
-            let _ = print("-------------> not opened")
             ProgressView()
         case .open(let realm):
-            let _ = print("-------------> List view is opened")
             ListView()
                 .environment(\.realm, realm)
-        case .error(_):
-            let _ = print("-------------> Error")
             ErrorView()
         case .progress(let progress):
-            let _ = print("-------------> Progress during async \(progress)")
             ProgressView(progress)
         }
     }
@@ -96,7 +91,6 @@ struct AutoOpenView: View {
         case .open(let realm):
             ListView()
                 .environment(\.realm, realm)
-        case .error(_):
             ErrorView()
         case .progress(let progress):
             ProgressView(progress)
