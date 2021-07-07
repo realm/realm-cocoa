@@ -691,15 +691,15 @@ private class ObservableRealmStorage: ObservableObject {
 
 /**
 `AsyncOpenState`is an enum representing different states from `AsyncOpen` and `AutoOpen` process
- ``notOpen``initial state
- ``open(let realm)`` returns a realm when the async open process is done or in case there is no internet connection in AutoOpen
- ``progress(let progress)`` returns an event when there is a notification on the async open progress
- ``error(let error)`` returns an error in case the async open process fails
 */
 public enum AsyncOpenState {
+    /// Initial state
     case notOpen
+    /// Returns a realm when the async open process is done or in case there is no internet connection in AutoOpen
     case open(Realm)
+    /// Returns an event when there is a notification on the async open progress
     case progress(Progress)
+    /// Returns an error in case the async open process fails
     case error(Error)
 }
 
