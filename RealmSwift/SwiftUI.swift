@@ -763,9 +763,7 @@ public enum AsyncOpenState {
 
     /// :nodoc:
     public var wrappedValue: AsyncOpenState {
-        get {
-            storage.asyncOpenState
-        }
+        storage.asyncOpenState
     }
 
     /**
@@ -871,9 +869,7 @@ public enum AsyncOpenState {
 
     /// :nodoc:
     public var wrappedValue: AsyncOpenState {
-        get {
-            storage.asyncOpenState
-        }
+        storage.asyncOpenState
     }
 
     /**
