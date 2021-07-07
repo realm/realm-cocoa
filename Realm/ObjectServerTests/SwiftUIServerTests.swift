@@ -34,7 +34,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
             let _ = try logInUser(for: basicCredentials())
             let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function)
             let ex = expectation(description: "download-realm-async-open")
-            let _ = XCTWaiter.wait(for: [ex], timeout: 5)
+            _ = XCTWaiter.wait(for: [ex], timeout: 5)
             if case let .open(realm) = asyncOpen.wrappedValue {
                 XCTAssertNotNil(realm)
                 ex.fulfill()
@@ -59,7 +59,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
 
             let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function)
             let ex = expectation(description: "download-populated-realm-async-open")
-            let _ = XCTWaiter.wait(for: [ex], timeout: 5)
+            _ = XCTWaiter.wait(for: [ex], timeout: 5)
             if case let .open(realm) = asyncOpen.wrappedValue {
                 XCTAssertNotNil(realm)
                 self.checkCount(expected: self.bigObjectCount, realm, SwiftHugeSyncObject.self)
@@ -77,7 +77,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
             _ = try logInUser(for: basicCredentials())
             let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function)
             let ex = expectation(description: "download-realm-async-open")
-            let _ = XCTWaiter.wait(for: [ex], timeout: 5)
+            _ = XCTWaiter.wait(for: [ex], timeout: 5)
             if case let .error(error) = asyncOpen.wrappedValue {
                 XCTAssertNotNil(error)
                 ex.fulfill()
@@ -97,7 +97,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
 
             let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function)
             let ex = expectation(description: "download-populated-realm-async-open")
-            let _ = XCTWaiter.wait(for: [ex], timeout: 5)
+            _ = XCTWaiter.wait(for: [ex], timeout: 5)
             if case .notOpen = asyncOpen.wrappedValue {
                 ex.fulfill()
             } else {
@@ -116,7 +116,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
 
             let autoOpen = AutoOpen(appId: appId, partitionValue: #function)
             let ex = expectation(description: "download-realm-async-open")
-            let _ = XCTWaiter.wait(for: [ex], timeout: 5)
+            _ = XCTWaiter.wait(for: [ex], timeout: 5)
             if case let .open(realm) = autoOpen.wrappedValue {
                 XCTAssertNotNil(realm)
                 ex.fulfill()
@@ -141,7 +141,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
 
             let autoOpen = AutoOpen(appId: appId, partitionValue: #function)
             let ex = expectation(description: "download-populated-realm-async-open")
-            let _ = XCTWaiter.wait(for: [ex], timeout: 5)
+            _ = XCTWaiter.wait(for: [ex], timeout: 5)
             if case let .open(realm) = autoOpen.wrappedValue {
                 XCTAssertNotNil(realm)
                 self.checkCount(expected: self.bigObjectCount, realm, SwiftHugeSyncObject.self)
@@ -160,7 +160,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
 
             let autoOpen = AutoOpen(appId: appId, partitionValue: #function)
             let ex = expectation(description: "download-realm-async-open")
-            let _ = XCTWaiter.wait(for: [ex], timeout: 5)
+            _ = XCTWaiter.wait(for: [ex], timeout: 5)
             if case let .error(error) = autoOpen.wrappedValue {
                 XCTAssertNotNil(error)
                 ex.fulfill()
@@ -180,7 +180,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
 
             let autoOpen = AutoOpen(appId: appId, partitionValue: #function)
             let ex = expectation(description: "download-populated-realm-async-open")
-            let _ = XCTWaiter.wait(for: [ex], timeout: 5)
+            _ = XCTWaiter.wait(for: [ex], timeout: 5)
             if case .notOpen = autoOpen.wrappedValue {
                 ex.fulfill()
             } else {
