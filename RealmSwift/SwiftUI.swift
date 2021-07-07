@@ -689,8 +689,13 @@ private class ObservableRealmStorage: ObservableObject {
     }
 }
 
-
-/// A enum for storing and retrieving values associated with an `AnyRealmValue` property.
+/**
+`AsyncOpenState`is an enum representing different states from `AsyncOpen` and `AutoOpen` process
+ ``notOpen``initial state
+ ``open(let realm)`` returns a realm when the async open process is done or in case there is no internet connection in AutoOpen
+ ``progress(let progress)`` returns an event when there is a notification on the async open progress
+ ``error(let error)`` returns an error in case the async open process fails
+*/
 public enum AsyncOpenState {
     case notOpen
     case open(Realm)
@@ -698,40 +703,46 @@ public enum AsyncOpenState {
     case error(Error)
 }
 
-
 // MARK: - AsyncOpen
 
-/// A property wrapper type that instantiates an observable object.
+/// A property wrapper type that initiates a `Realm.asyncOpen()` for the current user which asynchronously open a Realm,
+/// and notifies states for the given process
 ///
-/// Create a state realm object in a ``SwiftUI/View``, ``SwiftUI/App``, or
-/// ``SwiftUI/Scene`` by applying the `@StateRealmObject` attribute to a property
-/// declaration and providing an initial value that conforms to the
-/// <doc://com.apple.documentation/documentation/Combine/ObservableObject>
-/// protocol:
+/// Add AsyncOpen to your ``SwiftUI/View`` or ``SwiftUI/App``,  after a user is already logged,
+/// or if a user is going to be logged
 ///
-///     @StateRealmObject var model = DataModel()
+///     @AsyncOpen(appId: "app_id", partitionValue: <partition_value>) var asyncOpen
 ///
-/// SwiftUI creates a new instance of the object only once for each instance of
-/// the structure that declares the object. When published properties of the
-/// observable realm object change, SwiftUI updates the parts of any view that depend
-/// on those properties. If unmanaged, the property will be read from the object itself,
-/// otherwise, it will be read from the underlying Realm. Changes to the value will update
-/// the view asynchronously:
+/// This will inmeadiatly initiates a `Realm.asyncOpen()` operation which will perform all work needed to get the Realm to
+/// a usable state. (see Realm.asyncOpen() documentation)
 ///
-///     Text(model.title) // Updates the view any time `title` changes.
+/// This property wrapper will publish states of the current `Realm.asyncOpen()` process like progress, errors and an opened realm,
+/// which can be used to update the view
 ///
-/// You can pass the state object into a property that has the
-/// ``SwiftUI/ObservedRealmObject`` attribute.
+///     struct AsyncOpenView: View {
+///         @AsyncOpen(appId: "app_id", partitionValue: <partition_value>) var asyncOpen
 ///
-/// Get a ``SwiftUI/Binding`` to one of the state object's properties using the
-/// `$` operator. Use a binding when you want to create a two-way connection to
-/// one of the object's properties. For example, you can let a
-/// ``SwiftUI/Toggle`` control a Boolean value called `isEnabled` stored in the
-/// model:
+///         var body: some View {
+///            switch asyncOpen {
+///            case .notOpen:
+///                ProgressView()
+///            case .open(let realm):
+///                ListView()
+///                   .environment(\.realm, realm)
+///            case .error(_):
+///                ErrorView()
+///            case .progress(let progress):
+///                ProgressView(progress)
+///            }
+///         }
+///     }
 ///
-///     Toggle("Enabled", isOn: $model.isEnabled)
+/// This opened `realm` can be later injected to the view as an enviroment value which will be used by our property wrappers
+/// to populate the view with data from the opened realm
 ///
-/// This will write the modified `isEnabled` property to the `model` object's Realm.
+///     ListView()
+///        .environment(\.realm, realm)
+///
 @available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 6.0, *)
 @propertyWrapper public struct AsyncOpen: DynamicProperty {
     @Environment(\.realm) var realm
@@ -743,23 +754,33 @@ public enum AsyncOpenState {
                 if case .failure(let error) = completion {
                     self.storage.asyncOpenState = .error(error)
                 }
+                cancel()
             } receiveValue: { realm in
                 self.storage.realm = realm
                 self.storage.asyncOpenState = .open(realm)
             }.store(in: &storage.cancellables)
     }
 
+    /// :nodoc:
     public var wrappedValue: AsyncOpenState {
         get {
             storage.asyncOpenState
         }
     }
 
+    /**
+     This will cancel any notification from the property wrapper states
+     */
     public func cancel() {
         storage.cancellables.forEach { $0.cancel() }
         storage.cancellables = []
     }
 
+    /**
+     Initialise the property wrapper
+     - parameter appId: The unique identifier of your Realm app.
+     - parameter partitionValue: The `BSON` value the Realm is partitioned on.
+     */
     public init<T: BSON>(appId: String, partitionValue: T) {
         let app = App(id: appId)
         if app.currentUser?.isLoggedIn ?? false,
@@ -774,23 +795,7 @@ public enum AsyncOpenState {
         }
     }
 
-    public init(appId: String, configuration: Realm.Configuration) {
-        let app = App(id: appId)
-        if app.currentUser?.isLoggedIn ?? false,
-           let _ = app.currentUser {
-            self.asyncOpen(configuration: configuration)
-        } else {
-            app.objectWillChange.sink { [self] app in
-                if let _ = app.currentUser {
-                    self.asyncOpen(configuration: configuration)
-                }
-            }.store(in: &storage.cancellables)
-        }
-    }
-
     public mutating func update() {
-        // When the view updates, it will inject the @Environment
-        // into the propertyWrapper
         if storage.realm == nil || storage.realm != realm {
             storage.realm = realm
         }
@@ -799,39 +804,51 @@ public enum AsyncOpenState {
 
 // MARK: - AutoOpen
 
-/// A property wrapper type that instantiates an observable object.
+/// This property wrapper behaves similar as `AsyncOpen`, and in terms of declaration and use is completly identical,
+/// but with the difference of a offline-first approach.
+/// `AutoOpen` will try once to asynchronously open a Realm, but in case of no internet connection will return an opened realm
+/// for the given appId and partitionValue which can be used within our view.
+
+/// Add AutoOpen to your ``SwiftUI/View`` or ``SwiftUI/App``,  after a user is already logged,
+/// or if a user is going to be logged
 ///
-/// Create a state realm object in a ``SwiftUI/View``, ``SwiftUI/App``, or
-/// ``SwiftUI/Scene`` by applying the `@StateRealmObject` attribute to a property
-/// declaration and providing an initial value that conforms to the
-/// <doc://com.apple.documentation/documentation/Combine/ObservableObject>
-/// protocol:
+///     @AutoOpen(appId: "app_id", partitionValue: <partition_value>, timeout: 4000) var autoOpen
 ///
-///     @StateRealmObject var model = DataModel()
+/// This will inmeadiatly initiates a `Realm.asyncOpen()` operation which will perform all work needed to get the Realm to
+/// a usable state. (see Realm.asyncOpen() documentation)
 ///
-/// SwiftUI creates a new instance of the object only once for each instance of
-/// the structure that declares the object. When published properties of the
-/// observable realm object change, SwiftUI updates the parts of any view that depend
-/// on those properties. If unmanaged, the property will be read from the object itself,
-/// otherwise, it will be read from the underlying Realm. Changes to the value will update
-/// the view asynchronously:
+/// This property wrapper will publish states of the current `Realm.asyncOpen()` process like progress, errors and an opened realm,
+/// which can be used to update the view
 ///
-///     Text(model.title) // Updates the view any time `title` changes.
+///     struct AutoOpenView: View {
+///         @AutoOpen(appId: "app_id", partitionValue: <partition_value>) var autoOpen
 ///
-/// You can pass the state object into a property that has the
-/// ``SwiftUI/ObservedRealmObject`` attribute.
+///         var body: some View {
+///            switch autoOpen {
+///            case .notOpen:
+///                ProgressView()
+///            case .open(let realm):
+///                ListView()
+///                   .environment(\.realm, realm)
+///            case .error(_):
+///                ErrorView()
+///            case .progress(let progress):
+///                ProgressView(progress)
+///            }
+///         }
+///     }
 ///
-/// Get a ``SwiftUI/Binding`` to one of the state object's properties using the
-/// `$` operator. Use a binding when you want to create a two-way connection to
-/// one of the object's properties. For example, you can let a
-/// ``SwiftUI/Toggle`` control a Boolean value called `isEnabled` stored in the
-/// model:
+/// This opened `realm` can be later injected to the view as an enviroment value which will be used by our property wrappers
+/// to populate the view with data from the opened realm
 ///
-///     Toggle("Enabled", isOn: $model.isEnabled)
+///     ListView()
+///        .environment(\.realm, realm)
 ///
-/// This will write the modified `isEnabled` property to the `model` object's Realm.
 @available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 6.0, *)
 @propertyWrapper public struct AutoOpen: DynamicProperty {
+    @Environment(\.realm) var realm
+    @ObservedObject private var storage = ObservableRealmStorage()
+
     private func asyncOpen(configuration: Realm.Configuration) {
         storage.asyncOpen(configuration: configuration)
             .sink { completion in
@@ -844,6 +861,7 @@ public enum AsyncOpenState {
                     } else {
                         self.storage.asyncOpenState = .error(error)
                     }
+                    cancel()
                 }
             } receiveValue: { realm in
                 self.storage.realm = realm
@@ -851,14 +869,28 @@ public enum AsyncOpenState {
             }.store(in: &storage.cancellables)
     }
 
-    @Environment(\.realm) var realm
-    @ObservedObject private var storage = ObservableRealmStorage()
+    /// :nodoc:
     public var wrappedValue: AsyncOpenState {
         get {
             storage.asyncOpenState
         }
     }
 
+    /**
+     This will cancel any notification from the property wrapper states
+     */
+    public func cancel() {
+        storage.cancellables.forEach { $0.cancel() }
+        storage.cancellables = []
+    }
+
+    /**
+     Initialise the property wrapper
+     - parameter appId: The unique identifier of your Realm app.
+     - parameter partitionValue: The `BSON` value the Realm is partitioned on.
+     - parameter timeout: The maximum number of milliseconds to allow for a connection to
+       become fully established.
+     */
     public init<T: BSON>(appId: String, partitionValue: T, timeout: Int? = nil) {
         let app = App(id: appId)
         if let timeout = timeout {
@@ -879,8 +911,6 @@ public enum AsyncOpenState {
     }
 
     public mutating func update() {
-        // When the view updates, it will inject the @Environment
-        // into the propertyWrapper
         if storage.realm == nil || storage.realm != realm {
             storage.realm = realm
         }
