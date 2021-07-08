@@ -167,7 +167,6 @@ class SwiftUIServerTests: SwiftSyncTestCase {
             if case let .open(realm) = autoOpen.wrappedValue {
                 XCTAssertNotNil(realm)
                 self.checkCount(expected: self.bigObjectCount, realm, SwiftHugeSyncObject.self)
-                XCTAssertTrue(autoOpen.wai)
             } else {
                 XCTFail("Could not open Realm or failed")
             }
