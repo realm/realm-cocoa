@@ -778,16 +778,24 @@ public enum AsyncOpenState {
      Initialise the property wrapper
      - parameter appId: The unique identifier of your Realm app.
      - parameter partitionValue: The `BSON` value the Realm is partitioned on.
+     - parameter timeout: The maximum number of milliseconds to allow for a connection to
+       become fully established., if `nil` no connection timeout is setted.
      */
-    public init<T: BSON>(appId: String, partitionValue: T) {
+    public init<T: BSON>(appId: String, partitionValue: T, timeout: UInt? = nil) {
         let app = App(id: appId)
+        let cancelAsyncOpenOnNonFatalErrors = timeout != nil ? true : false
+        if let timeout = timeout {
+            let syncTimeoutOptions = SyncTimeoutOptions()
+            syncTimeoutOptions.connectTimeout = timeout
+            app.syncManager.timeoutOptions = syncTimeoutOptions
+        }
         if app.currentUser?.isLoggedIn ?? false,
            let currentUser = app.currentUser {
-            asyncOpen(configuration: currentUser.configuration(partitionValue: partitionValue))
+            asyncOpen(configuration: currentUser.configuration(partitionValue: partitionValue, cancelAsyncOpenOnNonFatalErrors: cancelAsyncOpenOnNonFatalErrors))
         } else {
             app.objectWillChange.sink { [self] app in
                 if let currentUser = app.currentUser {
-                    self.asyncOpen(configuration: currentUser.configuration(partitionValue: partitionValue))
+                    asyncOpen(configuration: currentUser.configuration(partitionValue: partitionValue, cancelAsyncOpenOnNonFatalErrors: cancelAsyncOpenOnNonFatalErrors))
                 }
             }.store(in: &storage.cancellables)
         }
@@ -885,13 +893,13 @@ public enum AsyncOpenState {
      - parameter appId: The unique identifier of your Realm app.
      - parameter partitionValue: The `BSON` value the Realm is partitioned on.
      - parameter timeout: The maximum number of milliseconds to allow for a connection to
-       become fully established.
+       become fully established, if `nil` no connection timeout is setted.
      */
-    public init<T: BSON>(appId: String, partitionValue: T, timeout: Int? = nil) {
+    public init<T: BSON>(appId: String, partitionValue: T, timeout: UInt? = nil) {
         let app = App(id: appId)
         if let timeout = timeout {
             let syncTimeoutOptions = SyncTimeoutOptions()
-            syncTimeoutOptions.connectTimeout = UInt(timeout)
+            syncTimeoutOptions.connectTimeout = timeout
             app.syncManager.timeoutOptions = syncTimeoutOptions
         }
         if app.currentUser?.isLoggedIn ?? false,
