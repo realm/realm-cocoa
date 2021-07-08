@@ -112,7 +112,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
         autoreleasepool {
             proxy.delay = 3.0
             let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function, timeout: 2000)
-            let ex = expectation(description: "download-realm-auto-open-fail")
+            let ex = expectation(description: "download-realm-async-open-no-connection")
             _ = XCTWaiter.wait(for: [ex], timeout: 5.0)
             if case let .error(error) = asyncOpen.wrappedValue {
                 if let error = error as NSError? {
@@ -218,7 +218,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
         autoreleasepool {
             proxy.delay = 3.0
             let autoOpen = AutoOpen(appId: appId, partitionValue: #function, timeout: 2000)
-            let ex = expectation(description: "download-realm-auto-open-fail")
+            let ex = expectation(description: "download-realm-auto-open-no-connection")
             _ = XCTWaiter.wait(for: [ex], timeout: 5.0)
             if case let .open(realm) = autoOpen.wrappedValue {
                 XCTAssertNotNil(realm)
