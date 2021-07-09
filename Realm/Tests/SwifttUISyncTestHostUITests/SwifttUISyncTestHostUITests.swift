@@ -20,6 +20,7 @@ import XCTest
 import RealmSwift
 
 class SwifttUISyncTestHostUITests: SwiftSyncTestCase {
+    // MARK: - AsyncOpen
     func testDownloadRealmAsyncOpenApp() throws {
         let user = logInUser(for: basicCredentials(withName: #function, register: isParent))
         if !isParent {
@@ -35,13 +36,32 @@ class SwifttUISyncTestHostUITests: SwiftSyncTestCase {
         app.launchEnvironment["function_name"] = #function
         app.launch()
 
-        // Test Show table view after syncing realm
+        // Test that the user is already logged
+        let loggingView = app.staticTexts["logged-view"]
+        XCTAssertTrue(loggingView.waitForExistence(timeout: 2))
+
+        // Query for button to start syncing
+        let syncButtonView = app.buttons["sync-button-view"]
+        syncButtonView.tap()
+
+        // Test progress is greater than 0
+        let progressView = app.staticTexts["progress-text-view"]
+        XCTAssertTrue(progressView.waitForExistence(timeout: 2))
+        let progressValue = progressView.value as! String
+        XCTAssertTrue(Int64(progressValue)! > 0)
+
+        // Query for button to navigate to next view
+        let nextViewView = app.buttons["show-list-button-view"]
+        nextViewView.tap()
+
+        // Test show ListView after syncing realm
         let table = app.tables.firstMatch
-        XCTAssertTrue(table.waitForExistence(timeout: 5))
+        XCTAssertTrue(table.waitForExistence(timeout: 6))
         XCTAssertEqual(table.cells.count, self.bigObjectCount)
     }
 
-    func testDownloadRealmAutoOpenApp() throws {
+    // MARK: - AutoOpen
+    func testDownloadRealmAutocOpenApp() throws {
         let user = logInUser(for: basicCredentials(withName: #function, register: isParent))
         if !isParent {
             populateRealm(user: user, partitionValue: #function)
@@ -56,9 +76,66 @@ class SwifttUISyncTestHostUITests: SwiftSyncTestCase {
         app.launchEnvironment["function_name"] = #function
         app.launch()
 
-        // Test Show table view after syncing realm
+        // Test that the user is already logged
+        let loggingView = app.staticTexts["logged-view"]
+        XCTAssertTrue(loggingView.waitForExistence(timeout: 2))
+
+        // Query for button to start syncing
+        let syncButtonView = app.buttons["sync-button-view"]
+        syncButtonView.tap()
+
+        // Test progress is greater than 0
+        let progressView = app.staticTexts["progress-text-view"]
+        XCTAssertTrue(progressView.waitForExistence(timeout: 2))
+        let progressValue = progressView.value as! String
+        XCTAssertTrue(Int64(progressValue)! > 0)
+
+        // Query for button to navigate to next view
+        let nextViewView = app.buttons["show-list-button-view"]
+        nextViewView.tap()
+
+        // Test show ListView after syncing realm
         let table = app.tables.firstMatch
-        XCTAssertTrue(table.waitForExistence(timeout: 5))
+        XCTAssertTrue(table.waitForExistence(timeout: 6))
         XCTAssertEqual(table.cells.count, self.bigObjectCount)
     }
+    //
+    //    func testDownloadRealmWithoutInternetConnectionAutoOpenApp() throws {
+    //        let proxy = TimeoutProxyServer(port: 5678, targetPort: 9090)
+    //        try! proxy.start()
+    //
+    //        let appId = try! RealmServer.shared.createApp()
+    //        let appConfig = AppConfiguration(baseURL: "http://localhost:5678",
+    //                                         transport: AsyncOpenConnectionTimeoutTransport(),
+    //                                         localAppName: nil,
+    //                                         localAppVersion: nil)
+    //        let app = App(id: appId, configuration: appConfig)
+    //
+    //        do {
+    //            _ = try logInUser(for: basicCredentials(app: app), app: app)
+    //        } catch {
+    //            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
+    //            return
+    //        }
+    //
+    //        autoreleasepool {
+    //            proxy.delay = 3.0
+    //            let app = XCUIApplication()
+    //            app.launchEnvironment["test_type"] = "async_open"
+    //            app.launchEnvironment["app_id"] = appId
+    //            app.launchEnvironment["function_name"] = #function
+    //            app.launch()
+    //
+    //            // Test logging activity Indicator view
+    //            let loggingIndicator = app.activityIndicators["logging-view"]
+    //            XCTAssertTrue(loggingIndicator.waitForExistence(timeout: 5))
+    //
+    //            // Test show ListView after getting local realm
+    //            let table = app.tables.firstMatch
+    //            XCTAssertTrue(table.waitForExistence(timeout: 5))
+    //            XCTAssertEqual(table.cells.count, 0)
+    //        }
+    //
+    //        proxy.stop()
+    //    }
 }

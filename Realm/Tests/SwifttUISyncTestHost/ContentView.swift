@@ -20,25 +20,65 @@ import SwiftUI
 import RealmSwift
 import Combine
 
+enum LoggingViewState {
+    case initial
+    case logging
+    case logged
+    case syncing
+}
+
 struct LoginView: View {
+    @State var viewState: LoggingViewState = .initial
     @ObservedObject var loginHelper = LoginHelper()
+
     var body: some View {
-        NavigationView {
-            if loginHelper.isLogged {
+        VStack {
+            switch viewState {
+            case .initial:
+                EmptyView()
+            case .logging:
+                VStack {
+                    ProgressView("Logging...")
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.blue)
+                .transition(AnyTransition.move(edge: .leading)).animation(.default)
+            case .logged:
+                VStack {
+                    Text("Logged")
+                        .accessibilityIdentifier("logged-view")
+                    Button("Sync") {
+                        viewState = .syncing
+                    }
+                    .accessibilityIdentifier("sync-button-view")
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.yellow)
+                .transition(AnyTransition.move(edge: .trailing)).animation(.default)
+            case .syncing:
                 switch ProcessInfo.processInfo.environment["test_type"] {
                 case "async_open":
                     AsyncOpenView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color.green)
+                        .transition(AnyTransition.move(edge: .leading)).animation(.default)
                 case "auto_open":
                     AutoOpenView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color.green)
+                        .transition(AnyTransition.move(edge: .leading)).animation(.default)
                 default:
                     EmptyView()
                 }
-            } else {
-                ProgressView("Logging...")
             }
         }
         .onAppear(perform: {
-            loginHelper.login(email: ProcessInfo.processInfo.environment["function_name"]!, password: "password")
+            viewState = .logging
+            loginHelper.login(email: ProcessInfo.processInfo.environment["function_name"]!,
+                              password: "password",
+                              completion: {
+                viewState = .logged
+            })
         })
     }
 }
@@ -47,7 +87,7 @@ class LoginHelper: ObservableObject {
     @Published var isLogged: Bool = false
     var cancellables = Set<AnyCancellable>()
 
-    func login(email: String, password: String) {
+    func login(email: String, password: String, completion: @escaping () -> ()) {
         let appConfig = AppConfiguration(baseURL: "http://localhost:9090",
                                          transport: nil,
                                          localAppName: nil,
@@ -57,43 +97,92 @@ class LoginHelper: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { _ in
             }, receiveValue: { _ in
-                self.isLogged = true
+                completion()
             })
             .store(in: &cancellables)
     }
 }
 
 struct AsyncOpenView: View {
-    @AsyncOpen(appId: ProcessInfo.processInfo.environment["app_id"]!, partitionValue: ProcessInfo.processInfo.environment["function_name"]!) var asyncOpen
+    @State var canNavigate: Bool = false
+    @State var progress: Progress?
+    @AsyncOpen(appId: ProcessInfo.processInfo.environment["app_id"]!, partitionValue: ProcessInfo.processInfo.environment["function_name"]!, timeout: 2000) var asyncOpen
 
     var body: some View {
-
-        switch asyncOpen {
-        case .notOpen:
-            ProgressView()
-        case .open(let realm):
-            ListView()
-                .environment(\.realm, realm)
-            ErrorView()
-        case .progress(let progress):
-            ProgressView(progress)
+        VStack {
+            switch asyncOpen {
+            case .notOpen:
+                ProgressView()
+            case .open(let realm):
+                if canNavigate {
+                    ListView()
+                        .transition(AnyTransition.move(edge: .leading)).animation(.default)
+                        .environment(\.realm, realm)
+                } else {
+                    VStack {
+                        Text(String(progress!.completedUnitCount))
+                            .accessibilityIdentifier("progress-text-view")
+                        Button("Navigate Next View") {
+                            canNavigate = true
+                        }
+                        .accessibilityIdentifier("show-list-button-view")
+                    }
+                }
+            case .error:
+                ErrorView()
+                    .background(Color.red)
+                    .transition(AnyTransition.move(edge: .trailing)).animation(.default)
+            case .progress(let progress):
+                ProgressView(progress)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.yellow)
+                    .transition(AnyTransition.move(edge: .trailing)).animation(.default)
+                    .onAppear {
+                        self.progress = progress
+                    }
+            }
         }
     }
 }
 
 struct AutoOpenView: View {
-    @AsyncOpen(appId: ProcessInfo.processInfo.environment["app_id"]!, partitionValue: ProcessInfo.processInfo.environment["function_name"]!) var asyncOpen
+    @State var canNavigate: Bool = false
+    @State var progress: Progress?
+    @AutoOpen(appId: ProcessInfo.processInfo.environment["app_id"]!, partitionValue: ProcessInfo.processInfo.environment["function_name"]!, timeout: 2000) var autoOpen
 
     var body: some View {
-        switch asyncOpen {
-        case .notOpen:
-            ProgressView()
-        case .open(let realm):
-            ListView()
-                .environment(\.realm, realm)
-            ErrorView()
-        case .progress(let progress):
-            ProgressView(progress)
+        VStack {
+            switch autoOpen {
+            case .notOpen:
+                ProgressView()
+            case .open(let realm):
+                if canNavigate {
+                    ListView()
+                        .transition(AnyTransition.move(edge: .leading)).animation(.default)
+                        .environment(\.realm, realm)
+                } else {
+                    VStack {
+                        Text(String(progress!.completedUnitCount))
+                            .accessibilityIdentifier("progress-text-view")
+                        Button("Navigate Next View") {
+                            canNavigate = true
+                        }
+                        .accessibilityIdentifier("show-list-button-view")
+                    }
+                }
+            case .error:
+                ErrorView()
+                    .background(Color.red)
+                    .transition(AnyTransition.move(edge: .trailing)).animation(.default)
+            case .progress(let progress):
+                ProgressView(progress)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.yellow)
+                    .transition(AnyTransition.move(edge: .trailing)).animation(.default)
+                    .onAppear {
+                        self.progress = progress
+                    }
+            }
         }
     }
 }
@@ -101,6 +190,7 @@ struct AutoOpenView: View {
 struct ErrorView: View {
     var body: some View {
         Text("Error View")
+            .accessibilityIdentifier("error-view")
     }
 }
 
@@ -113,6 +203,7 @@ struct ListView: View {
                 Text("\(object._id)")
             }
         }
+        .accessibilityIdentifier("table-view")
         .navigationTitle("SwiftPerson's List")
     }
 }
