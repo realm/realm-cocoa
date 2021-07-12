@@ -646,22 +646,6 @@ extension EnvironmentValues {
 }
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-extension SwiftUIKVO {
-    static func removeObservers(object: NSObject) {
-        if let subscription = SwiftUIKVO.observedObjects[object] {
-            subscription.cancel()
-        }
-    }
-}
-#else
-internal final class SwiftUIKVO {
-    static func removeObservers(object: NSObject) {
-        // noop
-    }
-}
-#endif
-
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 private class ObservableRealmStorage: ObservableObject {
     var cancellables = [AnyCancellable]()
     var realm: Realm?
@@ -920,3 +904,20 @@ public enum AsyncOpenState {
         }
     }
 }
+
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+extension SwiftUIKVO {
+    static func removeObservers(object: NSObject) {
+        if let subscription = SwiftUIKVO.observedObjects[object] {
+            subscription.cancel()
+        }
+    }
+}
+#else
+internal final class SwiftUIKVO {
+    static func removeObservers(object: NSObject) {
+        // noop
+    }
+}
+#endif
+
