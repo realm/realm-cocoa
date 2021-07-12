@@ -61,7 +61,7 @@ class SwifttUISyncTestHostUITests: SwiftSyncTestCase {
     }
 
     // MARK: - AutoOpen
-    func testDownloadRealmAutocOpenApp() throws {
+    func testDownloadRealmAutoOpenApp() throws {
         let user = logInUser(for: basicCredentials(withName: #function, register: isParent))
         if !isParent {
             populateRealm(user: user, partitionValue: #function)
