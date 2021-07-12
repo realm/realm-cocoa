@@ -99,43 +99,4 @@ class SwifttUISyncTestHostUITests: SwiftSyncTestCase {
         XCTAssertTrue(table.waitForExistence(timeout: 6))
         XCTAssertEqual(table.cells.count, self.bigObjectCount)
     }
-    //
-    //    func testDownloadRealmWithoutInternetConnectionAutoOpenApp() throws {
-    //        let proxy = TimeoutProxyServer(port: 5678, targetPort: 9090)
-    //        try! proxy.start()
-    //
-    //        let appId = try! RealmServer.shared.createApp()
-    //        let appConfig = AppConfiguration(baseURL: "http://localhost:5678",
-    //                                         transport: AsyncOpenConnectionTimeoutTransport(),
-    //                                         localAppName: nil,
-    //                                         localAppVersion: nil)
-    //        let app = App(id: appId, configuration: appConfig)
-    //
-    //        do {
-    //            _ = try logInUser(for: basicCredentials(app: app), app: app)
-    //        } catch {
-    //            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
-    //            return
-    //        }
-    //
-    //        autoreleasepool {
-    //            proxy.delay = 3.0
-    //            let app = XCUIApplication()
-    //            app.launchEnvironment["test_type"] = "async_open"
-    //            app.launchEnvironment["app_id"] = appId
-    //            app.launchEnvironment["function_name"] = #function
-    //            app.launch()
-    //
-    //            // Test logging activity Indicator view
-    //            let loggingIndicator = app.activityIndicators["logging-view"]
-    //            XCTAssertTrue(loggingIndicator.waitForExistence(timeout: 5))
-    //
-    //            // Test show ListView after getting local realm
-    //            let table = app.tables.firstMatch
-    //            XCTAssertTrue(table.waitForExistence(timeout: 5))
-    //            XCTAssertEqual(table.cells.count, 0)
-    //        }
-    //
-    //        proxy.stop()
-    //    }
 }
