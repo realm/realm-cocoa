@@ -77,7 +77,7 @@ struct LoginView: View {
     @ObservedObject var loginHelper = LoginHelper()
     @State var email: String = ""
     @State var password: String = ""
-    @State var navigationTag: String? = nil
+    @State var navigationTag: String?
 
     var cancellables = Set<AnyCancellable>()
 
