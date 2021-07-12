@@ -732,7 +732,11 @@ public enum AsyncOpenState {
     @Environment(\.realm) var realm
     @ObservedObject private var storage = ObservableRealmStorage()
 
-    private func asyncOpen(configuration: Realm.Configuration) {
+    private func asyncOpenForUser<T: BSON>(_ user: User, partitionValue: T, configuration: Realm.Configuration) {
+        let userConfig = user.configuration(partitionValue: partitionValue, cancelAsyncOpenOnNonFatalErrors: true)
+        let userSyncConfig = userConfig.syncConfiguration
+        var configuration = configuration
+        configuration.syncConfiguration = userSyncConfig
         storage.asyncOpen(configuration: configuration)
             .sink { completion in
                 if case .failure(let error) = completion {
@@ -762,12 +766,13 @@ public enum AsyncOpenState {
      Initialise the property wrapper
      - parameter appId: The unique identifier of your Realm app.
      - parameter partitionValue: The `BSON` value the Realm is partitioned on.
+     - parameter baseConfiguration: A Base Configuration use when creating the Realm,
+       if empty the configuraion is setted to the `defaultConfiguration`
      - parameter timeout: The maximum number of milliseconds to allow for a connection to
-       become fully established., if `nil` no connection timeout is setted.
+       become fully established., if empty or `nil` no connection timeout is setted.
      */
-    public init<T: BSON>(appId: String, partitionValue: T, timeout: UInt? = nil) {
+    public init<T: BSON>(appId: String, partitionValue: T, baseConfiguration: Realm.Configuration = Realm.Configuration.defaultConfiguration, timeout: UInt? = nil) {
         let app = App(id: appId)
-        let cancelAsyncOpenOnNonFatalErrors = timeout != nil ? true : false
         if let timeout = timeout {
             let syncTimeoutOptions = SyncTimeoutOptions()
             syncTimeoutOptions.connectTimeout = timeout
@@ -775,11 +780,11 @@ public enum AsyncOpenState {
         }
         if app.currentUser?.isLoggedIn ?? false,
            let currentUser = app.currentUser {
-            asyncOpen(configuration: currentUser.configuration(partitionValue: partitionValue, cancelAsyncOpenOnNonFatalErrors: cancelAsyncOpenOnNonFatalErrors))
+            asyncOpenForUser(currentUser, partitionValue: partitionValue, configuration: baseConfiguration)
         } else {
             app.objectWillChange.sink { [self] app in
                 if let currentUser = app.currentUser {
-                    asyncOpen(configuration: currentUser.configuration(partitionValue: partitionValue, cancelAsyncOpenOnNonFatalErrors: cancelAsyncOpenOnNonFatalErrors))
+                    asyncOpenForUser(currentUser, partitionValue: partitionValue, configuration: baseConfiguration)
                 }
             }.store(in: &storage.cancellables)
         }
@@ -839,7 +844,11 @@ public enum AsyncOpenState {
     @Environment(\.realm) var realm
     @ObservedObject private var storage = ObservableRealmStorage()
 
-    private func asyncOpen(configuration: Realm.Configuration) {
+    private func asyncOpenForUser<T: BSON>(_ user: User, partitionValue: T, configuration: Realm.Configuration) {
+        let userConfig = user.configuration(partitionValue: partitionValue, cancelAsyncOpenOnNonFatalErrors: true)
+        let userSyncConfig = userConfig.syncConfiguration
+        var configuration = configuration
+        configuration.syncConfiguration = userSyncConfig
         storage.asyncOpen(configuration: configuration)
             .sink { completion in
                 if case .failure(let error) = completion {
@@ -876,10 +885,12 @@ public enum AsyncOpenState {
      Initialise the property wrapper
      - parameter appId: The unique identifier of your Realm app.
      - parameter partitionValue: The `BSON` value the Realm is partitioned on.
+     - parameter baseConfiguration: A Base Configuration use when creating the Realm,
+       if empty the configuraion is setted to the `defaultConfiguration`
      - parameter timeout: The maximum number of milliseconds to allow for a connection to
-       become fully established, if `nil` no connection timeout is setted.
+       become fully established, if empty or `nil` no connection timeout is setted.
      */
-    public init<T: BSON>(appId: String, partitionValue: T, timeout: UInt? = nil) {
+    public init<T: BSON>(appId: String, partitionValue: T, baseConfiguration: Realm.Configuration = Realm.Configuration.defaultConfiguration, timeout: UInt? = nil) {
         let app = App(id: appId)
         if let timeout = timeout {
             let syncTimeoutOptions = SyncTimeoutOptions()
@@ -888,11 +899,11 @@ public enum AsyncOpenState {
         }
         if app.currentUser?.isLoggedIn ?? false,
            let currentUser = app.currentUser {
-            asyncOpen(configuration: currentUser.configuration(partitionValue: partitionValue, cancelAsyncOpenOnNonFatalErrors: true))
+            asyncOpenForUser(currentUser, partitionValue: partitionValue, configuration: baseConfiguration)
         } else {
             app.objectWillChange.sink { [self] app in
                 if let currentUser = app.currentUser {
-                    asyncOpen(configuration: currentUser.configuration(partitionValue: partitionValue, cancelAsyncOpenOnNonFatalErrors: true))
+                    asyncOpenForUser(currentUser, partitionValue: partitionValue, configuration: baseConfiguration)
                 }
             }.store(in: &storage.cancellables)
         }
