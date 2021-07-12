@@ -31,7 +31,11 @@ class SwiftUIServerTests: SwiftSyncTestCase {
     // MARK: - AsyncOpen
     func testAsyncOpenOpenRealm() {
         do {
+            let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
+            Realm.Configuration.defaultConfiguration = config
+
             _ = try logInUser(for: basicCredentials())
+
             let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function)
             let ex = expectation(description: "download-realm-async-open")
             _ = XCTWaiter.wait(for: [ex], timeout: 5)
@@ -49,6 +53,9 @@ class SwiftUIServerTests: SwiftSyncTestCase {
 
     func testAsyncOpenDownloadRealm() {
         do {
+            let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
+            Realm.Configuration.defaultConfiguration = config
+
             let user = try logInUser(for: basicCredentials())
             if !isParent {
                 populateRealm(user: user, partitionValue: #function)
@@ -74,6 +81,9 @@ class SwiftUIServerTests: SwiftSyncTestCase {
 
     func testAsyncOpenNotOpenRealmWithoutUserLogged() {
         do {
+            let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
+            Realm.Configuration.defaultConfiguration = config
+
             let user = try logInUser(for: basicCredentials())
             user.logOut { _ in } //Logout current user
 
@@ -93,6 +103,9 @@ class SwiftUIServerTests: SwiftSyncTestCase {
 
     // In case of no internet connection AsyncOpen should return an error if there is a timeout
     func testAsyncOpenFailWithoutInternetConnection() {
+        let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
+        Realm.Configuration.defaultConfiguration = config
+
         let proxy = TimeoutProxyServer(port: 5678, targetPort: 9090)
         try! proxy.start()
 
@@ -134,6 +147,9 @@ class SwiftUIServerTests: SwiftSyncTestCase {
     // MARK: - AutoOpen
     func testAutoOpenOpenReal() {
         do {
+            let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
+            Realm.Configuration.defaultConfiguration = config
+
             _ = try logInUser(for: basicCredentials())
 
             let autoOpen = AutoOpen(appId: appId, partitionValue: #function)
@@ -153,7 +169,11 @@ class SwiftUIServerTests: SwiftSyncTestCase {
 
     func testAutoOpenDownloadRealm() {
         do {
+            let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
+            Realm.Configuration.defaultConfiguration = config
+
             let user = try logInUser(for: basicCredentials())
+
             if !isParent {
                 populateRealm(user: user, partitionValue: #function)
                 return
@@ -178,6 +198,9 @@ class SwiftUIServerTests: SwiftSyncTestCase {
 
     func testAutoOpenNotOpenRealmWithoutUserLogged() {
         do {
+            let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
+            Realm.Configuration.defaultConfiguration = config
+
             let user = try logInUser(for: basicCredentials())
             user.logOut { _ in } //Logout current user
 
@@ -197,6 +220,9 @@ class SwiftUIServerTests: SwiftSyncTestCase {
 
     // In case of no internet connection AutoOpen should return an opened Realm, offline-first approach
     func testAutoOpenOpenRealmWithoutInternetConnection() {
+        let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
+        Realm.Configuration.defaultConfiguration = config
+
         let proxy = TimeoutProxyServer(port: 5678, targetPort: 9090)
         try! proxy.start()
 
