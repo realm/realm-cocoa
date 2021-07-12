@@ -296,7 +296,8 @@ let package = Package(
                  "SwiftSyncTestCase.swift",
                  "TimeoutProxyServer.swift",
                  "WatchTestUtility.swift",
-                 "RealmServer.swift"
+                 "RealmServer.swift",
+                 "SwiftServerObjects.swift"
             ]
         ),
         objectServerTestTarget(
@@ -305,8 +306,7 @@ let package = Package(
                 "SwiftObjectServerTests.swift",
                 "SwiftCollectionSyncTests.swift",
                 "SwiftObjectServerPartitionTests.swift",
-                "SwiftUIServerTests.swift",
-                "SwiftServerObjects.swift"
+                "SwiftUIServerTests.swift"
             ]
         ),
         objectServerTestTarget(
