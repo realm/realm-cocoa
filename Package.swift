@@ -316,7 +316,7 @@ let package = Package(
                 "RLMCollectionSyncTests.mm",
                 "RLMObjectServerPartitionTests.mm",
                 "RLMObjectServerTests.mm",
-                "RLMWatchTestUtility.m",
+                "RLMWatchTestUtility.m"
             ]
         )
     ],
