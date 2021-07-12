@@ -18,12 +18,13 @@
 
 import SwiftUI
 import RealmSwift
+import Combine
 
 class Contact: Object, ObjectKeyIdentifiable {
     @Persisted var name: String
     @Persisted var lastName: String
     @Persisted var email: String
-    @Persisted var phones: [PhoneNumber]
+    @Persisted var phones: RealmSwift.List<PhoneNumber>
     @Persisted var birthdate: Date
     @Persisted var notes: String
 
@@ -33,7 +34,8 @@ class Contact: Object, ObjectKeyIdentifiable {
 }
 
 class PhoneNumber: EmbeddedObject, ObjectKeyIdentifiable {
-    enum PhoneNumberType: PersistableEnum, String, Identifiable, CaseIterable {
+    enum PhoneNumberType: String, PersistableEnum, Identifiable, CaseIterable {
+        var id: String { self.rawValue }
         case home, mobile, work
     }
     @Persisted var type: PhoneNumberType = .home
@@ -44,7 +46,7 @@ class PhoneNumber: EmbeddedObject, ObjectKeyIdentifiable {
 let appId = "realm-async-open"
 // The partition determines which subset of data to access, this is configured in the Realm UI too.
 let partitionValue = "partition-value"
-let app = App(appId: appId)
+let app = App(id: appId)
 
 private enum NavigationType: String {
     case asyncOpen
@@ -55,12 +57,12 @@ private enum NavigationType: String {
 struct ContentView: View {
     var body: some View {
         VStack {
-            Button("@AsyncOpen") {
-                LoginView(navigationType: .asyncOpen)
+            NavigationLink(destination: LoginView(navigationType: .asyncOpen)) {
+                Text("@AsyncOpen")
             }
             Spacer()
-            Button("@AutoOpen") {
-                LoginView(navigationType: .autoOpen)
+            NavigationLink(destination: LoginView(navigationType: .autoOpen)) {
+                Text("@AutoOpen")
             }
         }
     }
@@ -70,9 +72,10 @@ struct ContentView: View {
 // When you have enabled anonymous authentication in the Realm UI, users can immediately log into your app without providing any identifying information:
 // Documentation of how to login can be found (https://docs.mongodb.com/realm/sdk/ios/quick-start-with-sync/)
 struct LoginView: View {
-    var navigationType: NavigationType
+    fileprivate var navigationType: NavigationType
 
-    @State var username: String = ""
+    @ObservedObject var loginHelper = LoginHelper()
+    @State var email: String = ""
     @State var password: String = ""
     @State var navigationTag: String? = nil
 
@@ -81,27 +84,39 @@ struct LoginView: View {
     var body: some View {
         NavigationView {
             VStack {
-                TextField("Username", text: $username)
-                TextField("Username", text: $password)
+                TextField("Email", text: $email)
+                TextField("Password", text: $password)
                 Spacer()
-                NavigationLink(destination: AsyncOpenView(), tag: "asyncOpen", selection: navigationTag, label: { EmptyView()})
-                NavigationLink(destination: AutoOpenView(), tag: "autoOpen", selection: navigationTag, label: { EmptyView()})
+                NavigationLink(destination: AsyncOpenView(), tag: "asyncOpen", selection: $navigationTag, label: { EmptyView()})
+                NavigationLink(destination: AutoOpenView(), tag: "autoOpen", selection: $navigationTag, label: { EmptyView()})
                 Button("Login") {
-                    app.login(credentials: Credentials.emailPassword(email: email, password: password))
-                        .receive(on: DispatchQueue.main)
-                        .sink(receiveCompletion: { result in
-                            if case .failure(let error) = completion {
-                                ErrorView(error: error)
-                            }
-                        }, receiveValue: { _ in
-                            navigationTag = navigationType.rawValue
-                        })
-                        .store(in: &cancellables)
+                    loginHelper.login(email: email, password: password) {
+                        navigationTag = navigationType.rawValue
+                    }
                 }
             }
             .padding()
         }
         .navigationTitle("Logging View")
+    }
+}
+
+class LoginHelper: ObservableObject {
+    var cancellables = Set<AnyCancellable>()
+
+    func login(email: String, password: String, completion: @escaping () -> Void) {
+        let appConfig = AppConfiguration(baseURL: "http://localhost:9090",
+                                         transport: nil,
+                                         localAppName: nil,
+                                         localAppVersion: nil)
+        let app = RealmSwift.App(id: ProcessInfo.processInfo.environment["app_id"]!, configuration: appConfig)
+        app.login(credentials: Credentials.emailPassword(email: email, password: password))
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { _ in
+            }, receiveValue: { _ in
+                completion()
+            })
+            .store(in: &cancellables)
     }
 }
 
@@ -129,6 +144,7 @@ struct AsyncOpenView: View {
 // AutoOpen declaration and use is the same as AsyncOpen, but in case of no internet
 // connection this will return an opened realm. 
 struct AutoOpenView: View {
+    @State var error: Error?
     @AutoOpen(appId: appId, partitionValue: partitionValue, timeout: 2000) var autoOpen
 
     var body: some View {
@@ -139,7 +155,7 @@ struct AutoOpenView: View {
             case .open(let realm):
                 ContactsListView()
                     .environment(\.realm, realm)
-            case .error:
+            case .error(let error):
                 ErrorView(error: error)
             case .progress(let progress):
                 ProgressView(progress)
@@ -149,11 +165,11 @@ struct AutoOpenView: View {
 }
 
 struct ErrorView: View {
-    var error: Error
+    @State var error: Error
     var body: some View {
-        Alert(title: Text("Error"),
-              message: Text("Operation failed with error \(error.localizedDescription)"),
-              dismissButton: .default(Text("OK")))
+        Text("Error")
+        Spacer()
+        Text(error.localizedDescription)
     }
 }
 
@@ -164,7 +180,7 @@ struct ContactsListView: View {
         List {
             ForEach(contacts) { contact in
                 NavigationLink(destination: ContactDetailView(contact: contact)) {
-                    ContactCellView(contant: contact)
+                    ContactCellView(contact: contact)
                 }
             }
         }
@@ -172,7 +188,7 @@ struct ContactsListView: View {
             Button("add") {
                 let contact = Contact()
                 contact.name = "New Contact"
-                contacts.append(contact)
+                $contacts.append(contact)
             }
         })
     }
@@ -196,22 +212,51 @@ struct ContactDetailView: View {
 
     var body: some View {
         Form {
-            Section("Info") {
+            if #available(iOS 15.0, *) {
+                Section("Info") {
+                    TextField("Name", text: $contact.name)
+                    TextField("Lastname", text: $contact.lastName)
+                    TextField("Email", text: $contact.email)
+                        .keyboardType(.emailAddress)
+                    DatePicker("Birthday", selection: $contact.birthdate, displayedComponents: [.date])
+                }
+            } else {
                 TextField("Name", text: $contact.name)
-                TextField("Lastname", text: $contact.lastname)
+                TextField("Lastname", text: $contact.lastName)
                 TextField("Email", text: $contact.email)
                     .keyboardType(.emailAddress)
-                DatePicker("Birthday", selection: $contact.birthday, displayedComponents: [.date])
+                DatePicker("Birthday", selection: $contact.birthdate, displayedComponents: [.date])
             }
-            Section("Phones") {
-                ForEach(contact.phones) { phone in
+            if #available(iOS 15.0, *) {
+                Section("Phones") {
+                    ForEach($contact.phones) { phone in
+                        HStack {
+                            Picker(selection: phone.type, label: Text("")) {
+                                ForEach(PhoneNumber.PhoneNumberType.allCases) { phoneTypes in
+                                    Text("\(phoneTypes.rawValue)").tag(phoneTypes.rawValue)
+                                }
+                            }
+                            TextField("Phone Number", text: phone.phoneNumber)
+                        }
+                    }
+                    Button {
+                        withAnimation {
+                            $contact.phones.append(PhoneNumber())
+                        }
+                    } label: {
+                        Label("Add", systemImage: "plus.app")
+                    }
+                    .tint(.red)
+                }
+            } else {
+                ForEach($contact.phones) { phone in
                     HStack {
-                        Picker(selection: $phone.type, label: Text("")) {
+                        Picker(selection: phone.type, label: Text("")) {
                             ForEach(PhoneNumber.PhoneNumberType.allCases) { phoneTypes in
-                                Text("\(phoneTypes.rawValue)").tag(index)
+                                Text("\(phoneTypes.rawValue)").tag(phoneTypes.rawValue)
                             }
                         }
-                        TextField("Phone Number", text: $phone.phoneNumber)
+                        TextField("Phone Number", text: phone.phoneNumber)
                     }
                 }
                 Button {
@@ -221,13 +266,16 @@ struct ContactDetailView: View {
                 } label: {
                     Label("Add", systemImage: "plus.app")
                 }
-                .tint(.red)
             }
-            Section("Notes") {
+            if #available(iOS 15.0, *) {
+                Section("Notes") {
+                    TextField("Notes", text: $contact.notes)
+                }
+            } else {
                 TextField("Notes", text: $contact.notes)
             }
-            .navigationTitle("Contact")
         }
+        .navigationTitle("Contact")
     }
 }
 
