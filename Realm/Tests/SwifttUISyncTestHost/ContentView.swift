@@ -87,7 +87,7 @@ class LoginHelper: ObservableObject {
     @Published var isLogged: Bool = false
     var cancellables = Set<AnyCancellable>()
 
-    func login(email: String, password: String, completion: @escaping () -> ()) {
+    func login(email: String, password: String, completion: @escaping () -> Void) {
         let appConfig = AppConfiguration(baseURL: "http://localhost:9090",
                                          transport: nil,
                                          localAppName: nil,
