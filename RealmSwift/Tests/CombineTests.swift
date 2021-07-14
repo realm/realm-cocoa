@@ -192,6 +192,26 @@ class CombineRealmTests: CombinePublisherTestCase {
         }
         wait(for: [exp], timeout: 1)
     }
+
+    func testWillChangeOnConnectionStateChange() {
+        let session = SyncSession()
+        let ex = expectation(description: "should change from publisher")
+        var changes = 0
+        let cancellable = session.objectWillChange.sink { _ in
+            changes += 1
+            if changes == 2 { // account for init
+                ex.fulfill()
+            }
+        }
+        let ex2 = expectation(description: "should change from kvo observer")
+        let kvo = session.observe(\.connectionState, changeHandler: { _,_ in
+            ex2.fulfill()
+        })
+        session.setValue(RLMSyncConnectionState.connecting.rawValue, forKey: "connectionState")
+        wait(for: [ex, ex2], timeout: 2.0)
+        cancellable.cancel()
+        kvo.invalidate()
+    }
 }
 
 // MARK: - Object

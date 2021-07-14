@@ -584,6 +584,14 @@ extension RealmKeyedCollection {
     }
 }
 
+@available(OSX 10.15, watchOS 6.0, iOS 13.0, iOSApplicationExtension 13.0, OSXApplicationExtension 10.15, tvOS 13.0, *)
+extension SyncSession: ObservableObject {
+    /// :nodoc:
+    public var objectWillChange: NSObject.KeyValueObservingPublisher<RLMSyncSession, RLMSyncConnectionState> {
+        self.publisher(for: \.connectionState)
+    }
+}
+
 // MARK: Subscriptions
 
 /// A subscription which wraps a Realm notification.
