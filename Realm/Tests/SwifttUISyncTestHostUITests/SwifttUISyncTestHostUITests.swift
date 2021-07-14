@@ -58,6 +58,7 @@ class SwifttUISyncTestHostUITests: SwiftSyncTestCase {
         let table = app.tables.firstMatch
         XCTAssertTrue(table.waitForExistence(timeout: 6))
         XCTAssertEqual(table.cells.count, self.bigObjectCount)
+        XCTAssertEqual(table.cells.count, SwiftSyncTestCase.bigObjectCount)
     }
 
     // MARK: - AutoOpen
@@ -98,5 +99,6 @@ class SwifttUISyncTestHostUITests: SwiftSyncTestCase {
         let table = app.tables.firstMatch
         XCTAssertTrue(table.waitForExistence(timeout: 6))
         XCTAssertEqual(table.cells.count, self.bigObjectCount)
+        XCTAssertEqual(table.cells.count, SwiftSyncTestCase.bigObjectCount)
     }
 }
