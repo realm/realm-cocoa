@@ -3,32 +3,108 @@
 Realm is a mobile database that runs directly inside phones, tablets or wearables.
 This repository holds the source code for the iOS, macOS, tvOS & watchOS versions of Realm Swift & Realm Objective-C.
 
-## Features
+## Why Use Realm
 
-* **Mobile-first:** Realm is the first database built from the ground up to run directly inside phones, tablets and wearables.
-* **Simple:** Data is directly [exposed as objects](https://realm.io/docs/objc/latest/#models) and [queryable by code](https://realm.io/docs/objc/latest/#queries), removing the need for ORM's riddled with performance & maintenance issues. Most of our users pick it up intuitively, getting simple apps up & running in minutes.
-* **Modern:** Realm supports relationships, generics, vectorization and Swift.
-* **Fast:** Realm is faster than even raw SQLite on common operations, while maintaining an extremely rich feature set.
+* **Intuitive to Developers:** Realm’s object-oriented data model is simple to learn, doesn’t need an ORM, and lets you write less code.
+* **Designed for Offline Use:** Realm’s local database persists data on-disk, so apps work as well offline as they do online.
+* **Built for Mobile:** Realm is fully-featured, lightweight, and efficiently uses memory, disk space, and battery life.
+
+## Object-Oriented: Streamline Your Code
+
+Realm was built for mobile developers, with simplicity in mind. The idiomatic, object-oriented data model can save you thousands of lines of code.
+
+```swift
+// Define your models like regular Swift classes
+class Dog: Object {
+    @Persisted var name: String
+    @Persisted var age: Int
+}
+class Person: Object {
+    @Persisted(primaryKey: true) var _id: String
+    @Persisted var name: String
+    @Persisted var age: Int
+    // Create relationships by pointing an Object field to another Class
+    @Persisted var dogs: List<Dog>
+}
+// Use them like regular Swift objects
+let dog = Dog()
+dog.name = "Rex"
+dog.age = 1
+print("name of dog: \(dog.name)")
+
+// Get the default Realm
+let realm = try! Realm()
+// Persist your data easily with a write transaction 
+try! realm.write {
+    realm.add(dog)
+}
+```
+## Live Objects: Build Reactive Apps
+Realm’s live objects mean data updated anywhere is automatically updated everywhere. If you need to freeze elements of your data for Reactive frameworks, you can do that, too.
+```swift
+// Open the default realm.
+let realm = try! Realm()
+
+var token: NotificationToken?
+
+let dog = Dog()
+dog.name = "Max"
+
+// Create a dog in the realm.
+try! realm.write {
+    realm.add(dog)
+}
+
+//  Set up the listener & observe object notifications.
+token = dog.observe { change in
+    switch change {
+    case .change(let properties):
+        for property in properties {
+            print("Property '\(property.name)' changed to '\(property.newValue!)'");
+        }
+    case .error(let error):
+        print("An error occurred: (error)")
+    case .deleted:
+        print("The object was deleted.")
+    }
+}
+
+// Update the dog's name to see the effect.
+try! realm.write {
+    dog.name = "Wolfie"
+}
+```
+## Fully Encrypted
+Data can be encrypted in-flight and at-rest, keeping even the most sensitive data secure.
+```swift
+// Generate a random encryption key
+var key = Data(count: 64)
+_ = key.withUnsafeMutableBytes { bytes in
+    SecRandomCopyBytes(kSecRandomDefault, 64, bytes)
+}
+
+// Add the encryption key to the config and open the realm
+let config = Realm.Configuration(encryptionKey: key)
+let realm = try Realm(configuration: config)
+
+// Use the Realm as normal
+let dogs = realm.objects(Dog.self).filter("name contains 'Fido'")
+```
+## Data Sync
+The [MongoDB Realm Sync](https://www.mongodb.com/realm/mobile/sync) service makes it simple to keep data in sync across users, devices, and your backend in real-time.
 
 ## Getting Started
 
-Please see the detailed instructions in our docs to add [Realm Objective-C](https://realm.io/docs/objc/latest/#installation) _or_ [Realm Swift](https://realm.io/docs/swift/latest/#installation) to your Xcode project.
+Please see the detailed instructions in our docs to add [Realm](https://docs.mongodb.com/realm/sdk/ios/install/) to your Xcode project.
 
 ## Documentation
 
-### Realm Objective-C
-
-The documentation can be found at [realm.io/docs/objc/latest](https://realm.io/docs/objc/latest).  
+The documentation can be found at [docs.mongodb.com/realm/sdk/ios/](https://docs.mongodb.com/realm/sdk/ios/).  
 The API reference is located at [realm.io/docs/objc/latest/api/](https://realm.io/docs/objc/latest/api/).
-
-### Realm Swift
-
-The documentation can be found at [realm.io/docs/swift/latest](https://realm.io/docs/swift/latest).  
-The API reference is located at [realm.io/docs/swift/latest/api/](https://realm.io/docs/swift/latest/api/).
 
 ## Getting Help
 
-- **Need help with your code?**: Look for previous questions with the[`realm` tag](https://stackoverflow.com/questions/tagged/realm?sort=newest) on Stack Overflow or [ask a new question](https://stackoverflow.com/questions/ask?tags=realm). For general discussion that might be considered too broad for Stack Overflow, use the [Community Forum](https://developer.mongodb.com/community/forums/tags/c/realm/9/realm-sdk).
+- **Need help with your code?**: Look for previous questions with the[`realm` tag](https://stackoverflow.com/questions/tagged/realm?sort=newest) on Stack Overflow or [ask a new question](https://stackoverflow.com/questions/ask?tags=realm). For general discussion that might be considered too broad for Stack Overflow, use the [Community Forum](https://developer.mongodb.com/community/forums/tags/c/realm-sdks/58/swift/).
 - **Have a bug to report?** [Open a GitHub issue](https://github.com/realm/realm-cocoa/issues/new). If possible, include the version of Realm, a full log, the Realm file, and a project that shows the issue.
 - **Have a feature request?** [Open a GitHub issue](https://github.com/realm/realm-cocoa/issues/new). Tell us what the feature should do and why you want the feature.
 
