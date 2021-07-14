@@ -146,6 +146,9 @@ using namespace realm;
                          arrayByAddingObjectsFromArray:allProperties];
         cls = superClass;
         superClass = class_getSuperclass(superClass);
+        
+        NSString *clsName = NSStringFromClass(cls);
+        isSwift = [RLMSwiftSupport isSwiftClassName:clsName] || [cls isSubclassOfClass:s_swiftObjectClass];
     }
     NSArray *persistedProperties = [allProperties filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(RLMProperty *property, NSDictionary *) {
         return !RLMPropertyTypeIsComputed(property.type);
