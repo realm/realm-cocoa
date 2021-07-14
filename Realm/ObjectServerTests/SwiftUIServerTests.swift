@@ -81,7 +81,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
                 .sink { asyncOpenState in
                     if case let .open(realm) = asyncOpenState {
                         XCTAssertNotNil(realm)
-                        self.checkCount(expected: self.bigObjectCount, realm, SwiftHugeSyncObject.self)
+                        self.checkCount(expected: SwiftSyncTestCase.bigObjectCount, realm, SwiftHugeSyncObject.self)
                         ex.fulfill()
                     }
                 }
@@ -235,7 +235,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
                 .sink { autoOpenState in
                     if case let .open(realm) = autoOpenState {
                         XCTAssertNotNil(realm)
-                        self.checkCount(expected: self.bigObjectCount, realm, SwiftHugeSyncObject.self)
+                        self.checkCount(expected: SwiftSyncTestCase.bigObjectCount, realm, SwiftHugeSyncObject.self)
                         ex.fulfill()
                     }
                 }

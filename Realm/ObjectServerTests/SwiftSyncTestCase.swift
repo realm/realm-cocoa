@@ -165,19 +165,19 @@ open class SwiftSyncTestCase: RLMSyncTestCase {
         }
     }
 
-    public let bigObjectCount = 2
+    public static let bigObjectCount = 2
     public func populateRealm(user: User, partitionValue: String) {
         do {
             let user = try logInUser(for: basicCredentials())
             let config = user.configuration(testName: partitionValue)
             let realm = try openRealm(configuration: config)
             try! realm.write {
-                for _ in 0..<bigObjectCount {
+                for _ in 0..<SwiftSyncTestCase.bigObjectCount {
                     realm.add(SwiftHugeSyncObject.create())
                 }
             }
             waitForUploads(for: realm)
-            checkCount(expected: bigObjectCount, realm, SwiftHugeSyncObject.self)
+            checkCount(expected: SwiftSyncTestCase.bigObjectCount, realm, SwiftHugeSyncObject.self)
         } catch {
             XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
         }

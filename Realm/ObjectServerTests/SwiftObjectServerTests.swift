@@ -436,7 +436,7 @@ class SwiftObjectServerTests: SwiftSyncTestCase {
             waitForExpectations(timeout: 10.0, handler: nil)
             ex = expectation(description: "write transaction upload")
             try realm.write {
-                for _ in 0..<bigObjectCount {
+                for _ in 0..<SwiftSyncTestCase.bigObjectCount {
                     realm.add(SwiftHugeSyncObject.create())
                 }
             }
@@ -468,7 +468,7 @@ class SwiftObjectServerTests: SwiftSyncTestCase {
             Realm.asyncOpen(configuration: config) { result in
                 switch result {
                 case .success(let realm):
-                    self.checkCount(expected: self.bigObjectCount, realm, SwiftHugeSyncObject.self)
+                    self.checkCount(expected: SwiftSyncTestCase.bigObjectCount, realm, SwiftHugeSyncObject.self)
                 case .failure(let error):
                     XCTFail("No realm on async open: \(error)")
                 }
@@ -510,7 +510,7 @@ class SwiftObjectServerTests: SwiftSyncTestCase {
             Realm.asyncOpen(configuration: config) { result in
                 switch result {
                 case .success(let realm):
-                    self.checkCount(expected: self.bigObjectCount, realm, SwiftHugeSyncObject.self)
+                    self.checkCount(expected: SwiftSyncTestCase.bigObjectCount, realm, SwiftHugeSyncObject.self)
                 case .failure(let error):
                     XCTFail("No realm on async open: \(error)")
                 }
