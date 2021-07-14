@@ -27,7 +27,6 @@ import RealmSyncTestSupport
 #endif
 
 @available(OSX 11, *)
-@objc(SwiftUIServerTests)
 class SwiftUIServerTests: SwiftSyncTestCase {
     override func tearDown() {
         cancellables.forEach { $0.cancel() }

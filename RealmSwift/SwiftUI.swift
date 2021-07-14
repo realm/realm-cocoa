@@ -770,9 +770,9 @@ public enum AsyncOpenState {
      - parameter appId: The unique identifier of your Realm app.
      - parameter partitionValue: The `BSON` value the Realm is partitioned on.
      - parameter baseConfiguration: A Base Configuration use when creating the Realm,
-       if empty the configuraion is setted to the `defaultConfiguration`
+     if empty the configuraion is setted to the `defaultConfiguration`
      - parameter timeout: The maximum number of milliseconds to allow for a connection to
-       become fully established., if empty or `nil` no connection timeout is setted.
+     become fully established., if empty or `nil` no connection timeout is setted.
      */
     public init<T: BSON>(appId: String, partitionValue: T, baseConfiguration: Realm.Configuration = Realm.Configuration.defaultConfiguration, timeout: UInt? = nil) {
         let app = App(id: appId)
@@ -781,8 +781,8 @@ public enum AsyncOpenState {
             syncTimeoutOptions.connectTimeout = timeout
             app.syncManager.timeoutOptions = syncTimeoutOptions
         }
-        if app.currentUser?.isLoggedIn ?? false,
-           let currentUser = app.currentUser {
+        if let currentUser = app.currentUser,
+           currentUser.isLoggedIn {
             asyncOpenForUser(currentUser, partitionValue: partitionValue, configuration: baseConfiguration)
         } else {
             app.objectWillChange.sink { [self] app in
@@ -894,9 +894,9 @@ public enum AsyncOpenState {
      - parameter appId: The unique identifier of your Realm app.
      - parameter partitionValue: The `BSON` value the Realm is partitioned on.
      - parameter baseConfiguration: A Base Configuration use when creating the Realm,
-       if empty the configuraion is setted to the `defaultConfiguration`
+     if empty the configuraion is setted to the `defaultConfiguration`
      - parameter timeout: The maximum number of milliseconds to allow for a connection to
-       become fully established, if empty or `nil` no connection timeout is setted.
+     become fully established, if empty or `nil` no connection timeout is setted.
      */
     public init<T: BSON>(appId: String, partitionValue: T, baseConfiguration: Realm.Configuration = Realm.Configuration.defaultConfiguration, timeout: UInt? = nil) {
         let app = App(id: appId)
@@ -905,8 +905,8 @@ public enum AsyncOpenState {
             syncTimeoutOptions.connectTimeout = timeout
             app.syncManager.timeoutOptions = syncTimeoutOptions
         }
-        if app.currentUser?.isLoggedIn ?? false,
-           let currentUser = app.currentUser {
+        if let currentUser = app.currentUser,
+           currentUser.isLoggedIn {
             asyncOpenForUser(currentUser, partitionValue: partitionValue, configuration: baseConfiguration)
         } else {
             app.objectWillChange.sink { [self] app in
