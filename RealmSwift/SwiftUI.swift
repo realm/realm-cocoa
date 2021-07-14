@@ -646,7 +646,7 @@ extension EnvironmentValues {
 }
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-private class ObservableRealmStorage: ObservableObject {
+private class ObservableAsyncOpenStorage: ObservableObject {
     var cancellables = [AnyCancellable]()
     var realm: Realm?
 
@@ -660,8 +660,6 @@ private class ObservableRealmStorage: ObservableObject {
         return Realm.asyncOpen(configuration: configuration)
             .onProgressNotification { asyncProgress in
                 let progress = Progress(totalUnitCount: 1)
-                print("Progress fraction \(asyncProgress.fractionTransferred)")
-                print("Progress \(asyncProgress.transferredBytes)")
                 if asyncProgress.isTransferComplete {
                     progress.completedUnitCount = Int64(1)
                     self.asyncOpenState = .progress(progress)
@@ -730,7 +728,7 @@ public enum AsyncOpenState {
 @available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 6.0, *)
 @propertyWrapper public struct AsyncOpen: DynamicProperty {
     @Environment(\.realm) var realm
-    @ObservedObject private var storage = ObservableRealmStorage()
+    @ObservedObject private var storage = ObservableAsyncOpenStorage()
 
     private func asyncOpenForUser<T: BSON>(_ user: User, partitionValue: T, configuration: Realm.Configuration) {
         let userConfig = user.configuration(partitionValue: partitionValue, cancelAsyncOpenOnNonFatalErrors: true)
@@ -747,6 +745,11 @@ public enum AsyncOpenState {
                 self.storage.realm = realm
                 self.storage.asyncOpenState = .open(realm)
             }.store(in: &storage.cancellables)
+    }
+
+    /// :nodoc:
+    public var projectedValue: Published<AsyncOpenState>.Publisher {
+        return storage.$asyncOpenState
     }
 
     /// :nodoc:
@@ -842,7 +845,7 @@ public enum AsyncOpenState {
 @available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 6.0, *)
 @propertyWrapper public struct AutoOpen: DynamicProperty {
     @Environment(\.realm) var realm
-    @ObservedObject private var storage = ObservableRealmStorage()
+    @ObservedObject private var storage = ObservableAsyncOpenStorage()
 
     private func asyncOpenForUser<T: BSON>(_ user: User, partitionValue: T, configuration: Realm.Configuration) {
         let userConfig = user.configuration(partitionValue: partitionValue, cancelAsyncOpenOnNonFatalErrors: true)
@@ -866,6 +869,11 @@ public enum AsyncOpenState {
                 self.storage.realm = realm
                 self.storage.asyncOpenState = .open(realm)
             }.store(in: &storage.cancellables)
+    }
+
+    /// :nodoc:
+    public var projectedValue: Published<AsyncOpenState>.Publisher {
+        return storage.$asyncOpenState
     }
 
     /// :nodoc:
