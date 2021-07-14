@@ -98,10 +98,12 @@ private func getLegacyProperties(_ object: ObjectBase, _ cls: ObjectBase.Type) -
     let indexedProperties: Set<String>
     let ignoredPropNames: Set<String>
     let columnNames = cls._realmColumnNames()
-    // FIXME: ignored properties on EmbeddedObject appear to not be supported?
     if let realmObject = object as? Object {
         indexedProperties = Set(type(of: realmObject).indexedProperties())
         ignoredPropNames = Set(type(of: realmObject).ignoredProperties())
+    } else if let realmEmbeddedObject = object as? EmbeddedObject {
+        indexedProperties = Set()
+        ignoredPropNames = Set(type(of: realmEmbeddedObject).ignoredProperties())
     } else {
         indexedProperties = Set()
         ignoredPropNames = Set()
