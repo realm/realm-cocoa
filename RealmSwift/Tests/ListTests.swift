@@ -862,4 +862,30 @@ class ListRRCMethodsTests: TestCase {
         array.replaceSubrange(subrange, with: newElements)
         compare(array: array, with: list)
     }
+    
+    func testRealmListOfStringsComparison() {
+        // Lists made from identical arrays should be equal:
+        let strings = ["a", "b", "c"]
+        let list1 = List<String>()
+        list1.append(objectsIn: strings)
+        
+        let list2 = List<String>()
+        list2.append(objectsIn: strings)
+        
+        XCTAssertTrue(list1 !== list2, "instances should not be identical")
+        XCTAssertTrue(list1 == list2, "instances should be equal by `==` operator")
+        XCTAssertTrue(list1.isEqual(list2), "instances should be equal by `isEqual` method")
+        XCTAssertTrue(Array(list1) == Array(list2), "instances converted to Swift.Array should be equal")
+        
+        // Lists made from different-length arrays should not be equal,
+        // even if the common elements are equal.
+        let strings2 = ["a", "b", "c", "d"]
+        let list3 = List<String>()
+        list3.append(objectsIn: strings2)
+        
+        XCTAssertTrue(list1 !== list3, "instances should not be identical")
+        XCTAssertFalse(list1 == list3, "instances should not be equal by `==` operator")
+        XCTAssertFalse(list1.isEqual(list3), "instances should not be equal by `isEqual` method")
+        XCTAssertFalse(Array(list1) == Array(list3), "instances converted to Swift.Array should not be equal")
+    }
 }
