@@ -293,6 +293,9 @@ private class ObservableStorage<ObservedType>: ObservableObject where ObservedTy
             if let filter = filter {
                 value = value.filter(filter)
             }
+            if let searchPredicate = searchPredicate {
+                value = value.filter(searchPredicate)
+            }
         }
 
         var sortDescriptor: SortDescriptor? {
@@ -308,6 +311,13 @@ private class ObservableStorage<ObservedType>: ObservableObject where ObservedTy
         }
 
         var configuration: Realm.Configuration? {
+            didSet {
+                didSet()
+            }
+        }
+
+        var searchString: String?
+        var searchPredicate: NSPredicate? {
             didSet {
                 didSet()
             }
@@ -328,7 +338,26 @@ private class ObservableStorage<ObservedType>: ObservableObject where ObservedTy
             storage.sortDescriptor = newValue
         }
     }
-    /// :nodoc:
+
+    @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+    public func searchByKeypathString(_ keyPathStrings: [String]) -> Binding<String> {
+        return Binding {
+            storage.searchString ?? ""
+        } set: { newValue in
+            storage.searchString = newValue
+            guard !newValue.isEmpty else {
+                storage.searchPredicate = nil
+                return
+            }
+            let predicates = keyPathStrings.compactMap {
+                return NSPredicate(format: "%K CONTAINS[c] %@", $0, newValue)
+            }
+            let predicateCompound = NSCompoundPredicate.init(type: .or, subpredicates: predicates)
+            storage.searchPredicate = predicateCompound
+        }
+    }
+
+        /// :nodoc:
     public var wrappedValue: Results<ResultType> {
         storage.configuration != nil ? storage.value.freeze() : storage.value
     }

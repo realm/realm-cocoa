@@ -313,6 +313,33 @@ class SwiftUITests: TestCase {
         XCTAssertEqual(results.wrappedValue.count, 1)
         state.projectedValue.delete()
     }
+    // MARK: - ObservedResults Search
+    @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+    func testSearchObservedResults() {
+        let fullResults = ObservedResults(SwiftUIObject.self,
+                                          configuration: inMemoryRealm(inMemoryIdentifier).configuration)
+        XCTAssertEqual(fullResults.wrappedValue.count, 0)
+        (1...20).forEach { index in
+            let object = SwiftUIObject()
+            object.str = "str_\(index)"
+            fullResults.projectedValue.append(object)
+        }
+        XCTAssertEqual(fullResults.wrappedValue.count, 20)
+
+        let searchBinding = fullResults.searchByKeypathString(["str"])
+
+        searchBinding.wrappedValue = "str"
+        XCTAssertEqual(fullResults.wrappedValue.count, 20)
+
+        searchBinding.wrappedValue = "str_5"
+        XCTAssertEqual(fullResults.wrappedValue.count, 1)
+
+        searchBinding.wrappedValue = "str_1"
+        XCTAssertEqual(fullResults.wrappedValue.count, 11)
+
+        searchBinding.wrappedValue = ""
+        XCTAssertEqual(fullResults.wrappedValue.count, 20)
+    }
     // MARK: Bind
     func testUnmanagedManagedObjectBind() {
         let object = SwiftUIObject()

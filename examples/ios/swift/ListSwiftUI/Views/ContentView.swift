@@ -182,14 +182,29 @@ struct ReminderListResultsView: View {
     @Binding var searchFilter: String
 
     var body: some View {
-        List {
-            ForEach(reminders) { list in
-                NavigationLink(destination: ReminderListView(list: list)) {
-                    ReminderListRowView(list: list).tag(list)
-                }.accessibilityIdentifier(list.name)
-            }.onDelete(perform: $reminders.remove)
-        }.onChange(of: searchFilter) { value in
-            $reminders.filter = value.isEmpty ? nil : NSPredicate(format: "name CONTAINS[c] %@", value)
+        if #available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *) {
+            List {
+                ForEach(reminders) { list in
+                    NavigationLink(destination: ReminderListView(list: list)) {
+                        ReminderListRowView(list: list).tag(list)
+                    }.accessibilityIdentifier(list.name)
+                }.onDelete(perform: $reminders.remove)
+            }
+            .searchable(text: $reminders.searchByKeypathString(["name"])) {
+                ForEach(reminders) { remindersFiltered in
+                    Text(remindersFiltered.name).searchCompletion(remindersFiltered.name)
+                }
+            }
+        } else {
+            List {
+                ForEach(reminders) { list in
+                    NavigationLink(destination: ReminderListView(list: list)) {
+                        ReminderListRowView(list: list).tag(list)
+                    }.accessibilityIdentifier(list.name)
+                }.onDelete(perform: $reminders.remove)
+            }.onChange(of: searchFilter) { value in
+                $reminders.filter = value.isEmpty ? nil : NSPredicate(format: "name CONTAINS[c] %@", value)
+            }
         }
     }
 }
@@ -255,7 +270,10 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             VStack {
-                SearchView(searchFilter: $searchFilter)
+                if #available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *) {
+                } else {
+                    SearchView(searchFilter: $searchFilter)
+                }
                 ReminderListResultsView(searchFilter: $searchFilter)
                 Spacer()
                 Footer()
