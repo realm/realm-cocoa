@@ -71,6 +71,10 @@ public final class ObjectId: RLMObjectId, Decodable {
         try! super.init(string: str.withUTF8Buffer { String(decoding: $0, as: UTF8.self) })
     }
 
+	enum CodingKeys: String, CodingKey {
+		case oid = "$oid"
+	}
+	
     /// Creates a new ObjectId by decoding from the given decoder.
     ///
     /// This initializer throws an error if reading from the decoder fails, or
@@ -78,8 +82,13 @@ public final class ObjectId: RLMObjectId, Decodable {
     ///
     /// - Parameter decoder: The decoder to read data from.
     public required init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        try super.init(string: container.decode(String.self))
+		let container = try decoder.container(keyedBy: CodingKeys.self)
+		if let str = try? container.decode(String.self, forKey: .oid) {
+			try super.init(string: str)
+		} else {
+			let container = try decoder.singleValueContainer()
+			try super.init(string: container.decode(String.self))
+		}
     }
 }
 
