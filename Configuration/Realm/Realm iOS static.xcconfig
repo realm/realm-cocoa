@@ -1,6 +1,6 @@
 #include "Realm.xcconfig"
 
-SUPPORTED_PLATFORMS = iphoneos iphonesimulator;
+SUPPORTED_PLATFORMS = macosx iphoneos iphonesimulator;
 TARGETED_DEVICE_FAMILY = 1,2;
 IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 
