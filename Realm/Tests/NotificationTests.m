@@ -1314,14 +1314,28 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
     [super tearDown];
 }
 
+- (void)testObserveUnmanagedObject {
+    AllTypesObject *unmanagedObj = [[AllTypesObject alloc] init];
+    XCTAssertThrows([unmanagedObj addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {}]);
+    XCTAssertThrows([unmanagedObj addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {} keyPaths:@[@"boolCol"]]);
+}
+
 - (void)testDeleteObservedObject {
-    XCTestExpectation *expectation = [self expectationWithDescription:@""];
-    RLMNotificationToken *token = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+    XCTestExpectation *expectation0 = [self expectationWithDescription:@"delete observed object"];
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"delete observed object"];
+
+    RLMNotificationToken *token0 = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
         XCTAssertTrue(deleted);
         XCTAssertNil(error);
         XCTAssertNil(changes);
-        [expectation fulfill];
+        [expectation0 fulfill];
     }];
+    RLMNotificationToken *token1 = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+        XCTAssertTrue(deleted);
+        XCTAssertNil(error);
+        XCTAssertNil(changes);
+        [expectation1 fulfill];
+    } keyPaths:@[@"boolCol"]];
 
     RLMRealm *realm = _obj.realm;
     [realm beginWriteTransaction];
@@ -1329,7 +1343,7 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
     [realm commitWriteTransaction];
 
     [self waitForExpectationsWithTimeout:2.0 handler:nil];
-    [token invalidate];
+    [token0 invalidate];
 }
 
 - (void)testChangeAllPropertyTypes {
@@ -1564,6 +1578,131 @@ static void ExpectChange(id self, NSArray *deletions, NSArray *insertions,
         [self waitForExpectationsWithTimeout:2.0 handler:nil];
     }
     [token invalidate];
+}
+
+#pragma mark - Object Notification Key Path Filtering
+
+- (void)testModifyObservedKeyPathLocally {
+    XCTestExpectation *ex = [self expectationWithDescription:@"change notification"];
+    RLMNotificationToken *token = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+        XCTAssertFalse(deleted);
+        XCTAssertNil(error);
+        XCTAssertEqual(changes.count, 1U);
+        RLMPropertyChange *prop = changes[0];
+        XCTAssertEqualObjects(prop.name, @"boolCol");
+        [ex fulfill];
+    } keyPaths:@[@"boolCol"]];
+
+    [_obj.realm beginWriteTransaction];
+    XCTAssertNotEqual(_obj.boolCol, [_values[@"boolCol"] boolValue]);
+    _obj.boolCol = [_values[@"boolCol"] boolValue];
+    [_obj.realm commitWriteTransaction];
+    [self waitForExpectationsWithTimeout:0.1 handler:nil];
+}
+
+- (void)testModifyUnobservedKeyPathLocally {
+    XCTestExpectation *ex = [self expectationWithDescription:@"no change notification"];
+    ex.inverted = true;
+    RLMNotificationToken *token = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+        [ex fulfill];
+    } keyPaths:@[@"boolCol"]];
+
+    [_obj.realm beginWriteTransaction];
+    _obj.intCol = _obj.intCol + _obj.intCol;
+    [_obj.realm commitWriteTransaction];
+    [self waitForExpectationsWithTimeout:0.1 handler:nil];
+}
+
+- (void)testModifyObservedKeyPathRemotely {
+    XCTestExpectation *ex = [self expectationWithDescription:@"change notification"];
+    RLMNotificationToken *token = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+        XCTAssertFalse(deleted);
+        XCTAssertNil(error);
+        XCTAssertEqual(changes.count, 1U);
+        RLMPropertyChange *prop = changes[0];
+        XCTAssertEqualObjects(prop.name, @"boolCol");
+        [ex fulfill];
+    } keyPaths:@[@"boolCol"]];
+
+    [self dispatchAsync:^{
+        RLMRealm *realm = [RLMRealm defaultRealm];
+        AllTypesObject *obj = [[AllTypesObject allObjectsInRealm:realm] firstObject];
+        [realm beginWriteTransaction];
+        XCTAssertNotEqual(obj.boolCol, [_values[@"boolCol"] boolValue]);
+        obj.boolCol = [_values[@"boolCol"] boolValue];
+        [realm commitWriteTransaction];
+    }];
+    [self waitForExpectationsWithTimeout:0.1 handler:nil];
+}
+
+- (void)testModifyUnobservedKeyPathRemotely {
+    XCTestExpectation *ex = [self expectationWithDescription:@"no change notification"];
+    ex.inverted = true;
+
+    RLMNotificationToken *token = [_obj addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+        [ex fulfill];
+    } keyPaths:@[@"boolCol"]];
+
+    [self dispatchAsync:^{
+        RLMRealm *realm = [RLMRealm defaultRealm];
+        AllTypesObject *obj = [[AllTypesObject allObjectsInRealm:realm] firstObject];
+        [realm beginWriteTransaction];
+        obj.intCol = obj.intCol + obj.intCol;
+        [realm commitWriteTransaction];
+    }];
+    [self waitForExpectationsWithTimeout:0.1 handler:nil];
+}
+
+- (void)testModifyObservedKeyPathArrayProperty {
+    XCTestExpectation *ex = [self expectationWithDescription:@"change notification"];
+
+    RLMRealm *realm = RLMRealm.defaultRealm;
+    [realm beginWriteTransaction];
+    NSString *name = CompanyObject.className;
+    CompanyObject *company = [CompanyObject createInRealm:realm withValue:@{}];
+    EmployeeObject *employee = [EmployeeObject createInRealm:realm withValue:@{@"age": @30, @"hired": @NO}];
+    [company.employees addObject:employee];
+    [realm commitWriteTransaction];
+
+    RLMNotificationToken *token = [company addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+        XCTAssertFalse(deleted);
+        XCTAssertNil(error);
+        XCTAssertEqual(changes.count, 1U);
+
+        for (RLMPropertyChange *prop in changes) {
+            XCTAssertEqualObjects(prop.name, @"employees");
+            XCTAssertFalse(prop.previousValue);
+            XCTAssertFalse(prop.value); // Observing an array will lead to NSNull here.
+        }
+        [ex fulfill];
+    } keyPaths:@[@"employees.hired"]];
+
+    [realm beginWriteTransaction];
+    employee.hired = true;
+    [realm commitWriteTransaction];
+    [self waitForExpectationsWithTimeout:0.1 handler:nil];
+}
+
+- (void)testModifyUnobservedKeyPathArrayProperty {
+    XCTestExpectation *ex = [self expectationWithDescription:@"no change notification"];
+    ex.inverted = true;
+
+    RLMRealm *realm = RLMRealm.defaultRealm;
+    [realm beginWriteTransaction];
+    NSString *name = CompanyObject.className;
+    CompanyObject *company = [CompanyObject createInRealm:realm withValue:@{}];
+    EmployeeObject *employee = [EmployeeObject createInRealm:realm withValue:@{@"age": @30, @"hired": @NO}];
+    [company.employees addObject:employee];
+    [realm commitWriteTransaction];
+
+    RLMNotificationToken *token = [company addNotificationBlock:^(BOOL deleted, NSArray *changes, NSError *error) {
+        [ex fulfill];
+    } keyPaths:@[@"employees.hired"]];
+
+    [realm beginWriteTransaction];
+    employee.age = 42;
+    [realm commitWriteTransaction];
+    [self waitForExpectationsWithTimeout:0.1 handler:nil];
 }
 
 @end

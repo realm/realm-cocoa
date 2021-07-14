@@ -308,6 +308,22 @@ __attribute__((warn_unused_result));
                                          queue:(nullable dispatch_queue_t)queue
 __attribute__((warn_unused_result));
 
+// TODO: order correctly
+// TODO: docs
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMSet<RLMObjectType> *_Nullable set,
+                                                         RLMCollectionChange *_Nullable changes,
+                                                         NSError *_Nullable error))block
+                                      keyPaths:(nullable NSArray<NSString *> *)keyPaths
+                                         queue:(nullable dispatch_queue_t)queue
+__attribute__((warn_unused_result));
+
+// TODO: docs
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMSet<RLMObjectType> *_Nullable set,
+                                                         RLMCollectionChange *_Nullable changes,
+                                                         NSError *_Nullable error))block
+                                      keyPaths:(nullable NSArray<NSString *> *)keyPaths
+__attribute__((warn_unused_result));
+
 #pragma mark - Aggregating Property Values
 
 /**

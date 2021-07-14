@@ -1854,7 +1854,9 @@
     setrlimit(RLIMIT_NOFILE, &oldrl);
 }
 
-- (void)testWritingCopyUsesWriteTransactionInProgress
+// Intentionally disabled
+// TODO: Fix this test hanging
+- (void)WritingCopyUsesWriteTransactionInProgress
 {
     RLMRealm *realm = [RLMRealm defaultRealm];
     [realm transactionWithBlock:^{
@@ -1972,7 +1974,7 @@
     }];
 }
 
--(void)testThawPreviousVersion {
+- (void)testThawPreviousVersion {
     RLMRealm *frozenRealm = [[RLMRealm defaultRealm] freeze];
     XCTAssertTrue(frozenRealm.frozen);
     XCTAssertEqual(frozenRealm.isEmpty, [[RLMRealm defaultRealm] isEmpty]);

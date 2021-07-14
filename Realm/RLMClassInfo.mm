@@ -76,6 +76,20 @@ realm::ColKey RLMClassInfo::tableColumn(RLMProperty *property) const {
     return objectSchema->persisted_properties[property.index].column_key;
 }
 
+realm::ColKey RLMClassInfo::computedTableColumn(RLMProperty *property) const {
+    // Retrieve the table key and class info for the origin property
+    // that corresponds to the target property.
+    RLMClassInfo& originInfo = realm->_info[property.objectClassName];
+    TableKey originTableKey = originInfo.objectSchema->table_key;
+
+    TableRef originTable = realm.group.get_table(originTableKey);
+    // Get the column key for origin's forward link that links to the property on the target.
+    ColKey forwardLinkKey = originInfo.tableColumn(property.linkOriginPropertyName);
+
+    // The column key opposite of the origin's forward link is the target's backlink property.
+    return originTable->get_opposite_column(forwardLinkKey);
+}
+
 RLMClassInfo &RLMClassInfo::linkTargetType(size_t propertyIndex) {
     return realm->_info[rlmObjectSchema.properties[propertyIndex].objectClassName];
 }

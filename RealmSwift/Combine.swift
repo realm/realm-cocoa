@@ -67,6 +67,9 @@ public protocol RealmSubscribable {
         -> NotificationToken where S: Subscriber, S.Input == Self, S.Failure == Error
     // swiftlint:enable identifier_name
     /// :nodoc:
+    func _observe<S>(_ subscriber: S, keyPaths: [String]?)
+        -> NotificationToken where S: Subscriber, S.Input == Void, S.Failure == Never
+    /// :nodoc:
     func _observe<S>(_ subscriber: S)
         -> NotificationToken where S: Subscriber, S.Input == Void, S.Failure == Never
 }
@@ -446,7 +449,7 @@ extension EmbeddedObject: ObservableObject {
 @available(OSX 10.15, watchOS 6.0, iOS 13.0, iOSApplicationExtension 13.0, OSXApplicationExtension 10.15, tvOS 13.0, *)
 extension ObjectBase: RealmSubscribable {
     /// :nodoc:
-    // swiftlint:disable:next identifier_name
+    // swiftlint:disable identifier_name
     public func _observe<S>(on queue: DispatchQueue?, _ subscriber: S) -> NotificationToken
         where S.Input: ObjectBase, S: Subscriber, S.Failure == Error {
         return _observe(on: queue) { (change: ObjectChange<S.Input>) in
@@ -460,11 +463,15 @@ extension ObjectBase: RealmSubscribable {
             }
         }
     }
-
     /// :nodoc:
     public func _observe<S: Subscriber>(_ subscriber: S) -> NotificationToken where S.Input == Void, S.Failure == Never {
         return _observe { _ in _ = subscriber.receive() }
     }
+    /// :nodoc:
+    public func _observe<S>(_ subscriber: S, keyPaths: [String]?) -> NotificationToken where S: Subscriber, S.Failure == Never, S.Input == Void {
+        return _observe(keyPaths: keyPaths, { _ in _ = subscriber.receive()})
+    }
+    // swiftlint:enable identifier_name
 }
 
 // MARK: - List
@@ -532,11 +539,11 @@ extension Results: RealmSubscribable {
 @available(OSX 10.15, watchOS 6.0, iOS 13.0, iOSApplicationExtension 13.0, OSXApplicationExtension 10.15, tvOS 13.0, *)
 extension RealmCollection {
     /// :nodoc:
-    // swiftlint:disable:next identifier_name
+    // swiftlint:disable identifier_name
     public func _observe<S>(on queue: DispatchQueue? = nil, _ subscriber: S)
         -> NotificationToken where S: Subscriber, S.Input == Self, S.Failure == Error {
             // FIXME: we could skip some pointless work in converting the changeset to the Swift type here
-            return observe(on: queue) { change in
+        return observe(keyPaths: nil, on: queue) { change in
                 switch change {
                 case .initial(let collection):
                     _ = subscriber.receive(collection)
@@ -550,8 +557,14 @@ extension RealmCollection {
 
     /// :nodoc:
     public func _observe<S: Subscriber>(_ subscriber: S) -> NotificationToken where S.Input == Void, S.Failure == Never {
-        return observe(on: nil) { _ in _ = subscriber.receive() }
+        return observe(keyPaths: nil, on: nil) { _ in _ = subscriber.receive() }
     }
+    /// :nodoc:
+    public func _observe<S: Subscriber>(_ subscriber: S, keyPaths: [String]? = nil) -> NotificationToken where S.Input == Void, S.Failure == Never {
+        return observe(keyPaths: keyPaths, on: nil) { _ in _ = subscriber.receive() }
+    }
+    // swiftlint:enable identifier_name
+
 }
 
 @available(OSX 10.15, watchOS 6.0, iOS 13.0, iOSApplicationExtension 13.0, OSXApplicationExtension 10.15, tvOS 13.0, *)
@@ -566,7 +579,7 @@ extension RealmKeyedCollection {
     public func _observe<S>(on queue: DispatchQueue? = nil, _ subscriber: S)
         -> NotificationToken where S: Subscriber, S.Input == Self, S.Failure == Error {
             // FIXME: we could skip some pointless work in converting the changeset to the Swift type here
-            return observe(on: queue) { change in
+            return observe(keyPaths: nil, on: queue) { change in
                 switch change {
                 case .initial(let collection):
                     _ = subscriber.receive(collection)
@@ -580,7 +593,12 @@ extension RealmKeyedCollection {
 
     /// :nodoc:
     public func _observe<S: Subscriber>(_ subscriber: S) -> NotificationToken where S.Input == Void, S.Failure == Never {
-        return observe(on: nil) { _ in _ = subscriber.receive() }
+        return observe(keyPaths: nil, on: nil) { _ in _ = subscriber.receive() }
+    }
+    
+    /// :nodoc:
+    public func _observe<S: Subscriber>(_ subscriber: S, keyPaths: [String]? = nil) -> NotificationToken where S.Input == Void, S.Failure == Never {
+        return observe(keyPaths: keyPaths, on: nil) { _ in _ = subscriber.receive() }
     }
 }
 
@@ -1403,7 +1421,7 @@ public enum RealmPublishers {
 
         /// :nodoc:
         public func receive<S>(subscriber: S) where S: Subscriber, S.Failure == Never, Output == S.Input {
-            let token = self.collection.observe(on: self.queue) { change in
+            let token = self.collection.observe(keyPaths: nil, on: self.queue) { change in
                 _ = subscriber.receive(change)
             }
             subscriber.receive(subscription: ObservationSubscription(token: token))
@@ -1484,7 +1502,7 @@ public enum RealmPublishers {
 
         /// :nodoc:
         public func receive<S>(subscriber: S) where S: Subscriber, S.Failure == Never, Output == S.Input {
-            let token = self.collection.observe(on: self.queue) { change in
+            let token = self.collection.observe(keyPaths: nil, on: self.queue) { change in
                 _ = subscriber.receive(change)
             }
             subscriber.receive(subscription: ObservationSubscription(token: token))
@@ -1562,7 +1580,7 @@ public enum RealmPublishers {
 
         /// :nodoc:
         public func receive<S>(subscriber: S) where S: Subscriber, S.Failure == Never, Output == S.Input {
-            let token = self.collection.observe(on: self.queue) { change in
+            let token = self.collection.observe(keyPaths: nil, on: self.queue) { change in
                 _ = subscriber.receive(change)
             }
             tokenParent[keyPath: tokenKeyPath] = token
@@ -1641,7 +1659,7 @@ public enum RealmPublishers {
 
         /// :nodoc:
         public func receive<S>(subscriber: S) where S: Subscriber, S.Failure == Never, Output == S.Input {
-            let token = self.collection.observe(on: self.queue) { change in
+            let token = self.collection.observe(keyPaths: nil, on: self.queue) { change in
                 _ = subscriber.receive(change)
             }
             tokenParent[keyPath: tokenKeyPath] = token

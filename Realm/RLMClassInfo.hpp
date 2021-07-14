@@ -84,6 +84,13 @@ public:
     // persisted property.
     realm::ColKey tableColumn(NSString *propertyName) const;
     realm::ColKey tableColumn(RLMProperty *property) const;
+    // Get the table column key for the given computed property. The property must be a valid
+    // computed property.
+    // Subscripting a `realm::ObjectSchema->computed_properties[property.index]`
+    // does not return a valid colKey, unlike subscripting persisted_properties.
+    // This method retrieves a valid column key for computed properties by
+    // getting the opposite table column of the origin's forward link.
+    realm::ColKey computedTableColumn(RLMProperty *property) const;
 
     // Get the info for the target of the link at the given property index.
     RLMClassInfo &linkTargetType(size_t propertyIndex);

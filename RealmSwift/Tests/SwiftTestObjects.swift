@@ -258,7 +258,6 @@ class SwiftOptionalDefaultValuesObject: Object {
     let optDoubleCol = RealmOptional<Double>(3.3)
     let optBoolCol = RealmOptional<Bool>(true)
     @objc dynamic var optObjectCol: SwiftBoolObject? = SwiftBoolObject(value: [true])
-    //    let arrayCol = List<SwiftBoolObject?>()
 
     class func defaultValues() -> [String: Any] {
         return [
@@ -344,6 +343,7 @@ class SwiftEmployeeObject: Object {
 }
 
 class SwiftCompanyObject: Object {
+    @objc dynamic var name = ""
     let employees = List<SwiftEmployeeObject>()
     let employeeSet = MutableSet<SwiftEmployeeObject>()
     let employeeMap = Map<String, SwiftEmployeeObject?>()
@@ -363,8 +363,11 @@ class SwiftMutableSetPropertyObject: Object {
 
 class SwiftMapPropertyObject: Object {
     @objc dynamic var name = ""
+    // TODO: rename
     let map = Map<String, SwiftStringObject?>()
     let intMap = Map<String, SwiftIntObject?>()
+    let objMap = Map<String, SwiftObject?>()
+    let dogMap = Map<String, SwiftDogObject?>()
 }
 
 class SwiftDoubleListOfSwiftObject: Object {

@@ -37,3 +37,5 @@ realm::Query RLMPredicateToQuery(NSPredicate *predicate, RLMObjectSchema *object
 
 // return property - throw for invalid column name
 RLMProperty *RLMValidatedProperty(RLMObjectSchema *objectSchema, NSString *columnName);
+
+void RLMPrecondition(bool condition, NSString *name, NSString *format, ...);

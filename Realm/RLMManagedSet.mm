@@ -532,10 +532,22 @@ static void ensureInWriteTransaction(NSString *message, RLMManagedSet *set, RLMM
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmismatched-parameter-types"
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMSet *, RLMCollectionChange *, NSError *))block {
-    return RLMAddNotificationBlock(self, block, nil);
+    return RLMAddNotificationBlock(self, nil, block, nil);
 }
 - (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMSet *, RLMCollectionChange *, NSError *))block queue:(dispatch_queue_t)queue {
-    return RLMAddNotificationBlock(self, block, queue);
+    return RLMAddNotificationBlock(self, nil, block, queue);
+}
+// TODO: need keypaths version
+// TODO: ManagedSet addNotificationBlock and RLMAddNotificationBlock should have similar parameter ordering.
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMSet *, RLMCollectionChange *, NSError *))block
+                                      keyPaths:(nullable NSArray<NSString *> *)keyPaths
+                                         queue:(nullable dispatch_queue_t)queue {
+    return RLMAddNotificationBlock(self, keyPaths, block, queue);
+}
+
+- (RLMNotificationToken *)addNotificationBlock:(void (^)(RLMSet *, RLMCollectionChange *, NSError *))block
+                                      keyPaths:(nullable NSArray<NSString *> *)keyPaths {
+    return RLMAddNotificationBlock(self, keyPaths, block, nil);
 }
 #pragma clang diagnostic pop
 

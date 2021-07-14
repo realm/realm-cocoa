@@ -558,9 +558,18 @@ struct ObjectChangeCallbackWrapper {
             return;
         }
 
+        // FIXME: It's possible for the column key of a persisted property
+        // to equal the column key of a computed property.
         auto properties = [NSMutableArray new];
         for (RLMProperty *property in object->_info->rlmObjectSchema.properties) {
-            if (c.columns.count(object->_info->tableColumn(property).value)) {
+            auto columnKey = object->_info->tableColumn(property).value;
+            if (c.columns.count(columnKey)) {
+                [properties addObject:property.name];
+            }
+        }
+        for (RLMProperty *property in object->_info->rlmObjectSchema.computedProperties) {
+            auto columnKey = object->_info->computedTableColumn(property).value;
+            if (c.columns.count(columnKey)) {
                 [properties addObject:property.name];
             }
         }
@@ -670,6 +679,7 @@ struct ObjectChangeCallbackWrapper {
 - (void)addNotificationBlock:(RLMObjectNotificationCallback)block
          threadSafeReference:(RLMThreadSafeReference *)tsr
                       config:(RLMRealmConfiguration *)config
+                    keyPaths:(KeyPathArray)keyPaths
                        queue:(dispatch_queue_t)queue {
     std::lock_guard<std::mutex> lock(_mutex);
     if (!_realm) {
@@ -686,26 +696,30 @@ struct ObjectChangeCallbackWrapper {
     RLMObjectBase *obj = [realm resolveThreadSafeReference:tsr];
 
     _object = realm::Object(obj->_realm->_realm, *obj->_info->objectSchema, obj->_row);
-    _token = _object.add_notification_callback(ObjectChangeCallbackWrapper{block, obj});
+    _token = _object.add_notification_callback(ObjectChangeCallbackWrapper{block, obj}, keyPaths);
 }
 
-- (void)addNotificationBlock:(RLMObjectNotificationCallback)block object:(RLMObjectBase *)obj {
+- (void)addNotificationBlock:(RLMObjectNotificationCallback)block object:(RLMObjectBase *)obj keyPaths:(KeyPathArray)keyPaths {
     _object = realm::Object(obj->_realm->_realm, *obj->_info->objectSchema, obj->_row);
     _realm = obj->_realm;
-    _token = _object.add_notification_callback(ObjectChangeCallbackWrapper{block, obj});
+    _token = _object.add_notification_callback(ObjectChangeCallbackWrapper{block, obj}, keyPaths);
 }
 
-RLMNotificationToken *RLMObjectBaseAddNotificationBlock(RLMObjectBase *obj, dispatch_queue_t queue,
+RLMNotificationToken *RLMObjectBaseAddNotificationBlock(RLMObjectBase *obj,
+                                                        NSArray<NSString *> *keyPaths,
+                                                        dispatch_queue_t queue,
                                                         RLMObjectNotificationCallback block) {
     if (!obj->_realm) {
         @throw RLMException(@"Only objects which are managed by a Realm support change notifications");
     }
 
+    KeyPathArray keyPathArray = KeyPathArrayFromStringArray(obj.realm, obj.realm.schema, obj->_objectSchema, obj->_info, keyPaths);
+
     if (!queue) {
         [obj->_realm verifyNotificationsAreSupported:true];
         auto token = [[RLMObjectNotificationToken alloc] init];
         token->_realm = obj->_realm;
-        [token addNotificationBlock:block object:obj];
+        [token addNotificationBlock:block object:obj keyPaths:keyPathArray];
         return token;
     }
 
@@ -715,7 +729,7 @@ RLMNotificationToken *RLMObjectBaseAddNotificationBlock(RLMObjectBase *obj, disp
     RLMRealmConfiguration *config = obj->_realm.configuration;
     dispatch_async(queue, ^{
         @autoreleasepool {
-            [token addNotificationBlock:block threadSafeReference:tsr config:config queue:queue];
+            [token addNotificationBlock:block threadSafeReference:tsr config:config keyPaths:keyPathArray queue:queue];
         }
     });
     return token;
@@ -723,8 +737,8 @@ RLMNotificationToken *RLMObjectBaseAddNotificationBlock(RLMObjectBase *obj, disp
 
 @end
 
-RLMNotificationToken *RLMObjectAddNotificationBlock(RLMObjectBase *obj, RLMObjectChangeBlock block, dispatch_queue_t queue) {
-    return RLMObjectBaseAddNotificationBlock(obj, queue, ^(RLMObjectBase *, NSArray<NSString *> *propertyNames,
+RLMNotificationToken *RLMObjectAddNotificationBlock(RLMObjectBase *obj, NSArray<NSString *> *keyPaths, dispatch_queue_t queue,RLMObjectChangeBlock block) {
+    return RLMObjectBaseAddNotificationBlock(obj, keyPaths, queue, ^(RLMObjectBase *, NSArray<NSString *> *propertyNames,
                                                            NSArray *oldValues, NSArray *newValues, NSError *error) {
         if (error) {
             block(false, nil, error);

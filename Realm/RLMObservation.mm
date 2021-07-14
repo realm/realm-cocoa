@@ -23,7 +23,9 @@
 #import "RLMObjectSchema_Private.hpp"
 #import "RLMObject_Private.hpp"
 #import "RLMProperty_Private.h"
+#import "RLMQueryUtil.hpp"
 #import "RLMRealm_Private.hpp"
+#import "RLMSchema_Private.h"
 #import "RLMSet_Private.hpp"
 #import "RLMSwiftCollectionBase.h"
 #import "RLMSwiftValueStorage.h"
@@ -550,3 +552,74 @@ void RLMDidChange(std::vector<realm::BindingContext::ObserverState> const& obser
         static_cast<RLMObservationInfo *>(info)->didChange(RLMInvalidatedKey);
     }
 }
+
+KeyPath KeyPathFromString(RLMRealm *realm,
+                          RLMSchema *schema,
+                          RLMObjectSchema *rlmObjectSchema,
+                          RLMClassInfo *info,
+                          NSString *keyPath) {
+    RLMProperty *property;
+    KeyPath keyPairs;
+
+    NSUInteger start = 0, length = keyPath.length, end = NSNotFound;
+    do {
+        end = [keyPath rangeOfString:@"." options:0 range:{start, length - start}].location;
+        NSString *propertyName = [keyPath substringWithRange:{start, end == NSNotFound ? length - start : end - start}];
+        property = rlmObjectSchema[propertyName];
+        RLMPrecondition(property, @"Invalid property name",
+                        @"Property '%@' not found in object of type '%@'",
+                        propertyName, rlmObjectSchema.className);
+
+        if (end != NSNotFound) {
+            RLMPrecondition(property.type == RLMPropertyTypeObject || property.type == RLMPropertyTypeLinkingObjects,
+                            @"Invalid value", @"Property '%@' is not a link in object of type '%@'",
+                            propertyName, rlmObjectSchema.className);
+            REALM_ASSERT(property.objectClassName);
+
+            TableKey tk = info->objectSchema->table_key;
+            ColKey ck;
+            if (property.type == RLMPropertyTypeObject) {
+                ck = info->tableColumn(property.columnName);
+                info = &realm->_info[property.objectClassName];
+            } else if (property.type == RLMPropertyTypeLinkingObjects) {
+                ck = info->computedTableColumn(property);
+                info = &realm->_info[property.objectClassName];
+            } else {
+                // This branch should never be reached. This case should be
+                // caught by the precondition above.
+                RLMException(@"Property '%@' is not a link in object of type '%@'",
+                             propertyName, rlmObjectSchema.className);
+            }
+
+            keyPairs.push_back(std::make_pair(tk, ck));
+            rlmObjectSchema = schema[property.objectClassName];
+        }
+
+        start = end + 1;
+    } while (end != NSNotFound);
+
+    TableKey tk = info->objectSchema->table_key;
+    ColKey ck;
+    if (property.type == RLMPropertyTypeLinkingObjects) {
+        ck = info->computedTableColumn(property);
+    } else {
+        ck = info->tableColumn(property.columnName);
+    }
+    keyPairs.push_back(std::make_pair(tk, ck));
+    return keyPairs;
+}
+
+// Some parameters ultimately not used.
+// TODO: clean up unused parameters
+KeyPathArray KeyPathArrayFromStringArray(RLMRealm *realm,
+                                         RLMSchema *schema,
+                                         RLMObjectSchema *objectSchema,
+                                         RLMClassInfo *info,
+                                         NSArray<NSString *> *keyPaths) {
+    KeyPathArray keyPathArray;
+    for (NSString *keyPath in keyPaths) {
+        keyPathArray.push_back(KeyPathFromString(realm ,schema, objectSchema, info, keyPath));
+    }
+    return keyPathArray;
+}
+

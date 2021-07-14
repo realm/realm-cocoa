@@ -275,9 +275,9 @@ public protocol RealmKeyedCollection: Sequence, ThreadConfined, CustomStringConv
      - parameter block: The block to be called whenever a change occurs.
      - returns: A token which must be held for as long as you want updates to be delivered.
      */
-    func observe(on queue: DispatchQueue?,
-                 _ block: @escaping (RealmMapChange<Self>) -> Void)
-    -> NotificationToken
+    func observe(keyPaths: [String]?,
+                 on queue: DispatchQueue?,
+                 _ block: @escaping (RealmMapChange<Self>) -> Void) -> NotificationToken
 
     // MARK: Frozen Objects
 

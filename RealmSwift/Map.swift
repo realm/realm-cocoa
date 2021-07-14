@@ -430,10 +430,11 @@ public final class Map<Key, Value>: RLMSwiftCollectionBase where Key: _MapKey, V
      - parameter block: The block to be called whenever a change occurs.
      - returns: A token which must be held for as long as you want updates to be delivered.
      */
-    public func observe(on queue: DispatchQueue?,
+    public func observe(keyPaths: [String]? = nil,
+                        on queue: DispatchQueue? = nil,
                         _ block: @escaping (RealmMapChange<Map>) -> Void)
     -> NotificationToken {
-        return rlmDictionary.addNotificationBlock(wrapDictionaryObserveBlock(block), queue: queue)
+        return rlmDictionary.addNotificationBlock(wrapDictionaryObserveBlock(block), keyPaths: keyPaths, queue: queue)
     }
 
     // MARK: Frozen Objects

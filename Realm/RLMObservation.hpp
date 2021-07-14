@@ -20,6 +20,7 @@
 
 #import <realm/obj.hpp>
 #import <realm/object-store/binding_context.hpp>
+#import <realm/object-store/impl/deep_change_checker.hpp>
 #import <realm/table.hpp>
 
 @class RLMObjectBase, RLMRealm, RLMSchema, RLMProperty, RLMObjectSchema;
@@ -29,6 +30,8 @@ class RLMSchemaInfo;
 namespace realm {
     class History;
     class SharedGroup;
+    struct TableKey;
+    struct ColKey;
 }
 
 // RLMObservationInfo stores all of the KVO-related data for RLMObjectBase and
@@ -178,3 +181,18 @@ private:
 std::vector<realm::BindingContext::ObserverState> RLMGetObservedRows(RLMSchemaInfo const& schema);
 void RLMWillChange(std::vector<realm::BindingContext::ObserverState> const& observed, std::vector<void *> const& invalidated);
 void RLMDidChange(std::vector<realm::BindingContext::ObserverState> const& observed, std::vector<void *> const& invalidated);
+
+// ???: Will not using RLM conflict with other libraries?
+realm::KeyPath KeyPathFromString(RLMRealm *realm,
+                                 RLMSchema *schema,
+                                 RLMObjectSchema *objectSchema,
+                                 RLMClassInfo *info,
+                                 NSString *keyPath);
+
+// KeyPathFromString converts a string keypath to a vector of key
+// pairs to be used for deep change checking across links.
+realm::KeyPathArray KeyPathArrayFromStringArray(RLMRealm *realm,
+                                                RLMSchema *schema,
+                                                RLMObjectSchema *objectSchema,
+                                                RLMClassInfo *info,
+                                                NSArray<NSString *> *keyPath);

@@ -42,11 +42,14 @@ NSString * const RLMUnsupportedTypesFoundInPropertyComparisonException = @"RLMUn
 NSString * const RLMPropertiesComparisonTypeMismatchReason = @"Property type mismatch between %@ and %@";
 NSString * const RLMUnsupportedTypesFoundInPropertyComparisonReason = @"Comparison between %@ and %@";
 
-namespace {
+// check a precondition and throw an exception if it is not met
+// this should be used if the condition being false indicates a bug in the caller
+// of the function checking its preconditions
+void RLMPrecondition(bool condition, NSString *name, NSString *format, ...) {
+    if (__builtin_expect(condition, 1)) {
+        return;
+    }
 
-// small helper to create the many exceptions thrown when parsing predicates
-[[gnu::cold]] [[noreturn]]
-void throwException(NSString *name, NSString *format, ...) {
     va_list args;
     va_start(args, format);
     NSString *reason = [[NSString alloc] initWithFormat:format arguments:args];
@@ -55,14 +58,11 @@ void throwException(NSString *name, NSString *format, ...) {
     @throw [NSException exceptionWithName:name reason:reason userInfo:nil];
 }
 
-// check a precondition and throw an exception if it is not met
-// this should be used iff the condition being false indicates a bug in the caller
-// of the function checking its preconditions
-void RLMPrecondition(bool condition, NSString *name, NSString *format, ...) {
-    if (__builtin_expect(condition, 1)) {
-        return;
-    }
+namespace {
 
+// small helper to create the many exceptions thrown when parsing predicates
+[[gnu::cold]] [[noreturn]]
+void throwException(NSString *name, NSString *format, ...) {
     va_list args;
     va_start(args, format);
     NSString *reason = [[NSString alloc] initWithFormat:format arguments:args];
