@@ -3,9 +3,8 @@ x.y.z Release notes (yyyy-MM-dd)
 ### Enhancements
 * Add two new property wrappers for opening a Realm asynchronously in a 
   SwiftUI View
-    - `AsyncOpen` a property wrapper that initiates a `Realm.asyncOpen()` 
-       for the current user which asynchronously open a Realm, and notifies 
-       states to the view for the given process.
+    - `AsyncOpen` is a property wrapped that initiates Realm.asyncOpen 
+       for the current user, notifying the view when there is a change in Realm asyncOpen state.
     - `AutoOpen` behaves similar to `AsyncOpen` but in case of no internet
        connection this will return an opened realm. 
 
