@@ -690,8 +690,8 @@ public enum AsyncOpenState {
 /// A property wrapper type that initiates a `Realm.asyncOpen()` for the current user which asynchronously open a Realm,
 /// and notifies states for the given process
 ///
-/// Add AsyncOpen to your ``SwiftUI/View`` or ``SwiftUI/App``,  after a user is already logged,
-/// or if a user is going to be logged
+/// Add AsyncOpen to your ``SwiftUI/View`` or ``SwiftUI/App``,  after a user is already logged in,
+/// or if a user is going to be logged in
 ///
 ///     @AsyncOpen(appId: "app_id", partitionValue: <partition_value>) var asyncOpen
 ///
@@ -807,8 +807,8 @@ public enum AsyncOpenState {
 /// `AutoOpen` will try once to asynchronously open a Realm, but in case of no internet connection will return an opened realm
 /// for the given appId and partitionValue which can be used within our view.
 
-/// Add AutoOpen to your ``SwiftUI/View`` or ``SwiftUI/App``,  after a user is already logged,
-/// or if a user is going to be logged
+/// Add AutoOpen to your ``SwiftUI/View`` or ``SwiftUI/App``,  after a user is already logged in
+/// or if a user is going to be logged in
 ///
 ///     @AutoOpen(appId: "app_id", partitionValue: <partition_value>, timeout: 4000) var autoOpen
 ///

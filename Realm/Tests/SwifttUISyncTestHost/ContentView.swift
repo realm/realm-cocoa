@@ -38,14 +38,14 @@ struct LoginView: View {
                 EmptyView()
             case .logging:
                 VStack {
-                    ProgressView("Logging...")
+                    ProgressView("Logging in...")
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.blue)
                 .transition(AnyTransition.move(edge: .leading)).animation(.default)
             case .logged:
                 VStack {
-                    Text("Logged")
+                    Text("Logged in")
                         .accessibilityIdentifier("logged-view")
                     Button("Sync") {
                         viewState = .syncing

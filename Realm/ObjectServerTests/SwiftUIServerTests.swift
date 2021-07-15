@@ -28,6 +28,11 @@ import RealmSyncTestSupport
 
 @available(OSX 11, *)
 class SwiftUIServerTests: SwiftSyncTestCase {
+    override func setUp() {
+        let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
+        Realm.Configuration.defaultConfiguration = config
+    }
+
     override func tearDown() {
         cancellables.forEach { $0.cancel() }
         cancellables = []
@@ -37,90 +42,66 @@ class SwiftUIServerTests: SwiftSyncTestCase {
     var cancellables: Set<AnyCancellable> = []
 
     // MARK: - AsyncOpen
-    func testAsyncOpenOpenRealm() {
-        do {
-            let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
-            Realm.Configuration.defaultConfiguration = config
+    func testAsyncOpenOpenRealm() throws {
+        _ = try logInUser(for: basicCredentials())
 
-            _ = try logInUser(for: basicCredentials())
-
-            let ex = expectation(description: "download-realm-async-open")
-            let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function)
-            asyncOpen.projectedValue
-                .sink { asyncOpenState in
-                    if case let .open(realm) = asyncOpenState {
-                        XCTAssertNotNil(realm)
-                        ex.fulfill()
-                    }
+        let ex = expectation(description: "download-realm-async-open")
+        let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function)
+        asyncOpen.projectedValue
+            .sink { asyncOpenState in
+                if case let .open(realm) = asyncOpenState {
+                    XCTAssertNotNil(realm)
+                    ex.fulfill()
                 }
-                .store(in: &cancellables)
-            waitForExpectations(timeout: 10.0)
-            asyncOpen.cancel()
-        } catch {
-            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
-        }
-    }
-
-    func testAsyncOpenDownloadRealm() {
-        do {
-            let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
-            Realm.Configuration.defaultConfiguration = config
-
-            let user = try logInUser(for: basicCredentials())
-            if !isParent {
-                populateRealm(user: user, partitionValue: #function)
-                return
             }
-
-            executeChild()
-
-            let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function)
-            let ex = expectation(description: "download-populated-realm-async-open")
-            asyncOpen.projectedValue
-                .sink { asyncOpenState in
-                    if case let .open(realm) = asyncOpenState {
-                        XCTAssertNotNil(realm)
-                        self.checkCount(expected: SwiftSyncTestCase.bigObjectCount, realm, SwiftHugeSyncObject.self)
-                        ex.fulfill()
-                    }
-                }
-                .store(in: &cancellables)
-            waitForExpectations(timeout: 10.0)
-            asyncOpen.cancel()
-        } catch {
-            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
-        }
+            .store(in: &cancellables)
+        waitForExpectations(timeout: 10.0)
+        asyncOpen.cancel()
     }
 
-    func testAsyncOpenNotOpenRealmWithoutUserLogged() {
-        do {
-            let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
-            Realm.Configuration.defaultConfiguration = config
-
-            let user = try logInUser(for: basicCredentials())
-            user.logOut { _ in } //Logout current user
-
-            let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function)
-            let ex = expectation(description: "download-realm-async-open-not-logged")
-            asyncOpen.projectedValue
-                .sink { asyncOpenState in
-                    if case .notOpen = asyncOpenState {
-                        ex.fulfill()
-                    }
-                }
-                .store(in: &cancellables)
-            waitForExpectations(timeout: 10.0)
-            asyncOpen.cancel()
-        } catch {
-            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
+    func testAsyncOpenDownloadRealm() throws {
+        let user = try logInUser(for: basicCredentials())
+        if !isParent {
+            populateRealm(user: user, partitionValue: #function)
+            return
         }
+
+        executeChild()
+
+        let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function)
+        let ex = expectation(description: "download-populated-realm-async-open")
+        asyncOpen.projectedValue
+            .sink { asyncOpenState in
+                if case let .open(realm) = asyncOpenState {
+                    XCTAssertNotNil(realm)
+                    self.checkCount(expected: SwiftSyncTestCase.bigObjectCount, realm, SwiftHugeSyncObject.self)
+                    ex.fulfill()
+                }
+            }
+            .store(in: &cancellables)
+        waitForExpectations(timeout: 10.0)
+        asyncOpen.cancel()
+    }
+
+    func testAsyncOpenNotOpenRealmWithoutUserLoggedIn() throws {
+        let user = try logInUser(for: basicCredentials())
+        user.logOut { _ in } //Logout current user
+
+        let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function)
+        let ex = expectation(description: "download-realm-async-open-not-logged")
+        asyncOpen.projectedValue
+            .sink { asyncOpenState in
+                if case .notOpen = asyncOpenState {
+                    ex.fulfill()
+                }
+            }
+            .store(in: &cancellables)
+        waitForExpectations(timeout: 10.0)
+        asyncOpen.cancel()
     }
 
     // In case of no internet connection AsyncOpen should return an error if there is a timeout
-    func testAsyncOpenFailWithoutInternetConnection() {
-        let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
-        Realm.Configuration.defaultConfiguration = config
-
+    func testAsyncOpenFailWithoutInternetConnection() throws {
         let proxy = TimeoutProxyServer(port: 5678, targetPort: 9090)
         try! proxy.start()
 
@@ -130,12 +111,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
                                          localAppName: nil,
                                          localAppVersion: nil)
         let app = App(id: appId, configuration: appConfig)
-        do {
-            _ = try logInUser(for: basicCredentials(app: app), app: app)
-        } catch {
-            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
-            return
-        }
+        _ = try logInUser(for: basicCredentials(app: app), app: app)
 
         autoreleasepool {
             proxy.delay = 3.0
@@ -157,124 +133,93 @@ class SwiftUIServerTests: SwiftSyncTestCase {
         proxy.stop()
     }
 
-    func testAsyncOpenProgressNotification() {
-        do {
-            let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
-            Realm.Configuration.defaultConfiguration = config
+    func testAsyncOpenProgressNotification() throws {
+        let user = try logInUser(for: basicCredentials())
+        if !isParent {
+            populateRealm(user: user, partitionValue: #function)
+            return
+        }
 
-            let user = try logInUser(for: basicCredentials())
-            if !isParent {
-                populateRealm(user: user, partitionValue: #function)
-                return
-            }
+        executeChild()
 
-            executeChild()
-
-            let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function)
-            let ex = expectation(description: "progress-async-open")
-            asyncOpen.projectedValue
-                .sink { asyncOpenState in
-                    if case let .progress(progress) = asyncOpenState {
-                        XCTAssertTrue(progress.fractionCompleted > 0)
-                        if progress.isFinished {
-                            ex.fulfill()
-                        }
+        let asyncOpen = AsyncOpen(appId: appId, partitionValue: #function)
+        let ex = expectation(description: "progress-async-open")
+        asyncOpen.projectedValue
+            .sink { asyncOpenState in
+                if case let .progress(progress) = asyncOpenState {
+                    XCTAssertTrue(progress.fractionCompleted > 0)
+                    if progress.isFinished {
+                        ex.fulfill()
                     }
                 }
-                .store(in: &cancellables)
-            waitForExpectations(timeout: 10.0)
-            asyncOpen.cancel()
-        } catch {
-            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
-        }
+            }
+            .store(in: &cancellables)
+        waitForExpectations(timeout: 10.0)
+        asyncOpen.cancel()
     }
 
     // MARK: - AutoOpen
-    func testAutoOpenOpenReal() {
-        do {
-            let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
-            Realm.Configuration.defaultConfiguration = config
+    func testAutoOpenOpenRealm() throws {
+        _ = try logInUser(for: basicCredentials())
 
-            _ = try logInUser(for: basicCredentials())
-
-            let autoOpen = AutoOpen(appId: appId, partitionValue: #function)
-            let ex = expectation(description: "download-realm-auto-open")
-            autoOpen.projectedValue
-                .sink { autoOpenState in
-                    if case let .open(realm) = autoOpenState {
-                        XCTAssertNotNil(realm)
-                        ex.fulfill()
-                    }
+        let autoOpen = AutoOpen(appId: appId, partitionValue: #function)
+        let ex = expectation(description: "download-realm-auto-open")
+        autoOpen.projectedValue
+            .sink { autoOpenState in
+                if case let .open(realm) = autoOpenState {
+                    XCTAssertNotNil(realm)
+                    ex.fulfill()
                 }
-                .store(in: &cancellables)
-            waitForExpectations(timeout: 10.0)
-            autoOpen.cancel()
-        } catch {
-            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
-        }
-    }
-
-    func testAutoOpenDownloadRealm() {
-        do {
-            let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
-            Realm.Configuration.defaultConfiguration = config
-
-            let user = try logInUser(for: basicCredentials())
-
-            if !isParent {
-                populateRealm(user: user, partitionValue: #function)
-                return
             }
-
-            executeChild()
-
-            let autoOpen = AutoOpen(appId: appId, partitionValue: #function)
-            let ex = expectation(description: "download-populated-realm-auto-open")
-            autoOpen.projectedValue
-                .sink { autoOpenState in
-                    if case let .open(realm) = autoOpenState {
-                        XCTAssertNotNil(realm)
-                        self.checkCount(expected: SwiftSyncTestCase.bigObjectCount, realm, SwiftHugeSyncObject.self)
-                        ex.fulfill()
-                    }
-                }
-                .store(in: &cancellables)
-            waitForExpectations(timeout: 10.0)
-            autoOpen.cancel()
-        } catch {
-            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
-        }
+            .store(in: &cancellables)
+        waitForExpectations(timeout: 10.0)
+        autoOpen.cancel()
     }
 
-    func testAutoOpenNotOpenRealmWithoutUserLogged() {
-        do {
-            let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
-            Realm.Configuration.defaultConfiguration = config
+    func testAutoOpenDownloadRealm() throws {
+        let user = try logInUser(for: basicCredentials())
 
-            let user = try logInUser(for: basicCredentials())
-            user.logOut { _ in } //Logout current user
-
-            let autoOpen = AutoOpen(appId: appId, partitionValue: #function)
-            let ex = expectation(description: "download-realm-auto-open-not-logged")
-            autoOpen.projectedValue
-                .sink { autoOpenState in
-                    if case .notOpen = autoOpenState {
-                        ex.fulfill()
-                    }
-                }
-                .store(in: &cancellables)
-            waitForExpectations(timeout: 10.0)
-            autoOpen.cancel()
-        } catch {
-            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
+        if !isParent {
+            populateRealm(user: user, partitionValue: #function)
+            return
         }
+
+        executeChild()
+
+        let autoOpen = AutoOpen(appId: appId, partitionValue: #function)
+        let ex = expectation(description: "download-populated-realm-auto-open")
+        autoOpen.projectedValue
+            .sink { autoOpenState in
+                if case let .open(realm) = autoOpenState {
+                    XCTAssertNotNil(realm)
+                    self.checkCount(expected: SwiftSyncTestCase.bigObjectCount, realm, SwiftHugeSyncObject.self)
+                    ex.fulfill()
+                }
+            }
+            .store(in: &cancellables)
+        waitForExpectations(timeout: 10.0)
+        autoOpen.cancel()
+    }
+
+    func testAutoOpenNotOpenRealmWithoutUserLoggedIn() throws {
+        let user = try logInUser(for: basicCredentials())
+        user.logOut { _ in } //Logout current user
+
+        let autoOpen = AutoOpen(appId: appId, partitionValue: #function)
+        let ex = expectation(description: "download-realm-auto-open-not-logged")
+        autoOpen.projectedValue
+            .sink { autoOpenState in
+                if case .notOpen = autoOpenState {
+                    ex.fulfill()
+                }
+            }
+            .store(in: &cancellables)
+        waitForExpectations(timeout: 10.0)
+        autoOpen.cancel()
     }
 
     // In case of no internet connection AutoOpen should return an opened Realm, offline-first approach
-    func testAutoOpenOpenRealmWithoutInternetConnection() {
-        let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
-        Realm.Configuration.defaultConfiguration = config
-
+    func testAutoOpenOpenRealmWithoutInternetConnection() throws {
         let proxy = TimeoutProxyServer(port: 5678, targetPort: 9090)
         try! proxy.start()
 
@@ -284,13 +229,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
                                          localAppName: nil,
                                          localAppVersion: nil)
         let app = App(id: appId, configuration: appConfig)
-
-        do {
-            _ = try logInUser(for: basicCredentials(app: app), app: app)
-        } catch {
-            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
-            return
-        }
+        _ = try logInUser(for: basicCredentials(app: app), app: app)
 
         autoreleasepool {
             proxy.delay = 3.0
@@ -311,35 +250,28 @@ class SwiftUIServerTests: SwiftSyncTestCase {
         proxy.stop()
     }
 
-    func testAutoOpenProgressNotification() {
-        do {
-            let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
-            Realm.Configuration.defaultConfiguration = config
+    func testAutoOpenProgressNotification() throws {
+        let user = try logInUser(for: basicCredentials())
+        if !isParent {
+            populateRealm(user: user, partitionValue: #function)
+            return
+        }
 
-            let user = try logInUser(for: basicCredentials())
-            if !isParent {
-                populateRealm(user: user, partitionValue: #function)
-                return
-            }
+        executeChild()
 
-            executeChild()
-
-            let autoOpen = AutoOpen(appId: appId, partitionValue: #function)
-            let ex = expectation(description: "progress-auto-open")
-            autoOpen.projectedValue
-                .sink { autoOpenState in
-                    if case let .progress(progress) = autoOpenState {
-                        XCTAssertTrue(progress.fractionCompleted > 0)
-                        if progress.isFinished {
-                            ex.fulfill()
-                        }
+        let autoOpen = AutoOpen(appId: appId, partitionValue: #function)
+        let ex = expectation(description: "progress-auto-open")
+        autoOpen.projectedValue
+            .sink { autoOpenState in
+                if case let .progress(progress) = autoOpenState {
+                    XCTAssertTrue(progress.fractionCompleted > 0)
+                    if progress.isFinished {
+                        ex.fulfill()
                     }
                 }
-                .store(in: &cancellables)
-            waitForExpectations(timeout: 10.0)
-            autoOpen.cancel()
-        } catch {
-            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
-        }
+            }
+            .store(in: &cancellables)
+        waitForExpectations(timeout: 10.0)
+        autoOpen.cancel()
     }
 }

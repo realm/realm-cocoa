@@ -2206,7 +2206,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = AC88477E26888C6300DF4A65 /* Build configuration list for PBXNativeTarget "SwiftUISyncTestHostUITests" */;
 			buildPhases = (
-				AC88476226888C6300DF4A65 /* Get Version Number */,
 				AC88476326888C6300DF4A65 /* Sources */,
 				AC88477726888C6300DF4A65 /* Frameworks */,
 				AC88477A26888C6300DF4A65 /* Embed Frameworks */,
@@ -2581,22 +2580,6 @@
 			shellPath = /bin/sh;
 			shellScript = "exec \"${SRCROOT}/scripts/generate-rlmversion.sh\"\n";
 			showEnvVarsInLog = 0;
-		};
-		AC88476226888C6300DF4A65 /* Get Version Number */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/Realm/Realm-Info.plist",
-			);
-			name = "Get Version Number";
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/RLMVersion.h",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "exec \"${SRCROOT}/scripts/generate-rlmversion.sh\"\n";
 		};
 		E8267FB81D90B79000E001C7 /* Get Version Number */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -3514,6 +3497,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Realm/Tests/SwifttUISyncTestHostUITests/SwifttUISyncTestHostUITests.entitlements;
 				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = "";
@@ -3533,6 +3517,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Realm/Tests/SwifttUISyncTestHostUITests/SwifttUISyncTestHostUITests.entitlements;
 				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = "";
