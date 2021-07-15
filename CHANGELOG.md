@@ -4,6 +4,7 @@ x.y.z Release notes (yyyy-MM-dd)
 * None.
 
 ### Fixed
+* Add support of arm64 in Carthage build ([#7154](https://github.com/realm/realm-cocoa/issues/7154)
 * `RealmProperty<T?>` would crash when decoding a `null` json value.
   ([Cocoa #7323](https://github.com/realm/realm-cocoa/issues/7323), since v10.8.0)
 * `@Persisted<T?>` would crash when decoding a `null` value.
