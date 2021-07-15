@@ -768,10 +768,11 @@ public enum AsyncOpenState {
      Initialize the property wrapper
      - parameter appId: The unique identifier of your Realm app, if empty or `nil` will try to retrieve latest singular cached app.
      - parameter partitionValue: The `BSON` value the Realm is partitioned on.
-     - parameter configuration: The `Realm.Configuration` use when creating the Realm,
-     if empty the configuration is set to the `defaultConfiguration`
+     - parameter configuration: The `Realm.Configuration` used when creating the Realm,
+                 user's sync configuration for the given partition value will be set as the `syncConfiguration`,
+                 if empty the configuration is set to the `defaultConfiguration`
      - parameter timeout: The maximum number of milliseconds to allow for a connection to
-     become fully established., if empty or `nil` no connection timeout is set.
+                 become fully established., if empty or `nil` no connection timeout is set.
      */
     public init<T: BSON>(appId: String? = nil, partitionValue: T, configuration: Realm.Configuration = Realm.Configuration.defaultConfiguration, timeout: UInt? = nil) {
         var app: App
@@ -904,10 +905,11 @@ public enum AsyncOpenState {
      Initialize the property wrapper
      - parameter appId: The unique identifier of your Realm app,  if empty or `nil` will try to retrieve latest singular cached app.
      - parameter partitionValue: The `BSON` value the Realm is partitioned on.
-     - parameter configuration: The `Realm.Configuration` use when creating the Realm,
-     if empty the configuration is set to the `defaultConfiguration`
+     - parameter configuration: The `Realm.Configuration` used when creating the Realm,
+                 user's sync configuration for the given partition value will be set as the `syncConfiguration`,
+                 if empty the configuration is set to the `defaultConfiguration`.
      - parameter timeout: The maximum number of milliseconds to allow for a connection to
-     become fully established, if empty or `nil` no connection timeout is set.
+                 become fully established, if empty or `nil` no connection timeout is set.
      */
     public init<T: BSON>(appId: String? = nil, partitionValue: T, configuration: Realm.Configuration = Realm.Configuration.defaultConfiguration, timeout: UInt? = nil) {
         var app: App
