@@ -672,7 +672,7 @@ case "$COMMAND" in
         ;;
 
     "test-swiftui-server-ios")
-        xctest 'SwiftUISyncTestHost' -configuration "$CONFIGURATION" -sdk macosx
+        xctest 'SwiftUISyncTestHost' -configuration "$CONFIGURATION" -sdk macosx -destination 'platform=macOS'
         exit 0
         ;;
 
