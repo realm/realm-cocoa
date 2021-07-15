@@ -650,7 +650,7 @@ private class ObservableAsyncOpenStorage: ObservableObject {
     var cancellables = [AnyCancellable]()
     var realm: Realm?
 
-    @Published var asyncOpenState: AsyncOpenState = .notOpen {
+    @Published var asyncOpenState: AsyncOpenState = .connecting {
         willSet {
             objectWillChange.send()
         }
@@ -670,13 +670,15 @@ private class ObservableAsyncOpenStorage: ObservableObject {
 An enum representing different states from `AsyncOpen` and `AutoOpen` process
 */
 public enum AsyncOpenState {
-    /// Initial state
-    case notOpen
-    /// Returns a realm when the async open process is done or in case there is no internet connection in AutoOpen
+    /// Starting the Realm.asyncOpen process.
+    case connecting
+    /// Waiting for a user to be logged in before executing Realm.asyncOpen.
+    case waitingForUser
+    /// The Realm has been opened and is ready for use. For AsyncOpen this means that the Realm has been fully downloaded, but for AutoOpen the existing local file may have been used if the device is offline.
     case open(Realm)
-    /// Returns an event when there is a notification on the async open progress
+    /// The Realm is currently being downloaded from the server.
     case progress(Progress)
-    /// Returns an error in case the async open process fails
+    /// Opening the Realm failed.
     case error(Error)
 }
 
@@ -790,6 +792,7 @@ public enum AsyncOpenState {
            currentUser.isLoggedIn {
             asyncOpenForUser(currentUser, partitionValue: partitionValue, configuration: configuration)
         } else {
+            storage.asyncOpenState = .waitingForUser
             app.objectWillChange.sink { [self] app in
                 if let currentUser = app.currentUser {
                     asyncOpenForUser(currentUser, partitionValue: partitionValue, configuration: configuration)
@@ -925,6 +928,7 @@ public enum AsyncOpenState {
            currentUser.isLoggedIn {
             asyncOpenForUser(currentUser, partitionValue: partitionValue, configuration: configuration)
         } else {
+            storage.asyncOpenState = .waitingForUser
             app.objectWillChange.sink { [self] app in
                 if let currentUser = app.currentUser {
                     asyncOpenForUser(currentUser, partitionValue: partitionValue, configuration: configuration)

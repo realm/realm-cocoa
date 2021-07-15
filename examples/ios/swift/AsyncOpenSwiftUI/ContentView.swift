@@ -127,8 +127,10 @@ struct AsyncOpenView: View {
     var body: some View {
         VStack {
             switch asyncOpen {
-            case .notOpen:
+            case .connecting:
                 ProgressView()
+            case .waitingForUser:
+                ProgressView("Waiting for user to logged in...")
             case .open(let realm):
                 ContactsListView()
                     .environment(\.realm, realm)
@@ -150,8 +152,10 @@ struct AutoOpenView: View {
     var body: some View {
         VStack {
             switch autoOpen {
-            case .notOpen:
+            case .connecting:
                 ProgressView()
+            case .waitingForUser:
+                ProgressView("Waiting for user to logged in...")
             case .open(let realm):
                 ContactsListView()
                     .environment(\.realm, realm)

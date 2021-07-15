@@ -84,7 +84,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
         asyncOpen.cancel()
     }
 
-    func testAsyncOpenNotOpenRealmWithoutUserLoggedIn() throws {
+    func testAsyncOpenWaitingForUserWithoutUserLoggedIn() throws {
         let user = try logInUser(for: basicCredentials())
         user.logOut { _ in } //Logout current user
 
@@ -92,7 +92,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
         let ex = expectation(description: "download-realm-async-open-not-logged")
         asyncOpen.projectedValue
             .sink { asyncOpenState in
-                if case .notOpen = asyncOpenState {
+                if case .waitingForUser = asyncOpenState {
                     ex.fulfill()
                 }
             }
@@ -241,7 +241,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
         autoOpen.cancel()
     }
 
-    func testAutoOpenNotOpenRealmWithoutUserLoggedIn() throws {
+    func testAutoOpenWaitingForUserWithoutUserLoggedIn() throws {
         let user = try logInUser(for: basicCredentials())
         user.logOut { _ in } //Logout current user
 
@@ -249,7 +249,7 @@ class SwiftUIServerTests: SwiftSyncTestCase {
         let ex = expectation(description: "download-realm-auto-open-not-logged")
         autoOpen.projectedValue
             .sink { autoOpenState in
-                if case .notOpen = autoOpenState {
+                if case .waitingForUser = autoOpenState {
                     ex.fulfill()
                 }
             }
