@@ -106,7 +106,9 @@ class LoginHelper: ObservableObject {
 struct AsyncOpenView: View {
     @State var canNavigate: Bool = false
     @State var progress: Progress?
-    @AsyncOpen(appId: ProcessInfo.processInfo.environment["app_id"]!, partitionValue: ProcessInfo.processInfo.environment["function_name"]!, timeout: 2000) var asyncOpen
+    @AsyncOpen(appId: ProcessInfo.processInfo.environment["app_id"]!,
+               partitionValue: ProcessInfo.processInfo.environment["function_name"]!,
+               timeout: 2000) var asyncOpen
 
     var body: some View {
         VStack {
@@ -148,7 +150,9 @@ struct AsyncOpenView: View {
 struct AutoOpenView: View {
     @State var canNavigate: Bool = false
     @State var progress: Progress?
-    @AutoOpen(appId: ProcessInfo.processInfo.environment["app_id"]!, partitionValue: ProcessInfo.processInfo.environment["function_name"]!, timeout: 2000) var autoOpen
+    @AutoOpen(appId: ProcessInfo.processInfo.environment["app_id"]!,
+              partitionValue: ProcessInfo.processInfo.environment["function_name"]!,
+              timeout: 2000) var autoOpen
 
     var body: some View {
         VStack {

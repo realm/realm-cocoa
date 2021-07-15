@@ -695,7 +695,7 @@ public enum AsyncOpenState {
 ///
 ///     @AsyncOpen(appId: "app_id", partitionValue: <partition_value>) var asyncOpen
 ///
-/// This will inmeadiatly initiates a `Realm.asyncOpen()` operation which will perform all work needed to get the Realm to
+/// This will immediately initiates a `Realm.asyncOpen()` operation which will perform all work needed to get the Realm to
 /// a usable state. (see Realm.asyncOpen() documentation)
 ///
 /// This property wrapper will publish states of the current `Realm.asyncOpen()` process like progress, errors and an opened realm,
@@ -719,7 +719,7 @@ public enum AsyncOpenState {
 ///         }
 ///     }
 ///
-/// This opened `realm` can be later injected to the view as an enviroment value which will be used by our property wrappers
+/// This opened `realm` can be later injected to the view as an environment value which will be used by our property wrappers
 /// to populate the view with data from the opened realm
 ///
 ///     ListView()
@@ -766,13 +766,13 @@ public enum AsyncOpenState {
     }
 
     /**
-     Initialise the property wrapper
+     Initialize the property wrapper
      - parameter appId: The unique identifier of your Realm app.
      - parameter partitionValue: The `BSON` value the Realm is partitioned on.
      - parameter baseConfiguration: A Base Configuration use when creating the Realm,
-     if empty the configuraion is setted to the `defaultConfiguration`
+     if empty the configuration is set to the `defaultConfiguration`
      - parameter timeout: The maximum number of milliseconds to allow for a connection to
-     become fully established., if empty or `nil` no connection timeout is setted.
+     become fully established., if empty or `nil` no connection timeout is set.
      */
     public init<T: BSON>(appId: String, partitionValue: T, baseConfiguration: Realm.Configuration = Realm.Configuration.defaultConfiguration, timeout: UInt? = nil) {
         let app = App(id: appId)
@@ -802,8 +802,6 @@ public enum AsyncOpenState {
 
 // MARK: - AutoOpen
 
-/// This property wrapper behaves similar as `AsyncOpen`, and in terms of declaration and use is completly identical,
-/// but with the difference of a offline-first approach.
 /// `AutoOpen` will try once to asynchronously open a Realm, but in case of no internet connection will return an opened realm
 /// for the given appId and partitionValue which can be used within our view.
 
@@ -812,7 +810,7 @@ public enum AsyncOpenState {
 ///
 ///     @AutoOpen(appId: "app_id", partitionValue: <partition_value>, timeout: 4000) var autoOpen
 ///
-/// This will inmeadiatly initiates a `Realm.asyncOpen()` operation which will perform all work needed to get the Realm to
+/// This will immediately initiates a `Realm.asyncOpen()` operation which will perform all work needed to get the Realm to
 /// a usable state. (see Realm.asyncOpen() documentation)
 ///
 /// This property wrapper will publish states of the current `Realm.asyncOpen()` process like progress, errors and an opened realm,
@@ -836,12 +834,15 @@ public enum AsyncOpenState {
 ///         }
 ///     }
 ///
-/// This opened `realm` can be later injected to the view as an enviroment value which will be used by our property wrappers
+/// This opened `realm` can be later injected to the view as an environment value which will be used by our property wrappers
 /// to populate the view with data from the opened realm
 ///
 ///     ListView()
 ///        .environment(\.realm, realm)
 ///
+/// This property wrapper behaves similar as `AsyncOpen`, and in terms of declaration and use is completely identical,
+/// but with the difference of a offline-first approach.
+/// 
 @available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 6.0, *)
 @propertyWrapper public struct AutoOpen: DynamicProperty {
     @Environment(\.realm) var realm
@@ -890,13 +891,13 @@ public enum AsyncOpenState {
     }
 
     /**
-     Initialise the property wrapper
-     - parameter appId: The unique identifier of your Realm app.
+     Initialize the property wrapper
+     - parameter appId: The unique identifier of your Realm app, if empty or `nil`
      - parameter partitionValue: The `BSON` value the Realm is partitioned on.
      - parameter baseConfiguration: A Base Configuration use when creating the Realm,
-     if empty the configuraion is setted to the `defaultConfiguration`
+     if empty the configuration is set to the `defaultConfiguration`
      - parameter timeout: The maximum number of milliseconds to allow for a connection to
-     become fully established, if empty or `nil` no connection timeout is setted.
+     become fully established, if empty or `nil` no connection timeout is set.
      */
     public init<T: BSON>(appId: String, partitionValue: T, baseConfiguration: Realm.Configuration = Realm.Configuration.defaultConfiguration, timeout: UInt? = nil) {
         let app = App(id: appId)
