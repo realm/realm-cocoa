@@ -241,6 +241,8 @@ RLM_COLLECTION_TYPE(Person);
 
 - (RLMApp *)appFromAppId:(NSString *)appId;
 
+- (void)resetAppCache;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -147,16 +147,55 @@ class SwiftUIServerTests: SwiftSyncTestCase {
         let ex = expectation(description: "progress-async-open")
         asyncOpen.projectedValue
             .sink { asyncOpenState in
-                if case let .progress(progress) = asyncOpenState {
-                    XCTAssertTrue(progress.fractionCompleted > 0)
-                    if progress.isFinished {
-                        ex.fulfill()
-                    }
+                if case let .open(realm) = asyncOpenState {
+                    XCTAssertNotNil(realm)
+                    self.checkCount(expected: SwiftSyncTestCase.bigObjectCount, realm, SwiftHugeSyncObject.self)
+                    ex.fulfill()
                 }
             }
             .store(in: &cancellables)
         waitForExpectations(timeout: 10.0)
         asyncOpen.cancel()
+    }
+
+    // Cached App is already created on the setup of the test
+    func testAsyncOpenWithACachedApp() throws {
+        let user = try logInUser(for: basicCredentials())
+        if !isParent {
+            populateRealm(user: user, partitionValue: #function)
+            return
+        }
+
+        executeChild()
+
+        let asyncOpen = AsyncOpen(partitionValue: #function)
+        let ex = expectation(description: "download-cached-app-async-open")
+        asyncOpen.projectedValue
+            .sink { asyncOpenState in
+                if case let .open(realm) = asyncOpenState {
+                    XCTAssertNotNil(realm)
+                    self.checkCount(expected: SwiftSyncTestCase.bigObjectCount, realm, SwiftHugeSyncObject.self)
+                    ex.fulfill()
+                }
+            }
+            .store(in: &cancellables)
+        waitForExpectations(timeout: 10.0)
+        asyncOpen.cancel()
+    }
+
+    func testAsyncOpenThrowExceptionWithoutCachedApp() throws {
+        resetAppCache()
+        assertThrows(AsyncOpen(partitionValue: #function),
+                     reason: "There is no appId, either provided by the user on the property wrapper or 'any/more than 1' cached RLMApp")
+    }
+
+    func testAsyncOpenThrowExceptionWithoutMoreThanOneCachedApp() throws {
+        let appId1 = try! RealmServer.shared.createApp()
+        let appId2 = try! RealmServer.shared.createApp()
+        _ = App(id: appId1)
+        _ = App(id: appId2)
+        assertThrows(AsyncOpen(partitionValue: #function),
+                     reason: "There is no appId, either provided by the user on the property wrapper or 'any/more than 1' cached RLMApp")
     }
 
     // MARK: - AutoOpen
@@ -274,5 +313,46 @@ class SwiftUIServerTests: SwiftSyncTestCase {
             .store(in: &cancellables)
         waitForExpectations(timeout: 10.0)
         autoOpen.cancel()
+    }
+
+    // App is already created on the setup of the test
+    func testAutoOpenWithACachedApp() throws {
+        let user = try logInUser(for: basicCredentials())
+        if !isParent {
+            populateRealm(user: user, partitionValue: #function)
+            return
+        }
+
+        executeChild()
+
+        let autoOpen = AutoOpen(partitionValue: #function)
+        let ex = expectation(description: "download-cached-app-auto-open")
+        autoOpen.projectedValue
+            .sink { autoOpenState in
+                if case let .progress(progress) = autoOpenState {
+                    XCTAssertTrue(progress.fractionCompleted > 0)
+                    if progress.isFinished {
+                        ex.fulfill()
+                    }
+                }
+            }
+            .store(in: &cancellables)
+        waitForExpectations(timeout: 10.0)
+        autoOpen.cancel()
+    }
+
+    func testAutoOpenThrowExceptionWithoutCachedApp() throws {
+        resetAppCache()
+        assertThrows(AutoOpen(partitionValue: #function),
+                     reason: "There is no appId, either provided by the user on the property wrapper or 'any/more than 1' cached RLMApp")
+    }
+
+    func testAutoOpenThrowExceptionWithoutMoreThanOneCachedApp() throws {
+        let appId1 = try! RealmServer.shared.createApp()
+        let appId2 = try! RealmServer.shared.createApp()
+        _ = App(id: appId1)
+        _ = App(id: appId2)
+        assertThrows(AutoOpen(partitionValue: #function),
+                     reason: "There is no appId, either provided by the user on the property wrapper or 'any/more than 1' cached RLMApp")
     }
 }

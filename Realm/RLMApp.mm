@@ -288,6 +288,10 @@ NSError *RLMAppErrorToNSError(realm::app::AppError const& appError) {
 static NSMutableDictionary *s_apps = [NSMutableDictionary new];
 static std::mutex& s_appMutex = *new std::mutex();
 
++ (NSMutableDictionary *)apps {
+    return s_apps;
+}
+
 + (void)resetAppCache {
     std::lock_guard<std::mutex> lock(s_appMutex);
     [s_apps removeAllObjects];

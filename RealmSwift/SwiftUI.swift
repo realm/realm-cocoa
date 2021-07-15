@@ -764,15 +764,23 @@ public enum AsyncOpenState {
 
     /**
      Initialize the property wrapper
-     - parameter appId: The unique identifier of your Realm app.
+     - parameter appId: The unique identifier of your Realm app, if empty or `nil` will try to retrieve latest singular cached app.
      - parameter partitionValue: The `BSON` value the Realm is partitioned on.
      - parameter configuration: The `Realm.Configuration` use when creating the Realm,
      if empty the configuration is set to the `defaultConfiguration`
      - parameter timeout: The maximum number of milliseconds to allow for a connection to
      become fully established., if empty or `nil` no connection timeout is set.
      */
-    public init<T: BSON>(appId: String, partitionValue: T, configuration: Realm.Configuration = Realm.Configuration.defaultConfiguration, timeout: UInt? = nil) {
-        let app = App(id: appId)
+    public init<T: BSON>(appId: String? = nil, partitionValue: T, configuration: Realm.Configuration = Realm.Configuration.defaultConfiguration, timeout: UInt? = nil) {
+        var app: App
+        if let appId = appId {
+            app = App(id: appId)
+        } else if RLMApp.apps().allKeys.count == 1, // Check if there is a singular cached app
+            let cachedAppId = RLMApp.apps().allKeys.first as? String {
+            app = App(id: cachedAppId)
+        } else {
+            throwRealmException("There is no appId, either provided by the user on the property wrapper or 'any/more than 1' cached RLMApp")
+        }
         if let timeout = timeout {
             let syncTimeoutOptions = SyncTimeoutOptions()
             syncTimeoutOptions.connectTimeout = timeout
@@ -891,15 +899,23 @@ public enum AsyncOpenState {
 
     /**
      Initialize the property wrapper
-     - parameter appId: The unique identifier of your Realm app, if empty or `nil`
+     - parameter appId: The unique identifier of your Realm app,  if empty or `nil` will try to retrieve latest singular cached app.
      - parameter partitionValue: The `BSON` value the Realm is partitioned on.
      - parameter configuration: The `Realm.Configuration` use when creating the Realm,
      if empty the configuration is set to the `defaultConfiguration`
      - parameter timeout: The maximum number of milliseconds to allow for a connection to
      become fully established, if empty or `nil` no connection timeout is set.
      */
-    public init<T: BSON>(appId: String, partitionValue: T, configuration: Realm.Configuration = Realm.Configuration.defaultConfiguration, timeout: UInt? = nil) {
-        let app = App(id: appId)
+    public init<T: BSON>(appId: String? = nil, partitionValue: T, configuration: Realm.Configuration = Realm.Configuration.defaultConfiguration, timeout: UInt? = nil) {
+        var app: App
+        if let appId = appId {
+            app = App(id: appId)
+        } else if RLMApp.apps().allKeys.count == 1, // Check if there is a singular cached app
+            let cachedAppId = RLMApp.apps().allKeys.first as? String {
+            app = App(id: cachedAppId)
+        } else {
+            throwRealmException("There is no appId, either provided by the user on the property wrapper or 'any/more than 1' cached RLMApp")
+        }
         if let timeout = timeout {
             let syncTimeoutOptions = SyncTimeoutOptions()
             syncTimeoutOptions.connectTimeout = timeout
