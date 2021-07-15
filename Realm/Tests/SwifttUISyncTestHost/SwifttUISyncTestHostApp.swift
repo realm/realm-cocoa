@@ -22,11 +22,8 @@ import RealmSwift
 @main
 struct App: SwiftUI.App {
     var body: some Scene {
-        let view: AnyView = {
-            AnyView(LoginView())
-        }()
         return WindowGroup {
-            view
+            LoginView()
         }
     }
 }
