@@ -659,20 +659,15 @@ private class ObservableAsyncOpenStorage: ObservableObject {
     func asyncOpen(configuration: Realm.Configuration) -> RealmPublishers.AsyncOpenPublisher {
         return Realm.asyncOpen(configuration: configuration)
             .onProgressNotification { asyncProgress in
-                let progress = Progress(totalUnitCount: 1)
-                if asyncProgress.isTransferComplete {
-                    progress.completedUnitCount = Int64(1)
-                    self.asyncOpenState = .progress(progress)
-                } else {
-                    progress.completedUnitCount = Int64(asyncProgress.fractionTransferred)
-                    self.asyncOpenState = .progress(progress)
-                }
+                let progress = Progress(totalUnitCount: Int64(asyncProgress.transferredBytes))
+                progress.completedUnitCount = Int64(asyncProgress.transferredBytes)
+                self.asyncOpenState = .progress(progress)
             }
     }
 }
 
 /**
-`AsyncOpenState`is an enum representing different states from `AsyncOpen` and `AutoOpen` process
+An enum representing different states from `AsyncOpen` and `AutoOpen` process
 */
 public enum AsyncOpenState {
     /// Initial state

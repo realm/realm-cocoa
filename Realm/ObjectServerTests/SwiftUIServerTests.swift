@@ -29,6 +29,7 @@ import RealmSyncTestSupport
 @available(OSX 11, *)
 class SwiftUIServerTests: SwiftSyncTestCase {
     override func setUp() {
+        super.setUp()
         let config = Realm.Configuration(objectTypes: [SwiftHugeSyncObject.self])
         Realm.Configuration.defaultConfiguration = config
     }
