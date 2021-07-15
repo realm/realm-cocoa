@@ -260,8 +260,8 @@ let package = Package(
                 "fileformat-pre-null.realm",
                 "mixed_tests.py",
                 "set_tests.py",
-                "SwifttUISyncTestHost",
-                "SwifttUISyncTestHostUITests"
+                "SwiftUISyncTestHost",
+                "SwiftUISyncTestHostUITests"
             ],
             cxxSettings: testCxxSettings
         ),
