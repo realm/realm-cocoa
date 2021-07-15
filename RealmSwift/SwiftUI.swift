@@ -747,7 +747,9 @@ public enum AsyncOpenState {
             }.store(in: &storage.cancellables)
     }
 
-    /// :nodoc:
+    /**
+     A Publisher for `AsyncOpenState`, emits a state each time the asyncOpen state changes.
+     */
     public var projectedValue: Published<AsyncOpenState>.Publisher {
         return storage.$asyncOpenState
     }
@@ -769,12 +771,12 @@ public enum AsyncOpenState {
      Initialize the property wrapper
      - parameter appId: The unique identifier of your Realm app.
      - parameter partitionValue: The `BSON` value the Realm is partitioned on.
-     - parameter baseConfiguration: A Base Configuration use when creating the Realm,
+     - parameter configuration: The `Realm.Configuration` use when creating the Realm,
      if empty the configuration is set to the `defaultConfiguration`
      - parameter timeout: The maximum number of milliseconds to allow for a connection to
      become fully established., if empty or `nil` no connection timeout is set.
      */
-    public init<T: BSON>(appId: String, partitionValue: T, baseConfiguration: Realm.Configuration = Realm.Configuration.defaultConfiguration, timeout: UInt? = nil) {
+    public init<T: BSON>(appId: String, partitionValue: T, configuration: Realm.Configuration = Realm.Configuration.defaultConfiguration, timeout: UInt? = nil) {
         let app = App(id: appId)
         if let timeout = timeout {
             let syncTimeoutOptions = SyncTimeoutOptions()
@@ -783,11 +785,11 @@ public enum AsyncOpenState {
         }
         if let currentUser = app.currentUser,
            currentUser.isLoggedIn {
-            asyncOpenForUser(currentUser, partitionValue: partitionValue, configuration: baseConfiguration)
+            asyncOpenForUser(currentUser, partitionValue: partitionValue, configuration: configuration)
         } else {
             app.objectWillChange.sink { [self] app in
                 if let currentUser = app.currentUser {
-                    asyncOpenForUser(currentUser, partitionValue: partitionValue, configuration: baseConfiguration)
+                    asyncOpenForUser(currentUser, partitionValue: partitionValue, configuration: configuration)
                 }
             }.store(in: &storage.cancellables)
         }
@@ -872,7 +874,9 @@ public enum AsyncOpenState {
             }.store(in: &storage.cancellables)
     }
 
-    /// :nodoc:
+    /**
+     A Publisher for `AsyncOpenState`, emits a state each time the asyncOpen state changes.
+     */
     public var projectedValue: Published<AsyncOpenState>.Publisher {
         return storage.$asyncOpenState
     }
@@ -894,12 +898,12 @@ public enum AsyncOpenState {
      Initialize the property wrapper
      - parameter appId: The unique identifier of your Realm app, if empty or `nil`
      - parameter partitionValue: The `BSON` value the Realm is partitioned on.
-     - parameter baseConfiguration: A Base Configuration use when creating the Realm,
+     - parameter configuration: The `Realm.Configuration` use when creating the Realm,
      if empty the configuration is set to the `defaultConfiguration`
      - parameter timeout: The maximum number of milliseconds to allow for a connection to
      become fully established, if empty or `nil` no connection timeout is set.
      */
-    public init<T: BSON>(appId: String, partitionValue: T, baseConfiguration: Realm.Configuration = Realm.Configuration.defaultConfiguration, timeout: UInt? = nil) {
+    public init<T: BSON>(appId: String, partitionValue: T, configuration: Realm.Configuration = Realm.Configuration.defaultConfiguration, timeout: UInt? = nil) {
         let app = App(id: appId)
         if let timeout = timeout {
             let syncTimeoutOptions = SyncTimeoutOptions()
@@ -908,11 +912,11 @@ public enum AsyncOpenState {
         }
         if let currentUser = app.currentUser,
            currentUser.isLoggedIn {
-            asyncOpenForUser(currentUser, partitionValue: partitionValue, configuration: baseConfiguration)
+            asyncOpenForUser(currentUser, partitionValue: partitionValue, configuration: configuration)
         } else {
             app.objectWillChange.sink { [self] app in
                 if let currentUser = app.currentUser {
-                    asyncOpenForUser(currentUser, partitionValue: partitionValue, configuration: baseConfiguration)
+                    asyncOpenForUser(currentUser, partitionValue: partitionValue, configuration: configuration)
                 }
             }.store(in: &storage.cancellables)
         }
