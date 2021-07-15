@@ -57,7 +57,6 @@ class SwifttUISyncTestHostUITests: SwiftSyncTestCase {
         // Test show ListView after syncing realm
         let table = app.tables.firstMatch
         XCTAssertTrue(table.waitForExistence(timeout: 6))
-        XCTAssertEqual(table.cells.count, self.bigObjectCount)
         XCTAssertEqual(table.cells.count, SwiftSyncTestCase.bigObjectCount)
     }
 
@@ -98,7 +97,6 @@ class SwifttUISyncTestHostUITests: SwiftSyncTestCase {
         // Test show ListView after syncing realm
         let table = app.tables.firstMatch
         XCTAssertTrue(table.waitForExistence(timeout: 6))
-        XCTAssertEqual(table.cells.count, self.bigObjectCount)
         XCTAssertEqual(table.cells.count, SwiftSyncTestCase.bigObjectCount)
     }
 }
