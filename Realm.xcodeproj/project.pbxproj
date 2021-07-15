@@ -428,10 +428,10 @@
 		AC320BAE268E1F2D0043D484 /* SwiftServerObjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC2C2A3E268E1ACE00B4DA33 /* SwiftServerObjects.swift */; };
 		AC7D182D261F2F560080E1D2 /* RLMObjectServerPartitionTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = AC7D182B261F2F560080E1D2 /* RLMObjectServerPartitionTests.mm */; };
 		AC7D182E261F2F560080E1D2 /* SwiftObjectServerPartitionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7D182C261F2F560080E1D2 /* SwiftObjectServerPartitionTests.swift */; };
-		AC8846762686573B00DF4A65 /* SwifttUISyncTestHostApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8846752686573B00DF4A65 /* SwifttUISyncTestHostApp.swift */; };
+		AC8846762686573B00DF4A65 /* SwiftUISyncTestHostApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8846752686573B00DF4A65 /* SwiftUISyncTestHostApp.swift */; };
 		AC8846782686573B00DF4A65 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8846772686573B00DF4A65 /* ContentView.swift */; };
 		AC8846B72687BC4100DF4A65 /* SwiftUIServerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8846B62687BC4100DF4A65 /* SwiftUIServerTests.swift */; };
-		AC88478626888CEE00DF4A65 /* SwifttUISyncTestHostUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8846902686573D00DF4A65 /* SwifttUISyncTestHostUITests.swift */; };
+		AC88478626888CEE00DF4A65 /* SwiftUISyncTestHostUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8846902686573D00DF4A65 /* SwiftUISyncTestHostUITests.swift */; };
 		AC8847A3268925F100DF4A65 /* RLMSyncTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AA5AE9B1D98A68E00ED8C27 /* RLMSyncTestCase.mm */; };
 		AC8847A4268925F100DF4A65 /* SwiftSyncTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA5AE961D989BE000ED8C27 /* SwiftSyncTestCase.swift */; };
 		AC8847A6268925F100DF4A65 /* RLMTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F558C8322C29A02002F0F30 /* RLMTestCase.m */; };
@@ -980,15 +980,15 @@
 		681EE34625EE8E5600A9DEC5 /* ObjectiveCSupport+AnyRealmValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ObjectiveCSupport+AnyRealmValue.swift"; sourceTree = "<group>"; };
 		A05FA61E1B62C3900000C9B2 /* RLMObjectBase_Dynamic.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RLMObjectBase_Dynamic.h; sourceTree = "<group>"; };
 		AC2C2A3E268E1ACE00B4DA33 /* SwiftServerObjects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SwiftServerObjects.swift; path = Realm/ObjectServerTests/SwiftServerObjects.swift; sourceTree = "<group>"; };
-		AC2C2A43268F982D00B4DA33 /* SwifttUISyncTestHostUITests.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SwifttUISyncTestHostUITests.entitlements; sourceTree = "<group>"; };
+		AC2C2A43268F982D00B4DA33 /* SwiftUISyncTestHostUITests.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SwiftUISyncTestHostUITests.entitlements; sourceTree = "<group>"; };
 		AC7D182B261F2F560080E1D2 /* RLMObjectServerPartitionTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RLMObjectServerPartitionTests.mm; path = Realm/ObjectServerTests/RLMObjectServerPartitionTests.mm; sourceTree = "<group>"; };
 		AC7D182C261F2F560080E1D2 /* SwiftObjectServerPartitionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SwiftObjectServerPartitionTests.swift; path = Realm/ObjectServerTests/SwiftObjectServerPartitionTests.swift; sourceTree = "<group>"; };
 		AC8846732686573B00DF4A65 /* SwifttUISyncTestHost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwifttUISyncTestHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		AC8846752686573B00DF4A65 /* SwifttUISyncTestHostApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwifttUISyncTestHostApp.swift; sourceTree = "<group>"; };
+		AC8846752686573B00DF4A65 /* SwiftUISyncTestHostApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUISyncTestHostApp.swift; sourceTree = "<group>"; };
 		AC8846772686573B00DF4A65 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		AC8846902686573D00DF4A65 /* SwifttUISyncTestHostUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwifttUISyncTestHostUITests.swift; sourceTree = "<group>"; };
+		AC8846902686573D00DF4A65 /* SwiftUISyncTestHostUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUISyncTestHostUITests.swift; sourceTree = "<group>"; };
 		AC8846B62687BC4100DF4A65 /* SwiftUIServerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SwiftUIServerTests.swift; path = Realm/ObjectServerTests/SwiftUIServerTests.swift; sourceTree = "<group>"; };
-		AC8846B82687BD4D00DF4A65 /* SwifttUISyncTestHostUITests-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SwifttUISyncTestHostUITests-Bridging-Header.h"; sourceTree = "<group>"; };
+		AC8846B82687BD4D00DF4A65 /* SwiftUISyncTestHostUITests-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SwiftUISyncTestHostUITests-Bridging-Header.h"; sourceTree = "<group>"; };
 		AC8847432687DFE700DF4A65 /* SwiftUISyncTestHost.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = SwiftUISyncTestHost.xcconfig; sourceTree = "<group>"; };
 		AC8847442687DFE700DF4A65 /* SwiftUISyncTestHostTests.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = SwiftUISyncTestHostTests.xcconfig; sourceTree = "<group>"; };
 		AC8847472687E0AA00DF4A65 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -1514,25 +1514,25 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		AC8846742686573B00DF4A65 /* SwifttUISyncTestHost */ = {
+		AC8846742686573B00DF4A65 /* SwiftUISyncTestHost */ = {
 			isa = PBXGroup;
 			children = (
 				AC8847472687E0AA00DF4A65 /* Info.plist */,
-				AC8846752686573B00DF4A65 /* SwifttUISyncTestHostApp.swift */,
+				AC8846752686573B00DF4A65 /* SwiftUISyncTestHostApp.swift */,
 				AC8846772686573B00DF4A65 /* ContentView.swift */,
 			);
-			path = SwifttUISyncTestHost;
+			path = SwiftUISyncTestHost;
 			sourceTree = "<group>";
 		};
-		AC88468F2686573D00DF4A65 /* SwifttUISyncTestHostUITests */ = {
+		AC88468F2686573D00DF4A65 /* SwiftUISyncTestHostUITests */ = {
 			isa = PBXGroup;
 			children = (
 				AC8847492687E0BD00DF4A65 /* Info.plist */,
-				AC8846B82687BD4D00DF4A65 /* SwifttUISyncTestHostUITests-Bridging-Header.h */,
-				AC8846902686573D00DF4A65 /* SwifttUISyncTestHostUITests.swift */,
-				AC2C2A43268F982D00B4DA33 /* SwifttUISyncTestHostUITests.entitlements */,
+				AC8846B82687BD4D00DF4A65 /* SwiftUISyncTestHostUITests-Bridging-Header.h */,
+				AC8846902686573D00DF4A65 /* SwiftUISyncTestHostUITests.swift */,
+				AC2C2A43268F982D00B4DA33 /* SwiftUISyncTestHostUITests.entitlements */,
 			);
-			path = SwifttUISyncTestHostUITests;
+			path = SwiftUISyncTestHostUITests;
 			sourceTree = "<group>";
 		};
 		CF6E047D242A13CB00DB7F14 /* ProviderClients */ = {
@@ -1851,8 +1851,8 @@
 				E81A1FC81955FE0100FDED82 /* Swift */,
 				53A34E3225CDA0AC00698930 /* SwiftUITestHost */,
 				53124AD725B71AF700771CE4 /* SwiftUITestHostUITests */,
-				AC8846742686573B00DF4A65 /* SwifttUISyncTestHost */,
-				AC88468F2686573D00DF4A65 /* SwifttUISyncTestHostUITests */,
+				AC8846742686573B00DF4A65 /* SwiftUISyncTestHost */,
+				AC88468F2686573D00DF4A65 /* SwiftUISyncTestHostUITests */,
 				3F1A5E731992EB7400F45F4C /* TestHost */,
 			);
 			name = "Realm Tests";
@@ -2887,7 +2887,7 @@
 			files = (
 				AC8846782686573B00DF4A65 /* ContentView.swift in Sources */,
 				AC2C2A41268E1B0700B4DA33 /* SwiftServerObjects.swift in Sources */,
-				AC8846762686573B00DF4A65 /* SwifttUISyncTestHostApp.swift in Sources */,
+				AC8846762686573B00DF4A65 /* SwiftUISyncTestHostApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2902,7 +2902,7 @@
 				AC8847A82689263100DF4A65 /* TestUtils.mm in Sources */,
 				AC8847A9268926B500DF4A65 /* RealmServer.swift in Sources */,
 				AC8847A4268925F100DF4A65 /* SwiftSyncTestCase.swift in Sources */,
-				AC88478626888CEE00DF4A65 /* SwifttUISyncTestHostUITests.swift in Sources */,
+				AC88478626888CEE00DF4A65 /* SwiftUISyncTestHostUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
