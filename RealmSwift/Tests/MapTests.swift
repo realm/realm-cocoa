@@ -547,6 +547,49 @@ class MapTests: TestCase {
         }
     }
 
+    func testKeyedSortable() {
+        let map = createMap()
+
+        map["key"] = SwiftStringObject(value: ["apples"])
+        map["key2"] = SwiftStringObject(value: ["bananas"])
+        map["key3"] = SwiftStringObject(value: ["cockroach"])
+
+        if map.realm != nil {
+            let results2: Results<SwiftStringObject?> = map.sorted(by: \.stringCol,
+                                                                   ascending: true)
+            XCTAssertEqual(results2.count, 3)
+            XCTAssertEqual(results2[0]?.stringCol, "apples")
+            XCTAssertEqual(results2[1]?.stringCol, "bananas")
+            XCTAssertEqual(results2[2]?.stringCol, "cockroach")
+        } else {
+            assertThrows(map.sorted(by: \.stringCol, ascending: true))
+        }
+    }
+
+    func testKeyedAggregatable() {
+        let map = SwiftMapPropertyObject()
+        map.intMap["key"] = SwiftIntObject(value: [1])
+        map.intMap["key2"] = SwiftIntObject(value: [2])
+        map.intMap["key3"] = SwiftIntObject(value: [3])
+
+        func assertAggregations() {
+            let min = map.intMap.min(of: \.intCol)
+            let max = map.intMap.max(of: \.intCol)
+            let sum = map.intMap.sum(of: \.intCol)
+            let avg = map.intMap.average(of: \.intCol)
+            XCTAssertEqual(min, 1)
+            XCTAssertEqual(max, 3)
+            XCTAssertEqual(sum, 6)
+            XCTAssertEqual(avg, 2)
+        }
+        // unmanaged
+        assertAggregations()
+        realm.add(map)
+        try! realm.commitWrite()
+        // managed
+        assertAggregations()
+    }
+
     func testAllKeysQuery() {
         let map = createMap()
         if let realm = map.realm {

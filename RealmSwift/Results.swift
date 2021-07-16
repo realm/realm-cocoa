@@ -422,3 +422,12 @@ extension Results: Encodable where Element: Encodable {
         }
     }
 }
+
+// MARK: KeyPath Distinct
+
+extension Results where Element: ObjectBase {
+    public func distinct<S: Sequence>(by keyPaths: S) -> Results<Element>
+        where S.Iterator.Element == PartialKeyPath<Element> {
+            return Results<Element>(rlmResults.distinctResults(usingKeyPaths: keyPaths.map(_name(for:))))
+    }
+}

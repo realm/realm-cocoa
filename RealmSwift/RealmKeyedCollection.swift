@@ -308,6 +308,84 @@ public protocol RealmKeyedCollection: Sequence, ThreadConfined, CustomStringConv
     func thaw() -> Self?
 }
 
+/**
+ Protocol for RealmKeyedCollections where the Value is of an Object type that
+ enables aggregatable operations.
+ */
+public extension RealmKeyedCollection where Value: OptionalProtocol, Value.Wrapped: ObjectBase, Value.Wrapped: RealmCollectionValue {
+    /**
+     Returns the minimum (lowest) value of the given property among all the objects in the collection, or `nil` if the
+     collection is empty.
+
+     - warning: Only a property whose type conforms to the `MinMaxType` protocol can be specified.
+
+     - parameter keyPath: The keyPath of a property whose minimum value is desired.
+     */
+    func min<T: MinMaxType>(of keyPath: KeyPath<Value.Wrapped, T>) -> T? {
+        min(ofProperty: _name(for: keyPath))
+    }
+
+    /**
+     Returns the maximum (highest) value of the given property among all the objects in the collection, or `nil` if the
+     collection is empty.
+
+     - warning: Only a property whose type conforms to the `MinMaxType` protocol can be specified.
+
+     - parameter keyPath: The keyPath of a property whose minimum value is desired.
+     */
+    func max<T: MinMaxType>(of keyPath: KeyPath<Value.Wrapped, T>) -> T? {
+        max(ofProperty: _name(for: keyPath))
+    }
+
+    /**
+    Returns the sum of the given property for objects in the collection, or `nil` if the collection is empty.
+
+    - warning: Only names of properties of a type conforming to the `AddableType` protocol can be used.
+
+    - parameter keyPath: The keyPath of a property conforming to `AddableType` to calculate sum on.
+    */
+    func sum<T: AddableType>(of keyPath: KeyPath<Value.Wrapped, T>) -> T {
+        sum(ofProperty: _name(for: keyPath))
+    }
+
+    /**
+     Returns the average value of a given property over all the objects in the collection, or `nil` if
+     the collection is empty.
+
+     - warning: Only a property whose type conforms to the `AddableType` protocol can be specified.
+
+     - parameter keyPath: The keyPath of a property whose values should be summed.
+     */
+    func average<T: AddableType>(of keyPath: KeyPath<Value.Wrapped, T>) -> T? {
+        average(ofProperty: _name(for: keyPath))
+    }
+}
+
+// MARK: Sortable
+
+/**
+ Protocol for RealmKeyedCollections where the Value is of an Object type that
+ enables sortable operations.
+ */
+public extension RealmKeyedCollection where Value: OptionalProtocol, Value.Wrapped: ObjectBase, Value.Wrapped: RealmCollectionValue {
+    /**
+     Returns a `Results` containing the objects in the collection, but sorted.
+
+     Objects are sorted based on the values of the given key path. For example, to sort a collection of `Student`s from
+     youngest to oldest based on their `age` property, you might call
+     `students.sorted(byKeyPath: "age", ascending: true)`.
+
+     - warning: Collections may only be sorted by properties of boolean, `Date`, `NSDate`, single and double-precision
+                floating point, integer, and string types.
+
+     - parameter keyPath:   The key path to sort by.
+     - parameter ascending: The direction to sort in.
+     */
+    func sorted<T: Comparable>(by keyPath: KeyPath<Value.Wrapped, T>, ascending: Bool) -> Results<Value> {
+        sorted(byKeyPath: _name(for: keyPath), ascending: ascending)
+    }
+}
+
 public extension RealmKeyedCollection where Value: MinMaxType {
     /**
      Returns the minimum (lowest) value of the collection, or `nil` if the collection is empty.

@@ -308,6 +308,20 @@ class RealmCollectionTypeTests: TestCase {
                      reason: "Cannot sort on key path 'noSuchCol': property 'CTTNullableStringObjectWithLink.noSuchCol' does not exist")
     }
 
+    func testSortWithSwiftKeyPath() {
+        var sorted = collection.sorted(by: \.stringCol, ascending: true)
+        XCTAssertEqual("1", sorted[0].stringCol)
+        XCTAssertEqual("2", sorted[1].stringCol)
+
+        sorted = collection.sorted(by: \.stringCol, ascending: false)
+        XCTAssertEqual("2", sorted[0].stringCol)
+        XCTAssertEqual("1", sorted[1].stringCol)
+
+        sorted = collection.sorted(by: \.linkCol?.id, ascending: true)
+        XCTAssertEqual("1", sorted[0].stringCol)
+        XCTAssertEqual("2", sorted[1].stringCol)
+    }
+
     func testSortWithDescriptor() {
         let collection = getAggregateableCollection()
 
@@ -322,6 +336,21 @@ class RealmCollectionTypeTests: TestCase {
         }
         assertThrows(collection.sorted(by: [SortDescriptor(keyPath: "noSuchCol")]),
                      reason: "Cannot sort on key path 'noSuchCol': property 'CTTAggregateObject.noSuchCol' does not exist")
+    }
+
+    func testSortWithDescriptorBySwiftKeyPath() {
+        let collection = getAggregateableCollection()
+
+        let notActuallySorted = collection.sorted(by: [])
+        collection.enumerated().forEach { (e) in
+            assertEqual(e.element, notActuallySorted[e.offset])
+        }
+
+        let sorted = collection.sorted(by: [SortDescriptor(keyPath: \CTTAggregateObject.intCol,
+                                                           ascending: true)])
+        sorted.enumerated().forEach { (e) in
+            XCTAssertEqual(e.offset+1, sorted[e.offset].intCol)
+        }
     }
 
     func testMin() {
@@ -347,6 +376,18 @@ class RealmCollectionTypeTests: TestCase {
         assertThrows(collection.min(ofProperty: "noSuchCol") as Float?, named: "Invalid property name")
     }
 
+    func testMinBySwiftKeyPath() {
+        let collection = getAggregateableCollection()
+        XCTAssertEqual(1, collection.min(of: \.intCol))
+        XCTAssertEqual(1, collection.min(of: \.int8Col))
+        XCTAssertEqual(1, collection.min(of: \.int16Col))
+        XCTAssertEqual(1, collection.min(of: \.int32Col))
+        XCTAssertEqual(1, collection.min(of: \.int64Col))
+        XCTAssertEqual(1.1, collection.min(of: \.floatCol))
+        XCTAssertEqual(1.11, collection.min(of: \.doubleCol))
+        XCTAssertEqual(Date(timeIntervalSince1970: 1), collection.min(of: \.dateCol))
+    }
+
     func testMax() {
         let collection = getAggregateableCollection()
         XCTAssertEqual(3, collection.max(ofProperty: "intCol") as NSNumber?)
@@ -368,6 +409,19 @@ class RealmCollectionTypeTests: TestCase {
 
         assertThrows(collection.max(ofProperty: "noSuchCol") as NSNumber?, named: "Invalid property name")
         assertThrows(collection.max(ofProperty: "noSuchCol") as Float?, named: "Invalid property name")
+    }
+
+    func testMaxBySwiftKeyPath() {
+        let collection = getAggregateableCollection()
+        XCTAssertEqual(3, collection.max(of: \.intCol))
+        XCTAssertEqual(3, collection.max(of: \.int8Col))
+        XCTAssertEqual(3, collection.max(of: \.int16Col))
+        XCTAssertEqual(3, collection.max(of: \.int32Col))
+        XCTAssertEqual(3, collection.max(of: \.int64Col))
+        XCTAssertEqual(2.2, collection.max(of: \.floatCol))
+        XCTAssertEqual(2.22, collection.max(of: \.doubleCol))
+        XCTAssertEqual(2.22, collection.max(of: \.doubleCol))
+        XCTAssertEqual(Date(timeIntervalSince1970: 2), collection.max(of: \.dateCol))
     }
 
     func testSum() {
@@ -393,6 +447,19 @@ class RealmCollectionTypeTests: TestCase {
         assertThrows(collection.sum(ofProperty: "noSuchCol") as Float, named: "Invalid property name")
     }
 
+    func testSumBySwiftKeyPath() {
+        let collection = getAggregateableCollection()
+        XCTAssertEqual(6, collection.sum(of: \.intCol))
+        XCTAssertEqual(6, collection.sum(of: \.int8Col))
+        XCTAssertEqual(6, collection.sum(of: \.int16Col))
+        XCTAssertEqual(6, collection.sum(of: \.int32Col))
+        XCTAssertEqual(6, collection.sum(of: \.int64Col))
+        XCTAssertEqual(5.5, (collection.sum(of: \.floatCol)),
+                                   accuracy: 0.001)
+        XCTAssertEqual(5.55, (collection.sum(of: \.doubleCol)),
+                                   accuracy: 0.001)
+    }
+
     func testAverage() {
         let collection = getAggregateableCollection()
         XCTAssertEqual(2, collection.average(ofProperty: "intCol"))
@@ -404,6 +471,17 @@ class RealmCollectionTypeTests: TestCase {
         XCTAssertEqual(1.85, collection.average(ofProperty: "doubleCol")!, accuracy: 0.001)
 
         assertThrows(collection.average(ofProperty: "noSuchCol") as Double?, named: "Invalid property name")
+    }
+
+    func testAverageBySwiftKeyPath() {
+        let collection = getAggregateableCollection()
+        XCTAssertEqual(2, collection.average(of: \.intCol))
+        XCTAssertEqual(2, collection.average(of: \.int8Col))
+        XCTAssertEqual(2, collection.average(of: \.int16Col))
+        XCTAssertEqual(2, collection.average(of: \.int32Col))
+        XCTAssertEqual(2, collection.average(of: \.int64Col))
+        XCTAssertEqual(1.8333, collection.average(of: \.floatCol)!, accuracy: 0.001)
+        XCTAssertEqual(1.85, collection.average(of: \.doubleCol)!, accuracy: 0.001)
     }
 
     func testFastEnumeration() {
@@ -931,6 +1009,61 @@ class ResultsDistinctTests: TestCase {
         assertThrows(collection.distinct(by: ["@sum.intCol"]))
         assertThrows(collection.distinct(by: ["stringListCol"]))
     }
+
+    func testDistinctResultsUsingSwiftKeyPaths() {
+        let realm = realmWithTestPath()
+
+        let obj1 = CTTAggregateObject()
+        obj1.intCol = 1
+        obj1.trueCol = true
+        let obj2 = CTTAggregateObject()
+        obj2.intCol = 1
+        obj2.trueCol = true
+        let obj3 = CTTAggregateObject()
+        obj3.intCol = 1
+        obj3.trueCol = false
+        let obj4 = CTTAggregateObject()
+        obj4.intCol = 2
+        obj4.trueCol = false
+
+        let childObj1 = CTTIntegerObject()
+        childObj1.intCol = 1
+        obj1.childIntCol = childObj1
+
+        let childObj2 = CTTIntegerObject()
+        childObj2.intCol = 1
+        obj2.childIntCol = childObj2
+
+        let childObj3 = CTTIntegerObject()
+        childObj3.intCol = 2
+        obj3.childIntCol = childObj3
+
+        try! realm.write {
+            realm.add(obj1)
+            realm.add(obj2)
+            realm.add(obj3)
+            realm.add(obj4)
+        }
+
+        let collection = realm.objects(CTTAggregateObject.self)
+        var distinctResults = collection.distinct(by: [\CTTAggregateObject.intCol])
+        var expected = [["int": 1], ["int": 2]]
+        var actual = Array(distinctResults.map { ["int": $0.intCol] })
+        XCTAssertEqual(expected as NSObject, actual as NSObject)
+        assertEqual(distinctResults.map { $0 }, distinctResults.value(forKey: "self") as! [CTTAggregateObject])
+
+        distinctResults = collection.distinct(by: [\CTTAggregateObject.intCol, \CTTAggregateObject.trueCol])
+        expected = [["int": 1, "true": 1], ["int": 1, "true": 0], ["int": 2, "true": 0]]
+        actual = distinctResults.map { ["int": $0.intCol, "true": $0.trueCol ? 1 : 0] }
+        XCTAssertEqual(expected as NSObject, actual as NSObject)
+        assertEqual(distinctResults.map { $0 }, distinctResults.value(forKey: "self") as! [CTTAggregateObject])
+
+        distinctResults = collection.distinct(by: [\CTTAggregateObject.childIntCol?.intCol])
+        expected = [["int": 1], ["int": 2]]
+        actual = distinctResults.map { ["int": $0.childIntCol!.intCol] }
+        XCTAssertEqual(expected as NSObject, actual as NSObject)
+        assertEqual(distinctResults.map { $0 }, distinctResults.value(forKey: "self") as! [CTTAggregateObject])
+    }
 }
 
 class ResultsFromTableTests: ResultsTests {
@@ -1094,6 +1227,13 @@ class ListUnmanagedRealmCollectionTypeTests: ListRealmCollectionTypeTests {
             SortDescriptor(keyPath: "intCol", ascending: false)]))
     }
 
+    override func testSortWithDescriptorBySwiftKeyPath() {
+        let collection = getAggregateableCollection()
+        assertThrows(collection.sorted(by: [SortDescriptor(keyPath: \CTTAggregateObject.intCol, ascending: true)]))
+        assertThrows(collection.sorted(by: [SortDescriptor(keyPath: \CTTAggregateObject.doubleCol, ascending: false),
+            SortDescriptor(keyPath: "intCol", ascending: false)]))
+    }
+
     override func testFastEnumerationWithMutation() {
         // No standalone removal interface provided on RealmCollectionType
     }
@@ -1111,6 +1251,10 @@ class ListUnmanagedRealmCollectionTypeTests: ListRealmCollectionTypeTests {
     override func testSortWithProperty() {
         assertThrows(collection.sorted(byKeyPath: "stringCol", ascending: true))
         assertThrows(collection.sorted(byKeyPath: "noSuchCol", ascending: true))
+    }
+
+    override func testSortWithSwiftKeyPath() {
+        assertThrows(collection.sorted(by: \.stringCol, ascending: true))
     }
 
     override func testFilterFormat() {
@@ -1397,6 +1541,13 @@ class MutableSetUnmanagedRealmCollectionTypeTests: MutableSetRealmCollectionType
             SortDescriptor(keyPath: "intCol", ascending: false)]))
     }
 
+    override func testSortWithDescriptorBySwiftKeyPath() {
+        let collection = getAggregateableCollection()
+        assertThrows(collection.sorted(by: [SortDescriptor(keyPath: \CTTAggregateObject.intCol, ascending: true)]))
+        assertThrows(collection.sorted(by: [SortDescriptor(keyPath: \CTTAggregateObject.doubleCol, ascending: false),
+            SortDescriptor(keyPath: \CTTAggregateObject.intCol, ascending: false)]))
+    }
+
     override func testFastEnumerationWithMutation() {
         // No standalone removal interface provided on RealmCollectionType
     }
@@ -1406,6 +1557,10 @@ class MutableSetUnmanagedRealmCollectionTypeTests: MutableSetRealmCollectionType
     override func testSortWithProperty() {
         assertThrows(collection.sorted(byKeyPath: "stringCol", ascending: true))
         assertThrows(collection.sorted(byKeyPath: "noSuchCol", ascending: true))
+    }
+
+    override func testSortWithSwiftKeyPath() {
+        assertThrows(collection.sorted(by: \.stringCol, ascending: true))
     }
 
     override func testFilterFormat() {
