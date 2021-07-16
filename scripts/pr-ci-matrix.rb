@@ -48,7 +48,7 @@ targets = {
   'cocoapods-watchos' => oldest_and_latest,
   # 'cocoapods-catalyst' => oldest_and_latest,
   'swiftui-ios' => latest_only,
-  'swiftui-server-ios' => latest_only,
+  'swiftui-server-osx' => latest_only,
 }
 
 output_file = """

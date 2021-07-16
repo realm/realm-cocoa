@@ -631,20 +631,6 @@
 			remoteGlobalIDString = 5DD7557B1BE056DE002800DA;
 			remoteInfo = "Realm iOS static";
 		};
-		AC2C2A4626946DB900B4DA33 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E8D89B8F1955FC6D00CF2B9A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AC8846722686573B00DF4A65;
-			remoteInfo = SwifttUISyncTestHost;
-		};
-		AC88469D2686577B00DF4A65 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E8D89B8F1955FC6D00CF2B9A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 5D659E7D1BE04556006515A0;
-			remoteInfo = Realm;
-		};
 		AC88469F2686577B00DF4A65 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E8D89B8F1955FC6D00CF2B9A /* Project object */;
@@ -2097,7 +2083,6 @@
 			);
 			dependencies = (
 				534DF4D025B86F3A00655AE2 /* PBXTargetDependency */,
-				AC2C2A4726946DB900B4DA33 /* PBXTargetDependency */,
 			);
 			name = SwiftUITestHostUITests;
 			productName = SwiftUITestHostUITests;
@@ -2194,7 +2179,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				AC88469E2686577B00DF4A65 /* PBXTargetDependency */,
 				AC8846A02686577B00DF4A65 /* PBXTargetDependency */,
 			);
 			name = SwifttUISyncTestHost;
@@ -3117,16 +3101,6 @@
 			target = 5DD7557B1BE056DE002800DA /* Realm iOS static */;
 			targetProxy = 5DD755D31BE0582A002800DA /* PBXContainerItemProxy */;
 		};
-		AC2C2A4726946DB900B4DA33 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AC8846722686573B00DF4A65 /* SwifttUISyncTestHost */;
-			targetProxy = AC2C2A4626946DB900B4DA33 /* PBXContainerItemProxy */;
-		};
-		AC88469E2686577B00DF4A65 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 5D659E7D1BE04556006515A0 /* Realm */;
-			targetProxy = AC88469D2686577B00DF4A65 /* PBXContainerItemProxy */;
-		};
 		AC8846A02686577B00DF4A65 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 5D660FCB1BE98C560021E04F /* RealmSwift */;
@@ -3327,7 +3301,7 @@
 			baseConfigurationReference = AC8847432687DFE700DF4A65 /* SwiftUISyncTestHost.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
-				PRODUCT_BUNDLE_IDENTIFIER = io.realm.SwiftUISyncTestHost;
+				PRODUCT_BUNDLE_IDENTIFIER = io.realm.TestHost;
 			};
 			name = Debug;
 		};
@@ -3336,7 +3310,7 @@
 			baseConfigurationReference = AC8847432687DFE700DF4A65 /* SwiftUISyncTestHost.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
-				PRODUCT_BUNDLE_IDENTIFIER = io.realm.SwiftUISyncTestHost;
+				PRODUCT_BUNDLE_IDENTIFIER = io.realm.TestHost;
 			};
 			name = Release;
 		};
