@@ -3327,6 +3327,7 @@
 			baseConfigurationReference = AC8847432687DFE700DF4A65 /* SwiftUISyncTestHost.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
+				PRODUCT_BUNDLE_IDENTIFIER = io.realm.SwiftUISyncTestHost;
 			};
 			name = Debug;
 		};
@@ -3335,6 +3336,7 @@
 			baseConfigurationReference = AC8847432687DFE700DF4A65 /* SwiftUISyncTestHost.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
+				PRODUCT_BUNDLE_IDENTIFIER = io.realm.SwiftUISyncTestHost;
 			};
 			name = Release;
 		};

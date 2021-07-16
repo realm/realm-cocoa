@@ -19,83 +19,83 @@
 import XCTest
 import RealmSwift
 
-class SwifttUISyncTestHostUITests: SwiftSyncTestCase {
-    // MARK: - AsyncOpen
-    func testDownloadRealmAsyncOpenApp() throws {
-        let user = logInUser(for: basicCredentials(withName: #function, register: isParent))
-        if !isParent {
+class SwiftUISyncTestHostUITests: SwiftSyncTestCase {
+    let application = XCUIApplication()
+    static var isDataCreated = false
+    override func setUp() {
+        super.setUp()
+        if !SwiftUISyncTestHostUITests.isDataCreated {
+            let user = logInUser(for: basicCredentials(withName: #function, register: true))
             populateRealm(user: user, partitionValue: #function)
-            return
+            SwiftUISyncTestHostUITests.isDataCreated = true
         }
 
-        executeChild()
+        application.launchEnvironment["function_name"] = #function
+        application.launchEnvironment["app_id"] = appId
+    }
 
-        let app = XCUIApplication()
-        app.launchEnvironment["test_type"] = "async_open"
-        app.launchEnvironment["app_id"] = appId
-        app.launchEnvironment["function_name"] = #function
-        app.launch()
+    override func tearDown() {
+        application.terminate()
+        super.tearDown()
+    }
 
-        // Test that the user is already logged
-        let loggingView = app.staticTexts["logged-view"]
+    // MARK: - AsyncOpen
+    func testDownloadRealmAsyncOpenApp() throws {
+        application.launchEnvironment["test_type"] = "async_open"
+        application.launch()
+
+        // Test that the user is already logged in
+        let loggingView = application.staticTexts["logged-view"]
         XCTAssertTrue(loggingView.waitForExistence(timeout: 2))
 
         // Query for button to start syncing
-        let syncButtonView = app.buttons["sync-button-view"]
+        let syncButtonView = application.buttons["sync-button-view"]
+        XCTAssertTrue(syncButtonView.waitForExistence(timeout: 2))
         syncButtonView.tap()
 
         // Test progress is greater than 0
-        let progressView = app.staticTexts["progress-text-view"]
+        let progressView = application.staticTexts["progress-text-view"]
         XCTAssertTrue(progressView.waitForExistence(timeout: 2))
         let progressValue = progressView.value as! String
         XCTAssertTrue(Int64(progressValue)! > 0)
 
         // Query for button to navigate to next view
-        let nextViewView = app.buttons["show-list-button-view"]
+        let nextViewView = application.buttons["show-list-button-view"]
         nextViewView.tap()
 
         // Test show ListView after syncing realm
-        let table = app.tables.firstMatch
+        let table = application.tables.firstMatch
         XCTAssertTrue(table.waitForExistence(timeout: 6))
         XCTAssertEqual(table.cells.count, SwiftSyncTestCase.bigObjectCount)
     }
 
     // MARK: - AutoOpen
     func testDownloadRealmAutoOpenApp() throws {
-        let user = logInUser(for: basicCredentials(withName: #function, register: isParent))
-        if !isParent {
-            populateRealm(user: user, partitionValue: #function)
-            return
-        }
+        application.launchEnvironment["test_type"] = "auto_open"
+        application.launch()
 
-        executeChild()
-
-        let app = XCUIApplication()
-        app.launchEnvironment["test_type"] = "auto_open"
-        app.launchEnvironment["app_id"] = appId
-        app.launchEnvironment["function_name"] = #function
-        app.launch()
-
-        // Test that the user is already logged
-        let loggingView = app.staticTexts["logged-view"]
+        // Test that the user is already logged in
+        let loggingView = application.staticTexts["logged-view"]
         XCTAssertTrue(loggingView.waitForExistence(timeout: 2))
 
         // Query for button to start syncing
-        let syncButtonView = app.buttons["sync-button-view"]
+        let syncButtonView = application.buttons["sync-button-view"]
+        XCTAssertTrue(syncButtonView.waitForExistence(timeout: 2))
+        print(syncButtonView)
         syncButtonView.tap()
 
         // Test progress is greater than 0
-        let progressView = app.staticTexts["progress-text-view"]
+        let progressView = application.staticTexts["progress-text-view"]
         XCTAssertTrue(progressView.waitForExistence(timeout: 2))
         let progressValue = progressView.value as! String
         XCTAssertTrue(Int64(progressValue)! > 0)
 
         // Query for button to navigate to next view
-        let nextViewView = app.buttons["show-list-button-view"]
+        let nextViewView = application.buttons["show-list-button-view"]
         nextViewView.tap()
 
         // Test show ListView after syncing realm
-        let table = app.tables.firstMatch
+        let table = application.tables.firstMatch
         XCTAssertTrue(table.waitForExistence(timeout: 6))
         XCTAssertEqual(table.cells.count, SwiftSyncTestCase.bigObjectCount)
     }

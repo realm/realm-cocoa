@@ -30,6 +30,7 @@ enum LoggingViewState {
 struct LoginView: View {
     @State var viewState: LoggingViewState = .initial
     @ObservedObject var loginHelper = LoginHelper()
+    let testType: String = ProcessInfo.processInfo.environment["test_type"]!
 
     var body: some View {
         VStack {
@@ -56,7 +57,7 @@ struct LoginView: View {
                 .background(Color.yellow)
                 .transition(AnyTransition.move(edge: .trailing)).animation(.default)
             case .syncing:
-                switch ProcessInfo.processInfo.environment["test_type"] {
+                switch testType {
                 case "async_open":
                     AsyncOpenView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
