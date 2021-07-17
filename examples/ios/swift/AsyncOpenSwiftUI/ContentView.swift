@@ -17,16 +17,17 @@
  ////////////////////////////////////////////////////////////////////////////
 
 import SwiftUI
-import RealmSwift
 import Combine
+import RealmSwift
 
 class Contact: Object, ObjectKeyIdentifiable {
-    @Persisted var name: String
-    @Persisted var lastName: String
-    @Persisted var email: String
+    @Persisted(primaryKey: true) var _id: String
+    @Persisted var name: String = ""
+    @Persisted var lastName: String = ""
+    @Persisted var email: String = ""
     @Persisted var phones: RealmSwift.List<PhoneNumber>
-    @Persisted var birthdate: Date
-    @Persisted var notes: String
+    @Persisted var birthdate: Date = Date()
+    @Persisted var notes: String = ""
 
     var fullName: String {
         return "\(name) \(lastName)"
@@ -39,7 +40,7 @@ class PhoneNumber: EmbeddedObject, ObjectKeyIdentifiable {
         case home, mobile, work
     }
     @Persisted var type: PhoneNumberType = .home
-    @Persisted var phoneNumber: String
+    @Persisted var phoneNumber: String = ""
 }
 
 // You can find your Realm app ID in the Realm UI.
@@ -56,13 +57,18 @@ private enum NavigationType: String {
 // For the purpose of this example, we have to ways of syncing, using @AsyncOpen and @AutoOpen
 struct ContentView: View {
     var body: some View {
-        VStack {
-            NavigationLink(destination: LoginView(navigationType: .asyncOpen)) {
-                Text("@AsyncOpen")
-            }
-            Spacer()
-            NavigationLink(destination: LoginView(navigationType: .autoOpen)) {
-                Text("@AutoOpen")
+        NavigationView {
+            VStack(spacing: 20) {
+                Button(action: {}, label: {
+                    NavigationLink(destination: LoginView(navigationType: .asyncOpen)) {
+                        Text("@AsyncOpen")
+                    }
+                })
+                Button(action: {}, label: {
+                    NavigationLink(destination: LoginView(navigationType: .autoOpen)) {
+                        Text("@AutoOpen")
+                    }
+                })
             }
         }
     }
@@ -79,24 +85,21 @@ struct LoginView: View {
     @State var password: String = ""
     @State var navigationTag: String?
 
-    var cancellables = Set<AnyCancellable>()
-
     var body: some View {
-        NavigationView {
-            VStack {
-                TextField("Email", text: $email)
-                TextField("Password", text: $password)
-                Spacer()
-                NavigationLink(destination: AsyncOpenView(), tag: "asyncOpen", selection: $navigationTag, label: { EmptyView()})
-                NavigationLink(destination: AutoOpenView(), tag: "autoOpen", selection: $navigationTag, label: { EmptyView()})
-                Button("Login") {
-                    loginHelper.login(email: email, password: password) {
-                        navigationTag = navigationType.rawValue
-                    }
+        VStack {
+            TextField("Email", text: $email)
+                .autocapitalization(.none)
+            SecureField("Password", text: $password)
+            Spacer()
+            NavigationLink(destination: AsyncOpenView(), tag: "asyncOpen", selection: $navigationTag, label: { EmptyView()})
+            NavigationLink(destination: AutoOpenView(), tag: "autoOpen", selection: $navigationTag, label: { EmptyView()})
+            Button("Login") {
+                loginHelper.login(email: email, password: password) {
+                    navigationTag = navigationType.rawValue
                 }
             }
-            .padding()
         }
+        .padding()
         .navigationTitle("Logging View")
     }
 }
@@ -105,11 +108,7 @@ class LoginHelper: ObservableObject {
     var cancellables = Set<AnyCancellable>()
 
     func login(email: String, password: String, completion: @escaping () -> Void) {
-        let appConfig = AppConfiguration(baseURL: "http://localhost:9090",
-                                         transport: nil,
-                                         localAppName: nil,
-                                         localAppVersion: nil)
-        let app = RealmSwift.App(id: ProcessInfo.processInfo.environment["app_id"]!, configuration: appConfig)
+        let app = RealmSwift.App(id: appId)
         app.login(credentials: Credentials.emailPassword(email: email, password: password))
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { _ in
@@ -144,7 +143,7 @@ struct AsyncOpenView: View {
 }
 
 // AutoOpen declaration and use is the same as AsyncOpen, but in case of no internet
-// connection this will return an opened realm. 
+// connection this will return an opened realm.
 struct AutoOpenView: View {
     @State var error: Error?
     @AutoOpen(appId: appId, partitionValue: partitionValue, timeout: 2000) var autoOpen
@@ -171,9 +170,11 @@ struct AutoOpenView: View {
 struct ErrorView: View {
     @State var error: Error
     var body: some View {
-        Text("Error")
-        Spacer()
-        Text(error.localizedDescription)
+        VStack(spacing: 20) {
+            Text("Error")
+            Text(error.localizedDescription)
+        }
+        .padding()
     }
 }
 
@@ -236,8 +237,8 @@ struct ContactDetailView: View {
                     ForEach($contact.phones) { phone in
                         HStack {
                             Picker(selection: phone.type, label: Text("")) {
-                                ForEach(PhoneNumber.PhoneNumberType.allCases) { phoneTypes in
-                                    Text("\(phoneTypes.rawValue)").tag(phoneTypes.rawValue)
+                                ForEach(PhoneNumber.PhoneNumberType.allCases) { phoneType in
+                                    Text("\(phoneType.rawValue)").tag(phoneType)
                                 }
                             }
                             TextField("Phone Number", text: phone.phoneNumber)
@@ -256,8 +257,8 @@ struct ContactDetailView: View {
                 ForEach($contact.phones) { phone in
                     HStack {
                         Picker(selection: phone.type, label: Text("")) {
-                            ForEach(PhoneNumber.PhoneNumberType.allCases) { phoneTypes in
-                                Text("\(phoneTypes.rawValue)").tag(phoneTypes.rawValue)
+                            ForEach(PhoneNumber.PhoneNumberType.allCases) { phoneType in
+                                Text("\(phoneType.rawValue)").tag(phoneType)
                             }
                         }
                         TextField("Phone Number", text: phone.phoneNumber)
