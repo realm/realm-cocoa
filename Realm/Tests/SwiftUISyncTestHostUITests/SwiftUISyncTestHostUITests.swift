@@ -23,6 +23,7 @@ class SwiftUISyncTestHostUITests: SwiftSyncTestCase {
     let application = XCUIApplication()
     static var isDataCreated = false
     override func setUp() {
+        continueAfterFailure = false
         super.setUp()
         if !SwiftUISyncTestHostUITests.isDataCreated {
             let user = logInUser(for: basicCredentials(withName: #function, register: true))
@@ -36,7 +37,27 @@ class SwiftUISyncTestHostUITests: SwiftSyncTestCase {
 
     override func tearDown() {
         application.terminate()
+        deleteApplicationData()
         super.tearDown()
+    }
+
+    func deleteApplicationData() {
+        do {
+            let fileManager = FileManager.default
+            let applicationSupportDir = try fileManager.url(for: .applicationSupportDirectory,
+                                                               in: .userDomainMask,
+                                                               appropriateFor: nil,
+                                                               create: false)
+            let applicationsUrls = try fileManager.contentsOfDirectory(at: applicationSupportDir,
+                                                                       includingPropertiesForKeys: nil)
+            for applicationUrl in applicationsUrls {
+                if applicationUrl.lastPathComponent == "io.realm.TestHost" {
+                    try fileManager.removeItem(at: applicationUrl)
+                }
+            }
+        } catch {
+            XCTFail("Error reseting application data")
+        }
     }
 
     // MARK: - AsyncOpen
@@ -62,6 +83,44 @@ class SwiftUISyncTestHostUITests: SwiftSyncTestCase {
         // Query for button to navigate to next view
         let nextViewView = application.buttons["show-list-button-view"]
         nextViewView.tap()
+
+        // Test show ListView after syncing realm environment
+        let table = application.tables.firstMatch
+        XCTAssertTrue(table.waitForExistence(timeout: 6))
+        XCTAssertEqual(table.cells.count, SwiftSyncTestCase.bigObjectCount)
+    }
+
+    func testDownloadRealmAsyncOpenAppWithEnvironmentPartitionValue() throws {
+        application.launchEnvironment["test_type"] = "async_open_environment_partition_value"
+        application.launch()
+
+        // Test that the user is already logged in
+        let loggingView = application.staticTexts["logged-view"]
+        XCTAssertTrue(loggingView.waitForExistence(timeout: 2))
+
+        // Query for button to start syncing
+        let syncButtonView = application.buttons["sync-button-view"]
+        XCTAssertTrue(syncButtonView.waitForExistence(timeout: 2))
+        syncButtonView.tap()
+
+        // Test show ListView after syncing realm
+        let table = application.tables.firstMatch
+        XCTAssertTrue(table.waitForExistence(timeout: 6))
+        XCTAssertEqual(table.cells.count, SwiftSyncTestCase.bigObjectCount)
+    }
+
+    func testDownloadRealmAsyncOpenAppWithEnvironmentConfiguration() throws {
+        application.launchEnvironment["test_type"] = "async_open_environment_configuration"
+        application.launch()
+
+        // Test that the user is already logged in
+        let loggingView = application.staticTexts["logged-view"]
+        XCTAssertTrue(loggingView.waitForExistence(timeout: 2))
+
+        // Query for button to start syncing
+        let syncButtonView = application.buttons["sync-button-view"]
+        XCTAssertTrue(syncButtonView.waitForExistence(timeout: 2))
+        syncButtonView.tap()
 
         // Test show ListView after syncing realm
         let table = application.tables.firstMatch
@@ -93,6 +152,44 @@ class SwiftUISyncTestHostUITests: SwiftSyncTestCase {
         // Query for button to navigate to next view
         let nextViewView = application.buttons["show-list-button-view"]
         nextViewView.tap()
+
+        // Test show ListView after syncing realm
+        let table = application.tables.firstMatch
+        XCTAssertTrue(table.waitForExistence(timeout: 6))
+        XCTAssertEqual(table.cells.count, SwiftSyncTestCase.bigObjectCount)
+    }
+
+    func testDownloadRealmAutoOpenAppWithEnvironmentPartitionValue() throws {
+        application.launchEnvironment["test_type"] = "auto_open_environment_partition_value"
+        application.launch()
+
+        // Test that the user is already logged in
+        let loggingView = application.staticTexts["logged-view"]
+        XCTAssertTrue(loggingView.waitForExistence(timeout: 2))
+
+        // Query for button to start syncing
+        let syncButtonView = application.buttons["sync-button-view"]
+        XCTAssertTrue(syncButtonView.waitForExistence(timeout: 2))
+        syncButtonView.tap()
+
+        // Test show ListView after syncing realm
+        let table = application.tables.firstMatch
+        XCTAssertTrue(table.waitForExistence(timeout: 6))
+        XCTAssertEqual(table.cells.count, SwiftSyncTestCase.bigObjectCount)
+    }
+
+    func testDownloadRealmAutoOpenAppWithEnvironmentConfiguration() throws {
+        application.launchEnvironment["test_type"] = "auto_open_environment_configuration"
+        application.launch()
+
+        // Test that the user is already logged in
+        let loggingView = application.staticTexts["logged-view"]
+        XCTAssertTrue(loggingView.waitForExistence(timeout: 2))
+
+        // Query for button to start syncing
+        let syncButtonView = application.buttons["sync-button-view"]
+        XCTAssertTrue(syncButtonView.waitForExistence(timeout: 2))
+        syncButtonView.tap()
 
         // Test show ListView after syncing realm
         let table = application.tables.firstMatch
