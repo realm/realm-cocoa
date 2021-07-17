@@ -619,8 +619,16 @@ extension ThreadConfined where Self: ObjectBase {
     }
 }
 
+public protocol PartitionValue {
+    var anyBSON: AnyBSON { get }
+}
+
 private struct RealmEnvironmentKey: EnvironmentKey {
     static let defaultValue = Realm.Configuration.defaultConfiguration
+}
+
+private struct PartitionValueEnvironmentKey: EnvironmentKey {
+    static let defaultValue: PartitionValue? = nil
 }
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
@@ -641,6 +649,15 @@ extension EnvironmentValues {
         }
         set {
             self[RealmEnvironmentKey] = newValue.configuration
+        }
+    }
+    /// The current `PartitionValue` that the view should use.
+    public var partitionValue: PartitionValue? {
+        get {
+            return self[PartitionValueEnvironmentKey]
+        }
+        set {
+            self[PartitionValueEnvironmentKey] = newValue
         }
     }
 }

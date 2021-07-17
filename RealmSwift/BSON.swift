@@ -20,7 +20,7 @@ import Realm
 
 /// Protocol representing a BSON value.
 /// - SeeAlso: bsonspec.org
-public protocol BSON: Equatable {
+public protocol BSON: PartitionValue, Equatable {
 }
 
 extension NSNull: BSON {
@@ -62,13 +62,19 @@ extension UUID: BSON {
 /// A Dictionary object representing a `BSON` document.
 public typealias Document = Dictionary<String, AnyBSON?>
 
-extension Dictionary: BSON where Key == String, Value == AnyBSON? {
+extension Dictionary: BSON, PartitionValue where Key == String, Value == AnyBSON? {
 }
 
-extension Array: BSON where Element == AnyBSON? {
+extension Array: BSON, PartitionValue where Element == AnyBSON? {
 }
 
 extension NSRegularExpression: BSON {
+}
+
+extension BSON {
+    public var anyBSON: AnyBSON {
+        return AnyBSON(self)
+    }
 }
 
 /// MaxKey will always be the greatest value when comparing to other BSON types
