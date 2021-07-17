@@ -43,6 +43,16 @@ class SwiftObjectServerTests: SwiftSyncTestCase {
         }
     }
 
+    func testBasicSwiftSyncWithAnyBSONPartitionValue() {
+        do {
+            let user = try logInUser(for: basicCredentials())
+            let realm = try openRealm(partitionValue: .string(#function), user: user)
+            XCTAssert(realm.isEmpty, "Freshly synced Realm was not empty...")
+        } catch {
+            XCTFail("Got an error: \(error)")
+        }
+    }
+
     func testBasicSwiftSyncWithNilPartitionValue() {
         do {
             let user = try logInUser(for: basicCredentials())
