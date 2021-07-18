@@ -102,7 +102,7 @@ struct LoginView: View {
             viewState = .logging
             loginHelper.login(email: ProcessInfo.processInfo.environment["function_name"]!,
                               password: "password",
-                              completion: { user in
+                              completion: {
                 viewState = .logged
             })
         })
@@ -113,7 +113,7 @@ class LoginHelper: ObservableObject {
     @Published var user: User?
     var cancellables = Set<AnyCancellable>()
 
-    func login(email: String, password: String, completion: @escaping (User) -> Void) {
+    func login(email: String, password: String, completion: @escaping () -> Void) {
         let appConfig = AppConfiguration(baseURL: "http://localhost:9090",
                                          transport: nil,
                                          localAppName: nil,
@@ -124,7 +124,7 @@ class LoginHelper: ObservableObject {
             .sink(receiveCompletion: { _ in
             }, receiveValue: { user in
                 self.user = user
-                completion(user)
+                completion()
             })
             .store(in: &cancellables)
     }

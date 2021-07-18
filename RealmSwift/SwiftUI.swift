@@ -840,9 +840,6 @@ public enum AsyncOpenState {
             storage.partitionValue == nil || storage.partitionValue != bsonPartitionValue {
             storage.partitionValue = bsonPartitionValue
 
-            assert(storage.app != nil, "App should have been already stored at initialization")
-            assert(storage.configuration != nil, "Configuration should have been already stored at initialization")
-
             if let app = storage.app,
                let partitionValue = storage.partitionValue,
                let configuration = storage.configuration {
@@ -850,15 +847,12 @@ public enum AsyncOpenState {
                 asyncOpenForApp(app, partitionValue: partitionValue, configuration: configuration)
             }
         }
-        
+
         if storage.configuration == nil || storage.configuration != configuration {
             storage.configuration = configuration
             if let partitionValue = configuration.syncConfiguration?.partitionValue {
                 storage.partitionValue = partitionValue
             }
-
-            assert(storage.app != nil, "App should have been already stored at initialization")
-            assert(storage.partitionValue != nil, "PartitionValue should have been already stored at initialization")
 
             if let app = storage.app,
                let partitionValue = storage.partitionValue,

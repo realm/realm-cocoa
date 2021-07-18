@@ -50,10 +50,8 @@ class SwiftUISyncTestHostUITests: SwiftSyncTestCase {
                                                                create: false)
             let applicationsUrls = try fileManager.contentsOfDirectory(at: applicationSupportDir,
                                                                        includingPropertiesForKeys: nil)
-            for applicationUrl in applicationsUrls {
-                if applicationUrl.lastPathComponent == "io.realm.TestHost" {
-                    try fileManager.removeItem(at: applicationUrl)
-                }
+            for applicationUrl in applicationsUrls where applicationUrl.lastPathComponent == "io.realm.TestHost" {
+                try fileManager.removeItem(at: applicationUrl)
             }
         } catch {
             XCTFail("Error reseting application data")
