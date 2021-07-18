@@ -750,6 +750,10 @@ static NSURL *syncDirectoryForChildProcess() {
     }
 
     [self.app.syncManager resetForTesting];
+    [self resetAppCache];
+}
+
+- (void)resetAppCache {
     [RLMApp resetAppCache];
 }
 

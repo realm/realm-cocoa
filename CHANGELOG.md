@@ -1,13 +1,23 @@
 x.y.z Release notes (yyyy-MM-dd)
 =============================================================
 ### Enhancements
-* None.
+* Add two new property wrappers for opening a Realm asynchronously in a 
+  SwiftUI View
+    - `AsyncOpen` is a property wrapped that initiates Realm.asyncOpen 
+       for the current user, notifying the view when there is a change in Realm asyncOpen state.
+    - `AutoOpen` behaves similar to `AsyncOpen` but in case of no internet
+       connection this will return an opened realm. 
+* Add `EnvironmentValues.partitionValue`, this value can be injected into any view using one of 
+  our new property wrappers `AsyncOpen` and `AutoOpen`.
+  `MyView().environment(\.partitionValue, "partitionValue")`. 
 
 ### Fixed
 * `RealmProperty<T?>` would crash when decoding a `null` json value.
   ([Cocoa #7323](https://github.com/realm/realm-cocoa/issues/7323), since v10.8.0)
 * `@Persisted<T?>` would crash when decoding a `null` value.
   ([#7332](https://github.com/realm/realm-cocoa/issues/7332), since v10.10.0).
+* Fixed `configuration(partitionValue: AnyBSON)` will set always a nil partition value
+  for the user sync configuration.
 
 <!-- ### Breaking Changes - ONLY INCLUDE FOR NEW MAJOR version -->
 

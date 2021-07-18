@@ -47,6 +47,20 @@
 		7DFFB15E25C19F0700CA8AE5 /* Example_v0.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DFFB15D25C19F0700CA8AE5 /* Example_v0.swift */; };
 		7DFFB16F25C1B65A00CA8AE5 /* Example_v1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DFFB16E25C1B65A00CA8AE5 /* Example_v1.swift */; };
 		7DFFB17725C1B84E00CA8AE5 /* Example_v2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DFFB17625C1B84E00CA8AE5 /* Example_v2.swift */; };
+		AC1004B4269C3D31008C482D /* AsyncOpenSwiftUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1004A7269C3D30008C482D /* AsyncOpenSwiftUIApp.swift */; };
+		AC1004B5269C3D31008C482D /* AsyncOpenSwiftUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1004A7269C3D30008C482D /* AsyncOpenSwiftUIApp.swift */; };
+		AC1004B6269C3D31008C482D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1004A8269C3D30008C482D /* ContentView.swift */; };
+		AC1004B7269C3D31008C482D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1004A8269C3D30008C482D /* ContentView.swift */; };
+		AC1004B8269C3D31008C482D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AC1004A9269C3D31008C482D /* Assets.xcassets */; };
+		AC1004B9269C3D31008C482D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AC1004A9269C3D31008C482D /* Assets.xcassets */; };
+		AC2D0C10269C470900126DCF /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC2D0C0E269C470900126DCF /* Realm.framework */; };
+		AC2D0C11269C470900126DCF /* Realm.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AC2D0C0E269C470900126DCF /* Realm.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AC2D0C12269C470900126DCF /* RealmSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC2D0C0F269C470900126DCF /* RealmSwift.framework */; };
+		AC2D0C13269C470900126DCF /* RealmSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AC2D0C0F269C470900126DCF /* RealmSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AC2D0C17269C471200126DCF /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC2D0C15269C471200126DCF /* Realm.framework */; };
+		AC2D0C18269C471200126DCF /* Realm.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AC2D0C15269C471200126DCF /* Realm.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AC2D0C19269C471200126DCF /* RealmSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC2D0C16269C471200126DCF /* RealmSwift.framework */; };
+		AC2D0C1A269C471200126DCF /* RealmSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AC2D0C16269C471200126DCF /* RealmSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C07E5D7A1B15003B00ED625C /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C07E5D791B15001500ED625C /* Realm.framework */; };
 		C07E5D7B1B15003B00ED625C /* Realm.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = C07E5D791B15001500ED625C /* Realm.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C07E5D7C1B15004800ED625C /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C07E5D791B15001500ED625C /* Realm.framework */; };
@@ -130,6 +144,30 @@
 				53454CEC24EAC45700678E48 /* AppClip.app in Embed App Clips */,
 			);
 			name = "Embed App Clips";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AC2D0C14269C470900126DCF /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				AC2D0C13269C470900126DCF /* RealmSwift.framework in Embed Frameworks */,
+				AC2D0C11269C470900126DCF /* Realm.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AC2D0C1B269C471200126DCF /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				AC2D0C1A269C471200126DCF /* RealmSwift.framework in Embed Frameworks */,
+				AC2D0C18269C471200126DCF /* Realm.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		C01304E31A60A4A000EB3E1E /* CopyFiles */ = {
@@ -263,6 +301,17 @@
 		7DFFB16E25C1B65A00CA8AE5 /* Example_v1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Example_v1.swift; sourceTree = "<group>"; };
 		7DFFB17625C1B84E00CA8AE5 /* Example_v2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Example_v2.swift; sourceTree = "<group>"; };
 		9C318E8C1CA42C7800879076 /* GettingStarted.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = GettingStarted.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		AC1004A7269C3D30008C482D /* AsyncOpenSwiftUIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncOpenSwiftUIApp.swift; sourceTree = "<group>"; };
+		AC1004A8269C3D30008C482D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		AC1004A9269C3D31008C482D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AC1004AE269C3D31008C482D /* AsyncOpenSwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AsyncOpenSwiftUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AC1004B3269C3D31008C482D /* AsyncOpenSwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AsyncOpenSwiftUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AC2D0C0E269C470900126DCF /* Realm.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Realm.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AC2D0C0F269C470900126DCF /* RealmSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = RealmSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AC2D0C15269C471200126DCF /* Realm.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Realm.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AC2D0C16269C471200126DCF /* RealmSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = RealmSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AC6210C2269C5B2C003134E1 /* AsyncOpenSwiftUI--macOS--Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "AsyncOpenSwiftUI--macOS--Info.plist"; sourceTree = "<group>"; };
+		AC6210C3269C5B3F003134E1 /* AsyncOpenSwiftUI--iOS--Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "AsyncOpenSwiftUI--iOS--Info.plist"; sourceTree = "<group>"; };
 		C07E5D791B15001500ED625C /* Realm.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Realm.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C09C490F1A605A4800638C9F /* RealmSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = RealmSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CFEDF00724B72622007FF10A /* AppleAuthentication.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppleAuthentication.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -327,6 +376,24 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AC1004AB269C3D31008C482D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AC2D0C12269C470900126DCF /* RealmSwift.framework in Frameworks */,
+				AC2D0C10269C470900126DCF /* Realm.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AC1004B0269C3D31008C482D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AC2D0C19269C471200126DCF /* RealmSwift.framework in Frameworks */,
+				AC2D0C17269C471200126DCF /* Realm.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -444,6 +511,10 @@
 		493759B8230D9F9A0078C28E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AC2D0C15269C471200126DCF /* Realm.framework */,
+				AC2D0C16269C471200126DCF /* RealmSwift.framework */,
+				AC2D0C0E269C470900126DCF /* Realm.framework */,
+				AC2D0C0F269C470900126DCF /* RealmSwift.framework */,
 				CFF1724924B7310D00A16A59 /* Realm.framework */,
 				CFEDF01D24B72B67007FF10A /* Realm.framework */,
 				493759B9230D9F9A0078C28E /* Realm.framework */,
@@ -530,6 +601,18 @@
 			path = RealmTemplates;
 			sourceTree = "<group>";
 		};
+		AC1004A6269C3D30008C482D /* AsyncOpenSwiftUI */ = {
+			isa = PBXGroup;
+			children = (
+				AC1004A7269C3D30008C482D /* AsyncOpenSwiftUIApp.swift */,
+				AC1004A8269C3D30008C482D /* ContentView.swift */,
+				AC1004A9269C3D31008C482D /* Assets.xcassets */,
+				AC6210C3269C5B3F003134E1 /* AsyncOpenSwiftUI--iOS--Info.plist */,
+				AC6210C2269C5B2C003134E1 /* AsyncOpenSwiftUI--macOS--Info.plist */,
+			);
+			path = AsyncOpenSwiftUI;
+			sourceTree = "<group>";
+		};
 		CFEDF00824B72622007FF10A /* AppleAuthentication */ = {
 			isa = PBXGroup;
 			children = (
@@ -563,6 +646,7 @@
 				E8D3F2751A11766A00620884 /* Backlink */,
 				227D20F01CB609A1008F641B /* Common */,
 				E8CB087F19BA6AEE0018434A /* Encryption */,
+				AC1004A6269C3D30008C482D /* AsyncOpenSwiftUI */,
 				493759B8230D9F9A0078C28E /* Frameworks */,
 				E886FB621A12A73E00CB2D0B /* GroupedTableView */,
 				493759A5230D8CA60078C28E /* ListSwiftUI */,
@@ -591,6 +675,8 @@
 				E8F14D0A1CF8FD0C00564AF5 /* PlaygroundFrameworkWrapper.framework */,
 				E8CB085E19BA6ACA0018434A /* Simple.app */,
 				E8CB083919BA6AC60018434A /* TableView.app */,
+				AC1004AE269C3D31008C482D /* AsyncOpenSwiftUI.app */,
+				AC1004B3269C3D31008C482D /* AsyncOpenSwiftUI.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -723,6 +809,42 @@
 			productName = AppClip;
 			productReference = 53454CDD24EAC45500678E48 /* AppClip.app */;
 			productType = "com.apple.product-type.application.on-demand-install-capable";
+		};
+		AC1004AD269C3D31008C482D /* AsyncOpenSwiftUI (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AC1004BE269C3D31008C482D /* Build configuration list for PBXNativeTarget "AsyncOpenSwiftUI (iOS)" */;
+			buildPhases = (
+				AC1004AA269C3D31008C482D /* Sources */,
+				AC1004AB269C3D31008C482D /* Frameworks */,
+				AC1004AC269C3D31008C482D /* Resources */,
+				AC2D0C14269C470900126DCF /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "AsyncOpenSwiftUI (iOS)";
+			productName = "AsyncOpenSwiftUI (iOS)";
+			productReference = AC1004AE269C3D31008C482D /* AsyncOpenSwiftUI.app */;
+			productType = "com.apple.product-type.application";
+		};
+		AC1004B2269C3D31008C482D /* AsyncOpenSwiftUI (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AC1004BF269C3D31008C482D /* Build configuration list for PBXNativeTarget "AsyncOpenSwiftUI (macOS)" */;
+			buildPhases = (
+				AC1004AF269C3D31008C482D /* Sources */,
+				AC1004B0269C3D31008C482D /* Frameworks */,
+				AC1004B1269C3D31008C482D /* Resources */,
+				AC2D0C1B269C471200126DCF /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "AsyncOpenSwiftUI (macOS)";
+			productName = "AsyncOpenSwiftUI (macOS)";
+			productReference = AC1004B3269C3D31008C482D /* AsyncOpenSwiftUI.app */;
+			productType = "com.apple.product-type.application";
 		};
 		CFEDF00624B72622007FF10A /* AppleAuthentication */ = {
 			isa = PBXNativeTarget;
@@ -891,6 +1013,14 @@
 						LastSwiftMigration = 1300;
 						ProvisioningStyle = Automatic;
 					};
+					AC1004AD269C3D31008C482D = {
+						CreatedOnToolsVersion = 13.0;
+						ProvisioningStyle = Automatic;
+					};
+					AC1004B2269C3D31008C482D = {
+						CreatedOnToolsVersion = 13.0;
+						ProvisioningStyle = Automatic;
+					};
 					CFEDF00624B72622007FF10A = {
 						CreatedOnToolsVersion = 11.5;
 						DevelopmentTeam = YYB57M5EKY;
@@ -941,6 +1071,8 @@
 				CFEDF00624B72622007FF10A /* AppleAuthentication */,
 				53454CC924EAC43500678E48 /* AppClipParent */,
 				53454CDC24EAC45500678E48 /* AppClip */,
+				AC1004AD269C3D31008C482D /* AsyncOpenSwiftUI (iOS) */,
+				AC1004B2269C3D31008C482D /* AsyncOpenSwiftUI (macOS) */,
 			);
 		};
 /* End PBXProject section */
@@ -992,6 +1124,22 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AC1004AC269C3D31008C482D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AC1004B8269C3D31008C482D /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AC1004B1269C3D31008C482D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AC1004B9269C3D31008C482D /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1070,6 +1218,24 @@
 				3FA2F300268FCA380015062E /* Constants.swift in Sources */,
 				3FA2F304268FCAC80015062E /* ContentView.swift in Sources */,
 				3FA2F2FF268FCA380015062E /* DemoObject.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AC1004AA269C3D31008C482D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AC1004B6269C3D31008C482D /* ContentView.swift in Sources */,
+				AC1004B4269C3D31008C482D /* AsyncOpenSwiftUIApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AC1004AF269C3D31008C482D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AC1004B7269C3D31008C482D /* ContentView.swift in Sources */,
+				AC1004B5269C3D31008C482D /* AsyncOpenSwiftUIApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1349,6 +1515,163 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		AC1004BA269C3D31008C482D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_PREVIEWS = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "AsyncOpenSwiftUI/AsyncOpenSwiftUI--iOS--Info.plist";
+				INFOPLIST_KEY_CFBundleExecutable = AsyncOpenSwiftUI;
+				INFOPLIST_KEY_CFBundleName = AsyncOpenSwiftUI;
+				INFOPLIST_KEY_CFBundleVersion = 1;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.realm.AsyncOpenSwiftUI;
+				PRODUCT_NAME = AsyncOpenSwiftUI;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AC1004BB269C3D31008C482D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_PREVIEWS = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "AsyncOpenSwiftUI/AsyncOpenSwiftUI--iOS--Info.plist";
+				INFOPLIST_KEY_CFBundleExecutable = AsyncOpenSwiftUI;
+				INFOPLIST_KEY_CFBundleName = AsyncOpenSwiftUI;
+				INFOPLIST_KEY_CFBundleVersion = 1;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.realm.AsyncOpenSwiftUI;
+				PRODUCT_NAME = AsyncOpenSwiftUI;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		AC1004BC269C3D31008C482D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "AsyncOpenSwiftUI/AsyncOpenSwiftUI--macOS--Info.plist";
+				INFOPLIST_KEY_CFBundleExecutable = AsyncOpenSwiftUI;
+				INFOPLIST_KEY_CFBundleName = AsyncOpenSwiftUI;
+				INFOPLIST_KEY_CFBundleVersion = 1;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Realm. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.realm.AsyncOpenSwiftUI;
+				PRODUCT_NAME = AsyncOpenSwiftUI;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AC1004BD269C3D31008C482D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "AsyncOpenSwiftUI/AsyncOpenSwiftUI--macOS--Info.plist";
+				INFOPLIST_KEY_CFBundleExecutable = AsyncOpenSwiftUI;
+				INFOPLIST_KEY_CFBundleName = AsyncOpenSwiftUI;
+				INFOPLIST_KEY_CFBundleVersion = 1;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Realm. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.realm.AsyncOpenSwiftUI;
+				PRODUCT_NAME = AsyncOpenSwiftUI;
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -1764,6 +2087,24 @@
 			buildConfigurations = (
 				53454CEE24EAC45700678E48 /* Debug */,
 				53454CEF24EAC45700678E48 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AC1004BE269C3D31008C482D /* Build configuration list for PBXNativeTarget "AsyncOpenSwiftUI (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AC1004BA269C3D31008C482D /* Debug */,
+				AC1004BB269C3D31008C482D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AC1004BF269C3D31008C482D /* Build configuration list for PBXNativeTarget "AsyncOpenSwiftUI (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AC1004BC269C3D31008C482D /* Debug */,
+				AC1004BD269C3D31008C482D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

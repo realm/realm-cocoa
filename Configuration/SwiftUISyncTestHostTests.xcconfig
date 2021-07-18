@@ -1,0 +1,9 @@
+#include "SwiftUISyncTestHost.xcconfig"
+
+TEST_TARGET_NAME = SwiftUISyncTestHost;
+INFOPLIST_FILE = Realm/Tests/SwiftUISyncTestHostUITests/Info.plist;
+SDKROOT = macosx;
+SUPPORTED_PLATFORMS = macosx;
+CODE_SIGN_ENTITLEMENTS = Realm/Tests/SwiftUISyncTestHostUITests/SwiftUISyncTestHostUITests.entitlements;
+CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
+SWIFT_OBJC_BRIDGING_HEADER = Realm/Tests/SwiftUISyncTestHostUITests/SwiftUISyncTestHostUITests-Bridging-Header.h

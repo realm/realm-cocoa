@@ -29,28 +29,6 @@ import RealmSyncTestSupport
 import RealmTestSupport
 #endif
 
-class SwiftHugeSyncObject: Object {
-    @objc dynamic var _id = ObjectId.generate()
-    @objc dynamic var data: Data?
-
-    override class func primaryKey() -> String? {
-        return "_id"
-    }
-
-    class func create() -> SwiftHugeSyncObject {
-        let fakeDataSize = 1000000
-        return SwiftHugeSyncObject(value: ["data": Data(repeating: 16, count: fakeDataSize)])
-    }
-}
-
-extension User {
-    func configuration(testName: String) -> Realm.Configuration {
-        var config = self.configuration(partitionValue: testName)
-        config.objectTypes = [SwiftPerson.self, SwiftHugeSyncObject.self, SwiftTypesSyncObject.self]
-        return config
-    }
-}
-
 @available(OSX 10.14, *)
 @objc(SwiftObjectServerTests)
 class SwiftObjectServerTests: SwiftSyncTestCase {
@@ -59,6 +37,16 @@ class SwiftObjectServerTests: SwiftSyncTestCase {
         do {
             let user = try logInUser(for: basicCredentials())
             let realm = try openRealm(partitionValue: #function, user: user)
+            XCTAssert(realm.isEmpty, "Freshly synced Realm was not empty...")
+        } catch {
+            XCTFail("Got an error: \(error)")
+        }
+    }
+
+    func testBasicSwiftSyncWithAnyBSONPartitionValue() {
+        do {
+            let user = try logInUser(for: basicCredentials())
+            let realm = try openRealm(partitionValue: .string(#function), user: user)
             XCTAssert(realm.isEmpty, "Freshly synced Realm was not empty...")
         } catch {
             XCTFail("Got an error: \(error)")
@@ -390,26 +378,6 @@ class SwiftObjectServerTests: SwiftSyncTestCase {
     }
 
     // MARK: - Progress notifiers
-
-    let bigObjectCount = 2
-
-    func populateRealm(user: User, partitionValue: String) {
-        do {
-            let user = try logInUser(for: basicCredentials())
-            let config = user.configuration(testName: partitionValue)
-            let realm = try openRealm(configuration: config)
-            try! realm.write {
-                for _ in 0..<bigObjectCount {
-                    realm.add(SwiftHugeSyncObject.create())
-                }
-            }
-            waitForUploads(for: realm)
-            checkCount(expected: bigObjectCount, realm, SwiftHugeSyncObject.self)
-        } catch {
-            XCTFail("Got an error: \(error) (process: \(isParent ? "parent" : "child"))")
-        }
-    }
-
     func testStreamingDownloadNotifier() {
         do {
             let user = try logInUser(for: basicCredentials())
@@ -478,7 +446,7 @@ class SwiftObjectServerTests: SwiftSyncTestCase {
             waitForExpectations(timeout: 10.0, handler: nil)
             ex = expectation(description: "write transaction upload")
             try realm.write {
-                for _ in 0..<bigObjectCount {
+                for _ in 0..<SwiftSyncTestCase.bigObjectCount {
                     realm.add(SwiftHugeSyncObject.create())
                 }
             }
@@ -510,7 +478,7 @@ class SwiftObjectServerTests: SwiftSyncTestCase {
             Realm.asyncOpen(configuration: config) { result in
                 switch result {
                 case .success(let realm):
-                    self.checkCount(expected: self.bigObjectCount, realm, SwiftHugeSyncObject.self)
+                    self.checkCount(expected: SwiftSyncTestCase.bigObjectCount, realm, SwiftHugeSyncObject.self)
                 case .failure(let error):
                     XCTFail("No realm on async open: \(error)")
                 }
@@ -552,7 +520,7 @@ class SwiftObjectServerTests: SwiftSyncTestCase {
             Realm.asyncOpen(configuration: config) { result in
                 switch result {
                 case .success(let realm):
-                    self.checkCount(expected: self.bigObjectCount, realm, SwiftHugeSyncObject.self)
+                    self.checkCount(expected: SwiftSyncTestCase.bigObjectCount, realm, SwiftHugeSyncObject.self)
                 case .failure(let error):
                     XCTFail("No realm on async open: \(error)")
                 }

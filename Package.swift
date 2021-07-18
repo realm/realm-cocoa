@@ -260,6 +260,8 @@ let package = Package(
                 "fileformat-pre-null.realm",
                 "mixed_tests.py",
                 "set_tests.py",
+                "SwiftUISyncTestHost",
+                "SwiftUISyncTestHostUITests"
             ],
             cxxSettings: testCxxSettings
         ),
@@ -294,7 +296,8 @@ let package = Package(
                  "SwiftSyncTestCase.swift",
                  "TimeoutProxyServer.swift",
                  "WatchTestUtility.swift",
-                 "RealmServer.swift"
+                 "RealmServer.swift",
+                 "SwiftServerObjects.swift"
             ]
         ),
         objectServerTestTarget(
@@ -303,6 +306,7 @@ let package = Package(
                 "SwiftObjectServerTests.swift",
                 "SwiftCollectionSyncTests.swift",
                 "SwiftObjectServerPartitionTests.swift",
+                "SwiftUIServerTests.swift"
             ]
         ),
         objectServerTestTarget(
@@ -312,7 +316,7 @@ let package = Package(
                 "RLMCollectionSyncTests.mm",
                 "RLMObjectServerPartitionTests.mm",
                 "RLMObjectServerTests.mm",
-                "RLMWatchTestUtility.m",
+                "RLMWatchTestUtility.m"
             ]
         )
     ],
